@@ -1,10 +1,9 @@
 [tool.poetry]
-name = "wannabuythis"
-version = "0.1.0"
+package-mode = false
 description = ""
 authors = ["Desunovu <desunovu@gmail.com>"]
 license = "CC BY-NC-SA 4.0"
-readme = "README.md"
+readme = "../README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
