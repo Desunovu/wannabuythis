@@ -1,33 +1,50 @@
 import pytest
-from faker import Faker
 
-from src.shopping_list.domain.model import ShoppingItem, MeasurementUnit
-
-fake = Faker()
+from src.shopping_list.domain.model import ShoppingItem, MeasurementUnit, ShoppingList
 
 
 @pytest.fixture
-def random_shopping_item():
+def measurement_unit():
+    return MeasurementUnit(name="kg.")
 
-    def make(item_id=0):
 
-        # Генерируем случайные данные для элемента списка покупок
-        name = fake.word()
-        category = fake.word()
-        price = fake.pyfloat(positive=True)
-        quantity = fake.random_int(min=1, max=10)
-        unit_name = fake.word()
+@pytest.fixture
+def banana_item(measurement_unit):
+    banana_item = ShoppingItem(
+        name="Banana",
+        category="Food",
+        price=1.0,
+        quantity=2,
+        unit=measurement_unit,
+    )
+    banana_item.id = 1
+    return banana_item
 
-        # Создаем экземпляр объекта ShoppingItem с уникальным идентификатором
-        shopping_item = ShoppingItem(
-            name=name,
-            category=category,
-            price=price,
-            quantity=quantity,
-            unit=MeasurementUnit(name=unit_name),
-        )
-        shopping_item.id = item_id
 
-        return shopping_item
+@pytest.fixture
+def apple_item(measurement_unit):
+    apple_item = ShoppingItem(
+        name="Apple",
+        category="Food",
+        price=1.0,
+        quantity=3,
+        unit=measurement_unit,
+    )
+    apple_item.id = 2
+    return apple_item
 
-    return make
+
+@pytest.fixture
+def shopping_list():
+    shopping_list = ShoppingList(name="My shopping list", items=[])
+    shopping_list.id = 1
+    return shopping_list
+
+
+@pytest.fixture
+def populated_shopping_list(banana_item, apple_item):
+    shopping_list = ShoppingList(
+        name="My populated shopping list", items=[banana_item, apple_item]
+    )
+    shopping_list.id = 1
+    return shopping_list
