@@ -19,11 +19,17 @@ class ShoppingItem(Entity):
 
 
 class ShoppingList(AggregateRoot):
-    name: str
-    items: list[ShoppingItem]
+    def __init__(self, name: str, items: list[ShoppingItem]):
+        self.name = name
+        self._items = items
+
+    @property
+    def items(self):
+        return self._items
 
     def add_item(self, item: ShoppingItem):
-        pass
+        self._items.append(item)
 
     def remove_item(self, item_id: int):
-        pass
+        item = next(i for i in self._items if i.id == item_id)
+        self._items.remove(item)
