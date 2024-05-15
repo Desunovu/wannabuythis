@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from src.shared_kernel.domain.entity import AggregateRoot, Entity
 from src.shared_kernel.domain.value_object import ValueObject
+from src.shopping_list.domain.events import ItemRemovalFailed
 
 
 @dataclass
@@ -20,6 +21,7 @@ class ShoppingItem(Entity):
 
 class ShoppingList(AggregateRoot):
     def __init__(self, name: str, items: list[ShoppingItem]):
+        super().__init__()
         self.name = name
         self._items = items
 
@@ -31,5 +33,8 @@ class ShoppingList(AggregateRoot):
         self._items.append(item)
 
     def remove_item(self, item_id: int):
-        item = next(i for i in self._items if i.id == item_id)
-        self._items.remove(item)
+        try:
+            item = next(i for i in self._items if i.id == item_id)
+            self._items.remove(item)
+        except StopIteration:
+            self.events.append(ItemRemovalFailed(id=item_id))

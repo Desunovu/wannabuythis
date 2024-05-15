@@ -1,4 +1,4 @@
-from dataclasses import field
+from dataclasses import field, dataclass
 
 
 class Entity:
@@ -6,4 +6,5 @@ class Entity:
 
 
 class AggregateRoot(Entity):
-    pass
+    def __init__(self):
+        self.events = []
