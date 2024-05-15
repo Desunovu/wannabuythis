@@ -18,7 +18,7 @@ def test_shopping_list_can_remove_item(
     assert populated_shopping_list.items[0] == apple_item
 
 
-def test_shopping_list_item_not_found_event_is_published(
+def test_shopping_list_item_removal_failed_event_is_published(
     banana_item, populated_shopping_list
 ):
     # Delete banana item 2 times when only 1 exists
