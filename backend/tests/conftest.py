@@ -46,5 +46,5 @@ def populated_shopping_list(banana_item, apple_item):
     shopping_list = ShoppingList(
         name="My populated shopping list", items=[banana_item, apple_item]
     )
-    shopping_list.id = 1
+    shopping_list.id = 2
     return shopping_list
