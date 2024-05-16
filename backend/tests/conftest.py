@@ -1,6 +1,7 @@
 import pytest
 
 from src.shopping_list.domain.model import ShoppingItem, MeasurementUnit, ShoppingList
+from src.user.domain.model import User
 
 
 @pytest.fixture
@@ -48,3 +49,27 @@ def populated_shopping_list(banana_item, apple_item):
     )
     shopping_list.id = 2
     return shopping_list
+
+
+@pytest.fixture
+def user():
+    user = User(
+        username="testuser",
+        email="testemail@example.com",
+        password_hash="testpassword",
+        shopping_lists=[],
+    )
+    user.id = 1
+    return user
+
+
+@pytest.fixture
+def user_with_shopping_lists(shopping_list, populated_shopping_list):
+    user = User(
+        username="testuser2",
+        email="testemail2@example.com",
+        password_hash="testpassword2",
+        shopping_lists=[shopping_list, populated_shopping_list],
+    )
+    user.id = 2
+    return user
