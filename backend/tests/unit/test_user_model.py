@@ -1,28 +1,33 @@
-from src.user.domain.events import ShoppingListRemovalFailed
+from src.user.domain.events import WishlistAdded, WishlistRemoved, WishlistNotFound
 
 
-def test_user_can_add_shopping_list(user, shopping_list):
-    user.add_shopping_list(shopping_list)
+def test_user_can_add_wishlist(user, wishlist):
+    """Test that a user can add a wishlist and that the WishlistAdded event is published"""
+    user.add_wishlist(wishlist)
 
-    assert len(user.shopping_lists) == 1
-    assert user.shopping_lists[0] == shopping_list
-
-
-def test_user_can_remove_shopping_list(user_with_shopping_lists):
-    shopping_list_to_remove = user_with_shopping_lists.shopping_lists[0]
-    user_with_shopping_lists.remove_shopping_list(shopping_list_to_remove.id)
-
-    assert shopping_list_to_remove not in user_with_shopping_lists.shopping_lists
+    assert wishlist in user.wishlists
+    assert user.events[-1] == WishlistAdded(user.id, wishlist.id)
 
 
-def test_user_shopping_list_removal_failed_event_is_published(
-    user_with_shopping_lists,
-):
-    shopping_list_to_remove = user_with_shopping_lists.shopping_lists[0]
-    # Delete first shopping list 2 times
-    for _ in range(2):
-        user_with_shopping_lists.remove_shopping_list(shopping_list_to_remove.id)
+def test_user_can_remove_wishlist(user_with_wishlists):
+    """Test that a user can remove a wishlist and that the WishlistRemoved event is published"""
+    wishlist = user_with_wishlists.wishlists[0]
+    user_with_wishlists.remove_wishlist(wishlist.id)
 
-    assert user_with_shopping_lists.events[-1] == ShoppingListRemovalFailed(
-        id=shopping_list_to_remove.id
+    assert wishlist not in user_with_wishlists.wishlists
+    assert user_with_wishlists.events[-1] == WishlistRemoved(
+        user_with_wishlists.id, wishlist.id
+    )
+
+
+def test_user_cannot_remove_wishlist(user_with_wishlists):
+    """
+    Test that WishlistNotFound event is published and nothing else happens  if a user tries to remove a non-existing wishlist
+    """
+    wishlists_copy = user_with_wishlists.wishlists[:]
+    user_with_wishlists.remove_wishlist(999)
+
+    assert wishlists_copy == user_with_wishlists.wishlists
+    assert user_with_wishlists.events[-1] == WishlistNotFound(
+        user_with_wishlists.id, 999
     )

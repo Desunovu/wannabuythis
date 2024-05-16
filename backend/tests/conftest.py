@@ -1,7 +1,8 @@
 import pytest
 
-from src.shopping_list.domain.model import ShoppingItem, MeasurementUnit, ShoppingList
-from src.user.domain.model import User
+from src.user.domain.user import User
+from src.wishlist.domain.wishlist import Wishlist
+from src.wishlist.domain.wishlist_item import MeasurementUnit, WishlistItem, Priority
 
 
 @pytest.fixture
@@ -10,66 +11,56 @@ def measurement_unit():
 
 
 @pytest.fixture
-def banana_item(measurement_unit):
-    banana_item = ShoppingItem(
+def priority():
+    return Priority(value=1)
+
+
+@pytest.fixture
+def banana_item(measurement_unit, priority):
+    """Just a banana wishlist item"""
+    return WishlistItem(
+        id=1,
         name="Banana",
-        category="Food",
-        price=1.0,
         quantity=2,
-        unit=measurement_unit,
+        measurement_unit=measurement_unit,
+        priority=priority,
     )
-    banana_item.id = 1
-    return banana_item
 
 
 @pytest.fixture
-def apple_item(measurement_unit):
-    apple_item = ShoppingItem(
+def apple_item(measurement_unit, priority):
+    """Just a banana wishlist item"""
+    return WishlistItem(
+        id=2,
         name="Apple",
-        category="Food",
-        price=1.0,
         quantity=3,
-        unit=measurement_unit,
+        measurement_unit=measurement_unit,
+        priority=priority,
     )
-    apple_item.id = 2
-    return apple_item
 
 
 @pytest.fixture
-def shopping_list():
-    shopping_list = ShoppingList(name="My shopping list", items=[])
-    shopping_list.id = 1
-    return shopping_list
+def wishlist():
+    """Empty wishlist"""
+    return Wishlist(id=1, user_id=1, name="My new list")
 
 
 @pytest.fixture
-def populated_shopping_list(banana_item, apple_item):
-    shopping_list = ShoppingList(
-        name="My populated shopping list", items=[banana_item, apple_item]
-    )
-    shopping_list.id = 2
-    return shopping_list
+def populated_wishlist(banana_item, apple_item):
+    """Wishlist with 2 different items"""
+    populated_wishlist = Wishlist(id=2, user_id=1, name="My populated list")
+    populated_wishlist.items = [banana_item, apple_item]
+    return populated_wishlist
 
 
 @pytest.fixture
 def user():
-    user = User(
-        username="testuser",
-        email="testemail@example.com",
-        password_hash="testpassword",
-        shopping_lists=[],
-    )
-    user.id = 1
-    return user
+    """User with no wishlists"""
+    return User(id=1, name="testuser", email="testemail@example.com")
 
 
 @pytest.fixture
-def user_with_shopping_lists(shopping_list, populated_shopping_list):
-    user = User(
-        username="testuser2",
-        email="testemail2@example.com",
-        password_hash="testpassword2",
-        shopping_lists=[shopping_list, populated_shopping_list],
-    )
-    user.id = 2
+def user_with_wishlists(user, wishlist, populated_wishlist):
+    """User with 2 wishlists (one populated and one not)"""
+    user.wishlists = [populated_wishlist, wishlist]
     return user

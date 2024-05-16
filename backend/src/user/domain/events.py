@@ -1,11 +1,19 @@
-from dataclasses import dataclass
-
-from src.shared_kernel.domain.events import Event
+from src.shared_kernel.events import DomainEvent
 
 
-@dataclass
-class ShoppingListRemovalFailed(Event):
-    id: int
+class WishlistAdded(DomainEvent):
+    def __init__(self, user_id: int, wishlist_id: int):
+        self.user_id = user_id
+        self.wishlist_id = wishlist_id
 
-    def __str__(self):
-        return f"Failed to remove shopping list with ID {self.id}"
+
+class WishlistRemoved(DomainEvent):
+    def __init__(self, user_id: int, wishlist_id: int):
+        self.user_id = user_id
+        self.wishlist_id = wishlist_id
+
+
+class WishlistNotFound(DomainEvent):
+    def __init__(self, user_id: int, wishlist_id: int):
+        self.user_id = user_id
+        self.wishlist_id = wishlist_id
