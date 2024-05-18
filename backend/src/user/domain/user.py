@@ -1,23 +1,16 @@
 from src.shared_kernel.aggregates import AggregateRoot
-from src.user.domain.events import WishlistAdded, WishlistRemoved, WishlistNotFound
-from src.wishlist.domain.wishlist import Wishlist
+from src.user.domain.events import PasswordChanged
 
 
 class User(AggregateRoot):
-    def __init__(self, id: int, name: str, email: str):
-        super().__init__(id)
-        self.name = name
+    def __init__(self, username: str, email: str, password_hash: str):
+        super().__init__()
+        self.username = username
         self.email = email
-        self.wishlists = []
+        self.password_hash = password_hash
 
-    def add_wishlist(self, wishlist: Wishlist):
-        self.wishlists.append(wishlist)
-        self.add_event(WishlistAdded(self.id, wishlist.id))
+    # TODO add can_change_password method
 
-    def remove_wishlist(self, wishlist_id: int):
-        wishlist = next((wl for wl in self.wishlists if wl.id == wishlist_id), None)
-        if wishlist is None:
-            self.add_event(WishlistNotFound(self.id, wishlist_id))
-        else:
-            self.wishlists.remove(wishlist)
-            self.add_event(WishlistRemoved(self.id, wishlist_id))
+    def change_password_hash(self, password_hash: str):
+        self.password_hash = password_hash
+        self.add_event(PasswordChanged(self.username))

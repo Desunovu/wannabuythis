@@ -1,19 +1,13 @@
+from dataclasses import dataclass
+
 from src.shared_kernel.events import DomainEvent
 
 
-class WishlistAdded(DomainEvent):
-    def __init__(self, user_id: int, wishlist_id: int):
-        self.user_id = user_id
-        self.wishlist_id = wishlist_id
+@dataclass
+class UserCreated(DomainEvent):
+    username: str
 
 
-class WishlistRemoved(DomainEvent):
-    def __init__(self, user_id: int, wishlist_id: int):
-        self.user_id = user_id
-        self.wishlist_id = wishlist_id
-
-
-class WishlistNotFound(DomainEvent):
-    def __init__(self, user_id: int, wishlist_id: int):
-        self.user_id = user_id
-        self.wishlist_id = wishlist_id
+@dataclass
+class PasswordChanged(DomainEvent):
+    username: str

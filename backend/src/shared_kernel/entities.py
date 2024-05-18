@@ -1,3 +1,2 @@
 class Entity:
-    def __init__(self, id: int):
-        self.id = id
+    pass

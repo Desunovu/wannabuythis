@@ -6,6 +6,14 @@ from src.wishlist.domain.wishlist_item import MeasurementUnit, WishlistItem, Pri
 
 
 @pytest.fixture
+def user():
+    """Default user"""
+    return User(
+        username="testuser", email="testemail@example.com", password_hash="password"
+    )
+
+
+@pytest.fixture
 def measurement_unit():
     return MeasurementUnit(name="kg.")
 
@@ -19,7 +27,7 @@ def priority():
 def banana_item(measurement_unit, priority):
     """Just a banana wishlist item"""
     return WishlistItem(
-        id=1,
+        uuid="banana-uuid",
         name="Banana",
         quantity=2,
         measurement_unit=measurement_unit,
@@ -29,9 +37,9 @@ def banana_item(measurement_unit, priority):
 
 @pytest.fixture
 def apple_item(measurement_unit, priority):
-    """Just a banana wishlist item"""
+    """Just an apple wishlist item"""
     return WishlistItem(
-        id=2,
+        uuid="apple-uuid",
         name="Apple",
         quantity=3,
         measurement_unit=measurement_unit,
@@ -40,27 +48,20 @@ def apple_item(measurement_unit, priority):
 
 
 @pytest.fixture
-def wishlist():
+def wishlist(user):
     """Empty wishlist"""
-    return Wishlist(id=1, user_id=1, name="My new list")
+    return Wishlist(
+        uuid="wishlist-uuid", owner_username=user.username, name="My list", items=[]
+    )
 
 
 @pytest.fixture
-def populated_wishlist(banana_item, apple_item):
+def populated_wishlist(user, banana_item, apple_item):
     """Wishlist with 2 different items"""
-    populated_wishlist = Wishlist(id=2, user_id=1, name="My populated list")
-    populated_wishlist.items = [banana_item, apple_item]
+    populated_wishlist = Wishlist(
+        uuid="populated-wishlist-uuid",
+        owner_username=user.username,
+        name="My list",
+        items=[banana_item, apple_item],
+    )
     return populated_wishlist
-
-
-@pytest.fixture
-def user():
-    """User with no wishlists"""
-    return User(id=1, name="testuser", email="testemail@example.com")
-
-
-@pytest.fixture
-def user_with_wishlists(user, wishlist, populated_wishlist):
-    """User with 2 wishlists (one populated and one not)"""
-    user.wishlists = [populated_wishlist, wishlist]
-    return user

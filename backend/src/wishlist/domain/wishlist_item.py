@@ -17,13 +17,14 @@ class Priority(ValueObject):
 class WishlistItem(Entity):
     def __init__(
         self,
-        id: int,
+        uuid: str,
         name: str,
         quantity: int,
         measurement_unit: MeasurementUnit,
         priority: Priority,
     ):
-        super().__init__(id)
+        super().__init__()
+        self.uuid = uuid
         self.name = name
         self.quantity = quantity
         self.measurement_unit = measurement_unit

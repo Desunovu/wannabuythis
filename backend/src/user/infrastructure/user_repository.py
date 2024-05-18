@@ -7,8 +7,8 @@ class UserRepository(abc.ABC):
     def __init__(self):
         self.seen: set[User] = set()
 
-    def get(self, user_id: int) -> User:
-        user = self._get(user_id)
+    def get(self, username: str) -> User:
+        user = self._get(username)
         if user:
             self.seen.add(user)
         return user
@@ -18,7 +18,7 @@ class UserRepository(abc.ABC):
         self.seen.add(user)
 
     @abc.abstractmethod
-    def _get(self, user_id: int) -> User: ...
+    def _get(self, username: str) -> User: ...
 
     @abc.abstractmethod
     def _add(self, user: User): ...

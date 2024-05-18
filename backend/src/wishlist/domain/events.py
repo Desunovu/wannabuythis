@@ -1,19 +1,26 @@
+from dataclasses import dataclass
+
 from src.shared_kernel.events import DomainEvent
 
 
-class ItemAdded(DomainEvent):
-    def __init__(self, wishlist_id: int, item_id: int):
-        self.wishlist_id = wishlist_id
-        self.item_id = item_id
+@dataclass
+class WishlistCreated(DomainEvent):
+    uuid: str
+    name: str
 
 
-class ItemRemoved(DomainEvent):
-    def __init__(self, wishlist_id: int, item_id: int):
-        self.wishlist_id = wishlist_id
-        self.item_id = item_id
+@dataclass
+class WishlistNameChanged(DomainEvent):
+    uuid: str
+    name: str
 
 
-class ItemNotFound(DomainEvent):
-    def __init__(self, wishlist_id: int, item_id: int):
-        self.wishlist_id = wishlist_id
-        self.item_id = item_id
+@dataclass
+class WishlistItemAdded(DomainEvent):
+    uuid: str
+    name: str
+
+
+@dataclass
+class WishlistItemRemoved(DomainEvent):
+    uuid: str
