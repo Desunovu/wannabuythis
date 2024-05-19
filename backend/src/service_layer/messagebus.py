@@ -29,7 +29,7 @@ class Messagebus:
     def _handle_command(self, command: Command):
         try:
             command_handler = self.command_handlers[type(command)]
-            command_handler(command)
+            command_handler(command, self.uow)
             self.queue.extend(self.uow.collect_new_events())
         except Exception:
             raise
@@ -37,7 +37,7 @@ class Messagebus:
     def _handle_event(self, event: DomainEvent):
         for event_handler in self.event_handlers[type(event)]:
             try:
-                event_handler(event)
+                event_handler(event, self.uow)
                 self.queue.extend(self.uow.collect_new_events())
             except Exception:
                 continue
