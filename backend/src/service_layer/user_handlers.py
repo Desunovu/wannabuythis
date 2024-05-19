@@ -56,7 +56,7 @@ def handle_change_password(command: ChangePassword, uow: AbstractUnitOfWork):
             old_password_hash = hashlib.sha256(
                 command.old_password.encode()
             ).hexdigest()
-            if user.password_hash == old_password_hash:
+            if user.password_hash != old_password_hash:
                 raise InvalidOldPassword("Old password is not correct")
         # TODO dry up password hashing
         new_password_hash = hashlib.sha256(command.new_password.encode()).hexdigest()
