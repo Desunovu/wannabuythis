@@ -1,20 +1,22 @@
 from dataclasses import dataclass
 
+from src.domain.shared_kernel.commands import Command
+
 
 @dataclass
-class CreateWishlist:
+class CreateWishlist(Command):
     username: str
     name: str
 
 
 @dataclass
-class ChangeWishlistName:
+class ChangeWishlistName(Command):
     uuid: str
     name: str
 
 
 @dataclass
-class AddWishlistItem:
+class AddWishlistItem(Command):
     uuid: str
     name: str
     quantity: int
@@ -23,6 +25,6 @@ class AddWishlistItem:
 
 
 @dataclass
-class RemoveWishlistItem:
+class RemoveWishlistItem(Command):
     uuid: str
     item_uuid: str

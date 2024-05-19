@@ -1,6 +1,6 @@
 import abc
 
-from src.wishlist.domain.wishlist import Wishlist
+from src.domain.wishlist.wishlist import Wishlist
 
 
 class WishlistRepository(abc.ABC):

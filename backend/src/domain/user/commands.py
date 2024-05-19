@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.shared_kernel.domain.commands import Command
+from src.domain.shared_kernel.commands import Command
 
 
 @dataclass

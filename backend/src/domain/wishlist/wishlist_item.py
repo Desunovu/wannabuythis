@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from src.shared_kernel.domain.entities import Entity
-from src.shared_kernel.domain.value_objects import ValueObject
+from src.domain.shared_kernel.entities import Entity
+from src.domain.shared_kernel.value_objects import ValueObject
 
 
 @dataclass

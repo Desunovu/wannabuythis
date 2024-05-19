@@ -1,8 +1,8 @@
 import pytest
 
-from src.user.domain.user import User
-from src.wishlist.domain.wishlist import Wishlist
-from src.wishlist.domain.wishlist_item import MeasurementUnit, WishlistItem, Priority
+from src.domain.user.user import User
+from src.domain.wishlist.wishlist import Wishlist
+from src.domain.wishlist.wishlist_item import MeasurementUnit, WishlistItem, Priority
 
 
 @pytest.fixture

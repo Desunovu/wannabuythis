@@ -1,5 +1,5 @@
-from src.shared_kernel.domain.commands import Command
-from src.shared_kernel.domain.events import DomainEvent
+from src.domain.shared_kernel.commands import Command
+from src.domain.shared_kernel.events import DomainEvent
 from src.service_layer.unit_of_work import AbstractUnitOfWork
 
 
