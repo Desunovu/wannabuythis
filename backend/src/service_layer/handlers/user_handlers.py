@@ -71,6 +71,6 @@ COMMAND_HANDLERS: dict[type[Command], callable] = {
 }
 
 EVENT_HANDLERS: dict[type[DomainEvent], list[callable]] = {
-    UserCreated: [lambda event: print(f"User {event.username} created")],
-    PasswordChanged: [lambda event: print(f"User {event.username} password changed")],
+    UserCreated: [],
+    PasswordChanged: [],
 }
