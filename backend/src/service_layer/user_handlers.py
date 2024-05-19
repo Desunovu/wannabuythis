@@ -16,6 +16,14 @@ class UserExists(Exception):
     pass
 
 
+class InvalidPassword(Exception):
+    pass
+
+
+class InvalidOldPassword(Exception):
+    pass
+
+
 # TODO move hashlib dependency to Bootstrap layer (code should depend on get_password_hash callable)
 
 
@@ -26,7 +34,7 @@ def handle_create_user(command: CreateUser, uow: AbstractUnitOfWork):
             raise UserExists(f"User {command.username} already exists")
         # TODO dry up password validation
         if not User.validate_password(command.password):
-            raise ValueError("Password is not valid")
+            raise InvalidPassword("Password is not valid")
         # TODO dry up password hashing
         password_hash = hashlib.sha256(command.password.encode()).hexdigest()
         user = User(command.username, command.email, password_hash)
@@ -42,14 +50,14 @@ def handle_change_password(command: ChangePassword, uow: AbstractUnitOfWork):
             raise UserNotFound(f"User {command.username} not found")
         # TODO dry up password validation
         if not User.validate_password(command.new_password):
-            raise ValueError("Password is not valid")
+            raise InvalidPassword("Password is not valid")
         if not command.called_by_admin:
             # TODO dry up password hashing
             old_password_hash = hashlib.sha256(
                 command.old_password.encode()
             ).hexdigest()
             if user.password_hash == old_password_hash:
-                raise ValueError("Old password is not correct")
+                raise InvalidOldPassword("Old password is not correct")
         # TODO dry up password hashing
         new_password_hash = hashlib.sha256(command.new_password.encode()).hexdigest()
         user.change_password_hash(new_password_hash)
