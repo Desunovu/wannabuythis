@@ -18,7 +18,11 @@ class AbstractUnitOfWork(abc.ABC):
     def commit(self):
         self._commit()
 
-    def collect_new_events(self): ...
+    def collect_new_events(self):
+        for repository in (self.user_repository, self.wishlist_repository):
+            for aggregate in repository.seen:
+                while aggregate.events:
+                    yield aggregate.events.pop(0)
 
     @abc.abstractmethod
     def _commit(self): ...
