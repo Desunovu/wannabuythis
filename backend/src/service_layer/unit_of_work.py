@@ -1,7 +1,7 @@
 import abc
 
-from src.user.infrastructure.user_repository import UserRepository
-from src.wishlist.infrastructure.wishlist_repository import WishlistRepository
+from src.adapters.user_repository import UserRepository
+from src.adapters.wishlist_repository import WishlistRepository
 
 
 class AbstractUnitOfWork(abc.ABC):
