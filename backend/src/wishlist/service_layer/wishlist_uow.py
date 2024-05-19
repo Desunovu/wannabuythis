@@ -1,20 +1,12 @@
 import abc
 
+from src.shared_kernel.service_layer.unit_of_work import AbstractUnitOfWork
 from src.wishlist.infrastructure.wishlist_repository import WishlistRepository
 
 
-class WishlistUnitOfWork:
+class WishlistUnitOfWork(AbstractUnitOfWork):
     def __init__(self, wishlist_repository: WishlistRepository):
         self.wishlist_repository = wishlist_repository
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        self.rollback()
-
-    def commit(self):
-        self._commit()
 
     def collect_new_events(self):
         for wishlist in self.wishlist_repository.seen:
@@ -25,4 +17,4 @@ class WishlistUnitOfWork:
     def _commit(self): ...
 
     @abc.abstractmethod
-    def rollback(self): ...
+    def _rollback(self): ...

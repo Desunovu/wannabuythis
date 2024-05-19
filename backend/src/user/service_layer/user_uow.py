@@ -1,20 +1,12 @@
 import abc
 
+from src.shared_kernel.service_layer.unit_of_work import AbstractUnitOfWork
 from src.user.infrastructure.user_repository import UserRepository
 
 
-class UserUnitOfWork(abc.ABC):
+class UserUnitOfWork(AbstractUnitOfWork):
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        self.rollback()
-
-    def commit(self):
-        self._commit()
 
     def collect_new_events(self):
         for user in self.user_repository.seen:
@@ -25,4 +17,4 @@ class UserUnitOfWork(abc.ABC):
     def _commit(self): ...
 
     @abc.abstractmethod
-    def rollback(self): ...
+    def _rollback(self): ...
