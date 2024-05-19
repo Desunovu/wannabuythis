@@ -7,7 +7,7 @@ from src.domain.wishlist.wishlist import Wishlist
 from src.domain.wishlist.wishlist_item import MeasurementUnit, WishlistItem, Priority
 from src.service_layer.messagebus import Messagebus
 from src.service_layer.unit_of_work import AbstractUnitOfWork
-from src.service_layer.user_handlers import COMMAND_HANDLERS, EVENT_HANDLERS
+from src.service_layer.handlers.user_handlers import COMMAND_HANDLERS, EVENT_HANDLERS
 
 
 # Domain layer
