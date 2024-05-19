@@ -1,11 +1,11 @@
 import pytest
 
 from src.domain.user.commands import CreateUser, ChangePassword
-from src.service_layer.handlers.user_handlers import (
+from src.service_layer.handlers.exceptions import (
     UserNotFound,
     UserExists,
-    InvalidOldPassword,
     InvalidPassword,
+    InvalidOldPassword,
 )
 
 
