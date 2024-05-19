@@ -1,4 +1,4 @@
-from src.shared_kernel.aggregates import AggregateRoot
+from src.shared_kernel.domain.aggregates import AggregateRoot
 from src.user.domain.events import PasswordChanged
 
 
