@@ -10,6 +10,7 @@ class AbstractUnitOfWork(abc.ABC):
     ):
         self.user_repository = user_repository
         self.wishlist_repository = wishlist_repository
+        self.committed = None  # used only in tests
 
     def __enter__(self):
         return self
