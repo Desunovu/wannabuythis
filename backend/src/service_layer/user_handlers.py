@@ -16,12 +16,20 @@ class UserExists(Exception):
     pass
 
 
+# TODO move hashlib dependency to Bootstrap layer (code should depend on get_password_hash callable)
+
+
 def handle_create_user(command: CreateUser, uow: AbstractUnitOfWork):
     with uow:
         user = uow.user_repository.get(username=command.username)
         if user:
             raise UserExists(f"User {command.username} already exists")
-        user = User(command.username, command.email, command.password_hash)
+        # TODO dry up password validation
+        if not User.validate_password(command.password):
+            raise ValueError("Password is not valid")
+        # TODO dry up password hashing
+        password_hash = hashlib.sha256(command.password.encode()).hexdigest()
+        user = User(command.username, command.email, password_hash)
         uow.user_repository.add(user)
         user.add_event(UserCreated(user.username))
         uow.commit()
@@ -32,12 +40,19 @@ def handle_change_password(command: ChangePassword, uow: AbstractUnitOfWork):
         user = uow.user_repository.get(username=command.username)
         if not user:
             raise UserNotFound(f"User {command.username} not found")
-        # TODO check user can change password (domain rule)
-
-        # TODO move hashlib dependency to Bootstrap layer (depend on get_password_hash callable)
-        # TODO Or even move to domain???
-        password_hash = hashlib.sha256(command.password.encode()).hexdigest()
-        user.change_password_hash(password_hash)
+        # TODO dry up password validation
+        if not User.validate_password(command.new_password):
+            raise ValueError("Password is not valid")
+        if not command.called_by_admin:
+            # TODO dry up password hashing
+            old_password_hash = hashlib.sha256(
+                command.old_password.encode()
+            ).hexdigest()
+            if user.password_hash == old_password_hash:
+                raise ValueError("Old password is not correct")
+        # TODO dry up password hashing
+        new_password_hash = hashlib.sha256(command.new_password.encode()).hexdigest()
+        user.change_password_hash(new_password_hash)
         user.add_event(PasswordChanged(user.username))
         uow.commit()
 
