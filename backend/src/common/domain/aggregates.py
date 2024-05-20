@@ -1,4 +1,4 @@
-from src.domain.shared_kernel.events import DomainEvent
+from src.common.domain.events import DomainEvent
 
 
 class AggregateRoot:

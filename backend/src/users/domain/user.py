@@ -1,5 +1,5 @@
-from src.domain.shared_kernel.aggregates import AggregateRoot
-from src.domain.user.events import PasswordChanged
+from src.common.domain.aggregates import AggregateRoot
+from src.users.domain.events import PasswordChanged
 
 
 class User(AggregateRoot):

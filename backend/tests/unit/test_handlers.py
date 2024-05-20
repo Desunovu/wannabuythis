@@ -1,19 +1,19 @@
 import pytest
 
-from src.domain.user.commands import CreateUser, ChangePassword
-from src.domain.wishlist.commands import (
-    CreateWishlist,
-    ChangeWishlistName,
-    AddWishlistItem,
-    RemoveWishlistItem,
-)
-from src.service_layer.handlers.exceptions import (
+from src.common.service.exceptions import (
     UserNotFound,
     UserExists,
     InvalidPassword,
     InvalidOldPassword,
     WishlistNotFound,
     WishlistItemNotFound,
+)
+from src.users.domain.commands import CreateUser, ChangePassword
+from src.wishlists.domain.commands import (
+    CreateWishlist,
+    ChangeWishlistName,
+    AddWishlistItem,
+    RemoveWishlistItem,
 )
 
 

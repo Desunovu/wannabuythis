@@ -1,4 +1,4 @@
-from src.domain.user.events import PasswordChanged
+from src.users.domain.events import PasswordChanged
 
 
 def test_user_can_change_password(user):

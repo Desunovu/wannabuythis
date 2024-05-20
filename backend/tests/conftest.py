@@ -1,21 +1,12 @@
 import pytest
 
-from src.adapters.user_repository import UserRepository
-from src.adapters.wishlist_repository import WishlistRepository
 from src.bootstrap import bootstrap
-from src.domain.user.user import User
-from src.domain.wishlist.wishlist import Wishlist
-from src.domain.wishlist.wishlist_item import MeasurementUnit, WishlistItem, Priority
-from src.service_layer.handlers.user_handlers import (
-    USER_COMMAND_HANDLERS,
-    USER_EVENT_HANDLERS,
-)
-from src.service_layer.handlers.wishlist_handlers import (
-    WISHLIST_COMMAND_HANDLERS,
-    WISHLIST_EVENT_HANDLERS,
-)
-from src.service_layer.messagebus import Messagebus
-from src.service_layer.unit_of_work import AbstractUnitOfWork
+from src.common.service.unit_of_work import AbstractUnitOfWork
+from src.users.adapters.user_repository import UserRepository
+from src.users.domain.user import User
+from src.wishlists.adapters.wishlist_repository import WishlistRepository
+from src.wishlists.domain.wishlist import Wishlist
+from src.wishlists.domain.wishlist_item import MeasurementUnit, WishlistItem, Priority
 
 
 # Domain layer

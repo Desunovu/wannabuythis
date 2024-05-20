@@ -1,27 +1,27 @@
 from uuid import uuid4
 
-from src.domain.shared_kernel.commands import Command
-from src.domain.shared_kernel.events import DomainEvent
-from src.domain.wishlist.commands import (
+from src.common.domain.commands import Command
+from src.common.domain.events import DomainEvent
+from src.common.service.exceptions import (
+    WishlistNotFound,
+    UserNotFound,
+    WishlistItemNotFound,
+)
+from src.common.service.unit_of_work import AbstractUnitOfWork
+from src.wishlists.domain.commands import (
     CreateWishlist,
     ChangeWishlistName,
     AddWishlistItem,
     RemoveWishlistItem,
 )
-from src.domain.wishlist.events import (
+from src.wishlists.domain.events import (
     WishlistNameChanged,
     WishlistCreated,
     WishlistItemAdded,
     WishlistItemRemoved,
 )
-from src.domain.wishlist.wishlist import Wishlist
-from src.domain.wishlist.wishlist_item import WishlistItem, MeasurementUnit, Priority
-from src.service_layer.handlers.exceptions import (
-    WishlistNotFound,
-    UserNotFound,
-    WishlistItemNotFound,
-)
-from src.service_layer.unit_of_work import AbstractUnitOfWork
+from src.wishlists.domain.wishlist import Wishlist
+from src.wishlists.domain.wishlist_item import WishlistItem, MeasurementUnit, Priority
 
 
 # TODO move uuid4 dependency to Bootstrap layer (code should depend on generate_uuid callable)

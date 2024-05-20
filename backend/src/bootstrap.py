@@ -6,16 +6,16 @@ Bootstrap layer:
 - Give application a messagebus
 """
 
-from src.service_layer.handlers.user_handlers import (
+from src.common.service.messagebus import Messagebus
+from src.common.service.unit_of_work import AbstractUnitOfWork
+from src.users.service.user_handlers import (
     USER_COMMAND_HANDLERS,
     USER_EVENT_HANDLERS,
 )
-from src.service_layer.handlers.wishlist_handlers import (
+from src.wishlists.service.wishlist_handlers import (
     WISHLIST_COMMAND_HANDLERS,
     WISHLIST_EVENT_HANDLERS,
 )
-from src.service_layer.messagebus import Messagebus
-from src.service_layer.unit_of_work import AbstractUnitOfWork
 
 
 def bootstrap(

@@ -1,6 +1,6 @@
-from src.domain.shared_kernel.commands import Command
-from src.domain.shared_kernel.events import DomainEvent
-from src.service_layer.unit_of_work import AbstractUnitOfWork
+from src.common.domain.commands import Command
+from src.common.domain.events import DomainEvent
+from src.common.service.unit_of_work import AbstractUnitOfWork
 
 
 class Messagebus:

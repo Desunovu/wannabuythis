@@ -1,10 +1,10 @@
-from src.domain.shared_kernel.aggregates import AggregateRoot
-from src.domain.wishlist.events import (
+from src.common.domain.aggregates import AggregateRoot
+from src.wishlists.domain.events import (
     WishlistNameChanged,
     WishlistItemAdded,
     WishlistItemRemoved,
 )
-from src.domain.wishlist.wishlist_item import WishlistItem
+from src.wishlists.domain.wishlist_item import WishlistItem
 
 
 # TODO: Add WORKSPACE Aggregate???

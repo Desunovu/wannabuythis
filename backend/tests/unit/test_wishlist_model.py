@@ -1,4 +1,4 @@
-from src.domain.wishlist.events import (
+from src.wishlists.domain.events import (
     WishlistItemAdded,
     WishlistItemRemoved,
 )

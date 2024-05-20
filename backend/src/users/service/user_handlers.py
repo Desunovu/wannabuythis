@@ -1,17 +1,17 @@
 import hashlib
 
-from src.domain.shared_kernel.commands import Command
-from src.domain.shared_kernel.events import DomainEvent
-from src.domain.user.commands import CreateUser, ChangePassword
-from src.domain.user.events import UserCreated, PasswordChanged
-from src.domain.user.user import User
-from src.service_layer.handlers.exceptions import (
+from src.common.domain.commands import Command
+from src.common.domain.events import DomainEvent
+from src.common.service.exceptions import (
     UserNotFound,
     UserExists,
     InvalidPassword,
     InvalidOldPassword,
 )
-from src.service_layer.unit_of_work import AbstractUnitOfWork
+from src.common.service.unit_of_work import AbstractUnitOfWork
+from src.users.domain.commands import CreateUser, ChangePassword
+from src.users.domain.events import UserCreated, PasswordChanged
+from src.users.domain.user import User
 
 
 # TODO move hashlib dependency to Bootstrap layer (code should depend on get_password_hash callable)
