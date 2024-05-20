@@ -2,6 +2,7 @@ import pytest
 
 from src.adapters.user_repository import UserRepository
 from src.adapters.wishlist_repository import WishlistRepository
+from src.bootstrap import bootstrap
 from src.domain.user.user import User
 from src.domain.wishlist.wishlist import Wishlist
 from src.domain.wishlist.wishlist_item import MeasurementUnit, WishlistItem, Priority
@@ -132,11 +133,7 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 # TODO bootstrap messagebus
 @pytest.fixture
 def messagebus():
-    return Messagebus(
-        uow=FakeUnitOfWork(),
-        command_handlers=USER_COMMAND_HANDLERS | WISHLIST_COMMAND_HANDLERS,
-        event_handlers=USER_EVENT_HANDLERS | WISHLIST_EVENT_HANDLERS,
-    )
+    return bootstrap(uow=FakeUnitOfWork())
 
 
 @pytest.fixture
