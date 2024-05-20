@@ -12,3 +12,11 @@ class InvalidPassword(Exception):
 
 class InvalidOldPassword(Exception):
     pass
+
+
+class WishlistNotFound(Exception):
+    pass
+
+
+class WishlistItemNotFound(Exception):
+    pass

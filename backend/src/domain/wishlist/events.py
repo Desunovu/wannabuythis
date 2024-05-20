@@ -17,10 +17,15 @@ class WishlistNameChanged(DomainEvent):
 
 @dataclass
 class WishlistItemAdded(DomainEvent):
-    uuid: str
+    item_uuid: str
+    wishlist_uuid: str
     name: str
+    quantity: int
+    measurement_unit: str
+    priority: int
 
 
 @dataclass
 class WishlistItemRemoved(DomainEvent):
-    uuid: str
+    item_uuid: str
+    wishlist_uuid: str
