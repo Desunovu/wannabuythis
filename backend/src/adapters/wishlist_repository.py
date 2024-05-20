@@ -13,12 +13,28 @@ class WishlistRepository(abc.ABC):
             self.seen.add(wishlist)
         return wishlist
 
+    def list_all(self) -> list[Wishlist]:
+        wishlists = self._list_all()
+        self.seen.update(wishlists)
+        return wishlists
+
+    def list_owned_by(self, username: str) -> list[Wishlist]:
+        wishlists = self._list_owned_by(username)
+        self.seen.update(wishlists)
+        return wishlists
+
     def add(self, wishlist: Wishlist):
         self._add(wishlist)
         self.seen.add(wishlist)
 
     @abc.abstractmethod
     def _get(self, uuid: str) -> Wishlist | None: ...
+
+    @abc.abstractmethod
+    def _list_all(self) -> list[Wishlist]: ...
+
+    @abc.abstractmethod
+    def _list_owned_by(self, username: str) -> list[Wishlist]: ...
 
     @abc.abstractmethod
     def _add(self, user: Wishlist): ...

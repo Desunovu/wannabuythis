@@ -5,19 +5,19 @@ from src.domain.shared_kernel.commands import Command
 
 @dataclass
 class CreateWishlist(Command):
-    username: str
+    owner_username: str
     name: str
 
 
 @dataclass
 class ChangeWishlistName(Command):
     uuid: str
-    name: str
+    new_name: str
 
 
 @dataclass
 class AddWishlistItem(Command):
-    uuid: str
+    wishlist_uuid: str
     name: str
     quantity: int
     measurement_unit: str
@@ -26,5 +26,5 @@ class AddWishlistItem(Command):
 
 @dataclass
 class RemoveWishlistItem(Command):
-    uuid: str
+    wishlist_uuid: str
     item_uuid: str

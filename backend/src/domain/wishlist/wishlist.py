@@ -24,8 +24,19 @@ class Wishlist(AggregateRoot):
 
     def add_item(self, item: WishlistItem):
         self.items.append(item)
-        self.add_event(WishlistItemAdded(item.uuid, item.name))
+        self.add_event(
+            WishlistItemAdded(
+                item_uuid=item.uuid,
+                wishlist_uuid=self.uuid,
+                name=item.name,
+                quantity=item.quantity,
+                measurement_unit=item.measurement_unit.name,
+                priority=item.priority.value,
+            )
+        )
 
     def remove_item(self, item_uuid: str):
         self.items = [item for item in self.items if item.uuid != item_uuid]
-        self.add_event(WishlistItemRemoved(item_uuid))
+        self.add_event(
+            WishlistItemRemoved(item_uuid=item_uuid, wishlist_uuid=self.uuid)
+        )

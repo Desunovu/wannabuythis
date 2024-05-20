@@ -55,12 +55,12 @@ def handle_change_password(command: ChangePassword, uow: AbstractUnitOfWork):
         uow.commit()
 
 
-COMMAND_HANDLERS: dict[type[Command], callable] = {
+USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     CreateUser: handle_create_user,
     ChangePassword: handle_change_password,
 }
 
-EVENT_HANDLERS: dict[type[DomainEvent], list[callable]] = {
+USER_EVENT_HANDLERS: dict[type[DomainEvent], list[callable]] = {
     UserCreated: [],
     PasswordChanged: [],
 }

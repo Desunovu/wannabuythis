@@ -5,9 +5,16 @@ from src.adapters.wishlist_repository import WishlistRepository
 from src.domain.user.user import User
 from src.domain.wishlist.wishlist import Wishlist
 from src.domain.wishlist.wishlist_item import MeasurementUnit, WishlistItem, Priority
+from src.service_layer.handlers.user_handlers import (
+    USER_COMMAND_HANDLERS,
+    USER_EVENT_HANDLERS,
+)
+from src.service_layer.handlers.wishlist_handlers import (
+    WISHLIST_COMMAND_HANDLERS,
+    WISHLIST_EVENT_HANDLERS,
+)
 from src.service_layer.messagebus import Messagebus
 from src.service_layer.unit_of_work import AbstractUnitOfWork
-from src.service_layer.handlers.user_handlers import COMMAND_HANDLERS, EVENT_HANDLERS
 
 
 # Domain layer
@@ -36,6 +43,7 @@ def banana_item(measurement_unit, priority):
     """Just a banana wishlist item"""
     return WishlistItem(
         uuid="banana-uuid",
+        wishlist_uuid="populated-wishlist-uuid",
         name="Banana",
         quantity=2,
         measurement_unit=measurement_unit,
@@ -48,6 +56,7 @@ def apple_item(measurement_unit, priority):
     """Just an apple wishlist item"""
     return WishlistItem(
         uuid="apple-uuid",
+        wishlist_uuid="populated-wishlist-uuid",
         name="Apple",
         quantity=3,
         measurement_unit=measurement_unit,
@@ -98,6 +107,12 @@ class FakeWishlistRepository(WishlistRepository):
     def _get(self, uuid: str) -> Wishlist | None:
         return next((wl for wl in self._wishlists if wl.uuid == uuid), None)
 
+    def _list_all(self) -> list[Wishlist]:
+        return list(self._wishlists)
+
+    def _list_owned_by(self, username: str) -> list[Wishlist]:
+        return list(wl for wl in self._wishlists if wl.owner_username == username)
+
     def _add(self, wishlist: Wishlist):
         self._wishlists.add(wishlist)
 
@@ -119,8 +134,8 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 def messagebus():
     return Messagebus(
         uow=FakeUnitOfWork(),
-        command_handlers=COMMAND_HANDLERS,
-        event_handlers=EVENT_HANDLERS,
+        command_handlers=USER_COMMAND_HANDLERS | WISHLIST_COMMAND_HANDLERS,
+        event_handlers=USER_EVENT_HANDLERS | WISHLIST_EVENT_HANDLERS,
     )
 
 
