@@ -1,5 +1,4 @@
-from uuid import uuid4
-
+from src.common.adapters.dependencies import AbstractUUIDGenerator
 from src.common.domain.commands import Command
 from src.common.domain.events import DomainEvent
 from src.common.service.exceptions import (
@@ -27,7 +26,11 @@ from src.wishlists.domain.wishlist_item import WishlistItem, MeasurementUnit, Pr
 # TODO move uuid4 dependency to Bootstrap layer (code should depend on generate_uuid callable)
 
 
-def handle_create_wishlist(command: CreateWishlist, uow: AbstractUnitOfWork):
+def handle_create_wishlist(
+    command: CreateWishlist,
+    uow: AbstractUnitOfWork,
+    uuid_generator: AbstractUUIDGenerator,
+):
     with uow:
         user = uow.user_repository.get(username=command.owner_username)
         if not user:
@@ -35,7 +38,7 @@ def handle_create_wishlist(command: CreateWishlist, uow: AbstractUnitOfWork):
                 f"User {command.owner_username} not found to create wishlist"
             )
         wishlist = Wishlist(
-            uuid=str(uuid4()),
+            uuid=uuid_generator.generate(),
             owner_username=command.owner_username,
             name=command.name,
             items=[],
@@ -55,13 +58,17 @@ def handle_change_wishlist_name(command: ChangeWishlistName, uow: AbstractUnitOf
         uow.commit()
 
 
-def handle_add_wishlist_item(command: AddWishlistItem, uow: AbstractUnitOfWork):
+def handle_add_wishlist_item(
+    command: AddWishlistItem,
+    uow: AbstractUnitOfWork,
+    uuid_generator: AbstractUUIDGenerator,
+):
     with uow:
         wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
         if not wishlist:
             raise WishlistNotFound(f"Wishlist {command.wishlist_uuid} not found")
         item = WishlistItem(
-            uuid=str(uuid4()),
+            uuid=uuid_generator.generate(),
             wishlist_uuid=wishlist.uuid,
             name=command.name,
             quantity=command.quantity,

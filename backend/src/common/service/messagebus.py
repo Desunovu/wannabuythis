@@ -2,6 +2,9 @@ from src.common.domain.commands import Command
 from src.common.domain.events import DomainEvent
 from src.common.service.unit_of_work import AbstractUnitOfWork
 
+# At this point dependencies should be injected in handlers by bootstrap script (see src/bootstrap.py)
+# So we don't need to pass any dependencies to handlers. Usage: handler_name(message)
+
 
 class Messagebus:
     def __init__(
@@ -29,7 +32,7 @@ class Messagebus:
     def _handle_command(self, command: Command):
         try:
             command_handler = self.command_handlers[type(command)]
-            command_handler(command, self.uow)
+            command_handler(command)
             self.queue.extend(self.uow.collect_new_events())
         except Exception:
             raise
@@ -37,7 +40,7 @@ class Messagebus:
     def _handle_event(self, event: DomainEvent):
         for event_handler in self.event_handlers[type(event)]:
             try:
-                event_handler(event, self.uow)
+                event_handler(event)
                 self.queue.extend(self.uow.collect_new_events())
             except Exception:
                 continue
