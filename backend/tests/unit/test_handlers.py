@@ -3,8 +3,8 @@ import pytest
 from src.common.service.exceptions import (
     UserNotFound,
     UserExists,
-    InvalidPassword,
-    InvalidOldPassword,
+    PasswordValidationFailed,
+    PasswordVerificationFailed,
     WishlistNotFound,
     WishlistItemNotFound,
 )
@@ -37,13 +37,8 @@ class TestCreateUser:
 
 
 class TestChangePassword:
-    def test_change_password_by_admin(
-        self, messagebus, valid_password, valid_old_password
-    ):
-        messagebus.handle(
-            CreateUser("testuser", "testemail@example.com", valid_old_password)
-        )
-        user = messagebus.uow.user_repository.get("testuser")
+    def test_change_password_by_admin(self, messagebus, user, valid_password):
+        messagebus.uow.user_repository.add(user)
         old_password_hash = user.password_hash
         messagebus.handle(
             ChangePassword("testuser", valid_password, called_by_admin=True)
@@ -54,6 +49,7 @@ class TestChangePassword:
     def test_change_password_by_user(
         self, messagebus, valid_password, valid_old_password
     ):
+        # We should create a user by command to know user's old password and generate real password hash
         messagebus.handle(
             CreateUser("testuser", "testemail@example.com", valid_old_password)
         )
@@ -71,15 +67,13 @@ class TestChangePassword:
                 ChangePassword("testuser", valid_password, valid_password)
             )
 
-    def test_change_password_invalid_old_password(
-        self, messagebus, valid_password, valid_old_password, invalid_old_password
+    def test_change_password_wrong_old_password(
+        self, messagebus, user, valid_password
     ):
-        messagebus.handle(
-            CreateUser("testuser", "testemail@example.com", valid_old_password)
-        )
-        with pytest.raises(InvalidOldPassword):
+        messagebus.uow.user_repository.add(user)
+        with pytest.raises(PasswordVerificationFailed):
             messagebus.handle(
-                ChangePassword("testuser", valid_password, invalid_old_password)
+                ChangePassword("testuser", valid_password, "invalid-old-password")
             )
 
     def test_change_password_invalid_password(
@@ -88,7 +82,7 @@ class TestChangePassword:
         messagebus.handle(
             CreateUser("testuser", "testemail@example.com", valid_old_password)
         )
-        with pytest.raises(InvalidPassword):
+        with pytest.raises(PasswordValidationFailed):
             messagebus.handle(
                 ChangePassword("testuser", invalid_password, valid_old_password)
             )

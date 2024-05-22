@@ -6,11 +6,11 @@ class UserExists(Exception):
     pass
 
 
-class InvalidPassword(Exception):
+class PasswordValidationFailed(Exception):
     pass
 
 
-class InvalidOldPassword(Exception):
+class PasswordVerificationFailed(Exception):
     pass
 
 
