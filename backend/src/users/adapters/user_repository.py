@@ -3,7 +3,7 @@ import abc
 from src.users.domain.user import User
 
 
-class UserRepository(abc.ABC):
+class AbstractUserRepository(abc.ABC):
     def __init__(self):
         self.seen: set[User] = set()
 

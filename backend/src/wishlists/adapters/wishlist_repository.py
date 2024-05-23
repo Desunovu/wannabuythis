@@ -3,7 +3,7 @@ import abc
 from src.wishlists.domain.wishlist import Wishlist
 
 
-class WishlistRepository(abc.ABC):
+class AbstractWishlistRepository(abc.ABC):
     def __init__(self):
         self.seen: set[Wishlist] = set()
 

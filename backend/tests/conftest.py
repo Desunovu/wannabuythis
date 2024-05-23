@@ -2,9 +2,9 @@ import pytest
 
 from src.bootstrap import bootstrap
 from src.common.service.uow import AbstractUnitOfWork
-from src.users.adapters.user_repository import UserRepository
+from src.users.adapters.user_repository import AbstractUserRepository
 from src.users.domain.user import User
-from src.wishlists.adapters.wishlist_repository import WishlistRepository
+from src.wishlists.adapters.wishlist_repository import AbstractWishlistRepository
 from src.wishlists.domain.wishlist import Wishlist
 from src.wishlists.domain.wishlist_item import MeasurementUnit, WishlistItem, Priority
 
@@ -79,7 +79,7 @@ def populated_wishlist(user, banana_item, apple_item):
 # Service layer
 
 
-class FakeUserRepository(UserRepository):
+class FakeUserRepository(AbstractUserRepository):
     def __init__(self, users: set[User]):
         super().__init__()
         self._users = set(users)
@@ -91,7 +91,7 @@ class FakeUserRepository(UserRepository):
         self._users.add(user)
 
 
-class FakeWishlistRepository(WishlistRepository):
+class FakeWishlistRepository(AbstractWishlistRepository):
     def __init__(self, wishlists: set[Wishlist]):
         super().__init__()
         self._wishlists = set(wishlists)
