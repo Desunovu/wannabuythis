@@ -6,7 +6,7 @@ from src.common.service.exceptions import (
     UserNotFound,
     WishlistItemNotFound,
 )
-from src.common.service.unit_of_work import AbstractUnitOfWork
+from src.common.service.uow import AbstractUnitOfWork
 from src.wishlists.domain.commands import (
     CreateWishlist,
     ChangeWishlistName,

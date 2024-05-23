@@ -1,7 +1,7 @@
 import pytest
 
 from src.bootstrap import bootstrap
-from src.common.service.unit_of_work import AbstractUnitOfWork
+from src.common.service.uow import AbstractUnitOfWork
 from src.users.adapters.user_repository import UserRepository
 from src.users.domain.user import User
 from src.wishlists.adapters.wishlist_repository import WishlistRepository

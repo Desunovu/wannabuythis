@@ -7,7 +7,7 @@ from src.common.adapters.dependencies import (
     DefaultUUIDGenerator,
 )
 from src.common.service.messagebus import Messagebus
-from src.common.service.unit_of_work import AbstractUnitOfWork
+from src.common.service.uow import AbstractUnitOfWork
 from src.users.service.user_handlers import (
     USER_COMMAND_HANDLERS,
     USER_EVENT_HANDLERS,

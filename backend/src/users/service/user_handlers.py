@@ -7,7 +7,7 @@ from src.common.service.exceptions import (
     PasswordValidationFailed,
     PasswordVerificationFailed,
 )
-from src.common.service.unit_of_work import AbstractUnitOfWork
+from src.common.service.uow import AbstractUnitOfWork
 from src.users.domain.commands import CreateUser, ChangePassword
 from src.users.domain.events import UserCreated, PasswordChanged
 from src.users.domain.user import User
