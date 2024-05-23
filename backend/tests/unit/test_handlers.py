@@ -67,9 +67,7 @@ class TestChangePassword:
                 ChangePassword("testuser", valid_password, valid_password)
             )
 
-    def test_change_password_wrong_old_password(
-        self, messagebus, user, valid_password
-    ):
+    def test_change_password_wrong_old_password(self, messagebus, user, valid_password):
         messagebus.uow.user_repository.add(user)
         with pytest.raises(PasswordVerificationFailed):
             messagebus.handle(

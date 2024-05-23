@@ -8,7 +8,9 @@ if TYPE_CHECKING:
 
 class AbstractUnitOfWork(abc.ABC):
     def __init__(
-        self, user_repository: "UserRepository", wishlist_repository: "WishlistRepository"
+        self,
+        user_repository: "UserRepository",
+        wishlist_repository: "WishlistRepository",
     ):
         self.user_repository = user_repository
         self.wishlist_repository = wishlist_repository
