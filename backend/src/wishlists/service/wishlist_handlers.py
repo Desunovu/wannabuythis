@@ -23,9 +23,6 @@ from src.wishlists.domain.wishlist import Wishlist
 from src.wishlists.domain.wishlist_item import WishlistItem, MeasurementUnit, Priority
 
 
-# TODO move uuid4 dependency to Bootstrap layer (code should depend on generate_uuid callable)
-
-
 def handle_create_wishlist(
     command: CreateWishlist,
     uow: AbstractUnitOfWork,
