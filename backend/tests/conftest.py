@@ -1,9 +1,12 @@
 from uuid import UUID, uuid4
 
 import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 from src.bootstrap import bootstrap
 from src.common.service.uow import AbstractUnitOfWork
+from src.integration.adapters.sqlalchemy_orm import mapper_registry
 from src.users.adapters.user_repository import AbstractUserRepository
 from src.users.domain.user import User
 from src.wishlists.adapters.wishlist_repository import AbstractWishlistRepository
@@ -147,3 +150,20 @@ def invalid_password():
 @pytest.fixture
 def invalid_old_password():
     return "123"
+
+
+# Integration Tests
+
+
+@pytest.fixture
+def sqlite_database_engine():
+    # Create an in-memory SQLite database
+    engine = create_engine("sqlite:///:memory:")
+    mapper_registry.metadata.create_all(engine)
+    yield engine
+    mapper_registry.metadata.drop_all(engine)
+
+
+@pytest.fixture
+def sqlite_session_factory(sqlite_database_engine):
+    yield sessionmaker(bind=sqlite_database_engine)
