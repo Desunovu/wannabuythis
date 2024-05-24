@@ -36,8 +36,6 @@ def priority():
 def banana_item(measurement_unit, priority):
     """Just a banana wishlist item"""
     return WishlistItem(
-        uuid="banana-uuid",
-        wishlist_uuid="populated-wishlist-uuid",
         uuid=uuid4(),
         wishlist_uuid=uuid4(),
         name="Banana",

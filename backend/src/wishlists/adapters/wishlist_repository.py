@@ -1,4 +1,5 @@
 import abc
+from uuid import UUID
 
 from src.wishlists.domain.wishlist import Wishlist
 
@@ -7,7 +8,7 @@ class AbstractWishlistRepository(abc.ABC):
     def __init__(self):
         self.seen: set[Wishlist] = set()
 
-    def get(self, uuid: str) -> Wishlist | None:
+    def get(self, uuid: UUID) -> Wishlist | None:
         wishlist = self._get(uuid)
         if wishlist:
             self.seen.add(wishlist)
@@ -28,7 +29,7 @@ class AbstractWishlistRepository(abc.ABC):
         self.seen.add(wishlist)
 
     @abc.abstractmethod
-    def _get(self, uuid: str) -> Wishlist | None: ...
+    def _get(self, uuid: UUID) -> Wishlist | None: ...
 
     @abc.abstractmethod
     def _list_all(self) -> list[Wishlist]: ...
