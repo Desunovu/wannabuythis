@@ -1,6 +1,6 @@
 import abc
 import hashlib
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 
 class AbstractPasswordManager(abc.ABC):
@@ -26,10 +26,10 @@ class DefaultPasswordManager(AbstractPasswordManager):
 class AbstractUUIDGenerator(abc.ABC):
     @staticmethod
     @abc.abstractmethod
-    def generate() -> str: ...
+    def generate() -> UUID: ...
 
 
 class DefaultUUIDGenerator(AbstractUUIDGenerator):
     @staticmethod
-    def generate() -> str:
-        return str(uuid4())
+    def generate() -> UUID:
+        return uuid4()

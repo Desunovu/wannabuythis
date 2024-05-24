@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from src.common.domain.aggregates import AggregateRoot
 from src.wishlists.domain.events import (
     WishlistNameChanged,
@@ -10,7 +12,7 @@ from src.wishlists.domain.wishlist_item import WishlistItem
 # TODO: Add WORKSPACE Aggregate???
 class Wishlist(AggregateRoot):
     def __init__(
-        self, uuid: str, owner_username: str, name: str, items: list[WishlistItem]
+        self, uuid: UUID, owner_username: str, name: str, items: list[WishlistItem]
     ):
         super().__init__()
         self.uuid = uuid
@@ -35,7 +37,7 @@ class Wishlist(AggregateRoot):
             )
         )
 
-    def remove_item(self, item_uuid: str):
+    def remove_item(self, item_uuid: UUID):
         self.items = [item for item in self.items if item.uuid != item_uuid]
         self.add_event(
             WishlistItemRemoved(item_uuid=item_uuid, wishlist_uuid=self.uuid)

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from uuid import UUID
 
 from src.common.domain.commands import Command
 
@@ -11,13 +12,13 @@ class CreateWishlist(Command):
 
 @dataclass
 class ChangeWishlistName(Command):
-    uuid: str
+    uuid: UUID
     new_name: str
 
 
 @dataclass
 class AddWishlistItem(Command):
-    wishlist_uuid: str
+    wishlist_uuid: UUID
     name: str
     quantity: int
     measurement_unit: str
@@ -26,5 +27,5 @@ class AddWishlistItem(Command):
 
 @dataclass
 class RemoveWishlistItem(Command):
-    wishlist_uuid: str
-    item_uuid: str
+    wishlist_uuid: UUID
+    item_uuid: UUID

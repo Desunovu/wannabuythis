@@ -1,3 +1,5 @@
+from uuid import UUID, uuid4
+
 import pytest
 
 from src.bootstrap import bootstrap
@@ -36,6 +38,8 @@ def banana_item(measurement_unit, priority):
     return WishlistItem(
         uuid="banana-uuid",
         wishlist_uuid="populated-wishlist-uuid",
+        uuid=uuid4(),
+        wishlist_uuid=uuid4(),
         name="Banana",
         quantity=2,
         measurement_unit=measurement_unit,
@@ -47,8 +51,8 @@ def banana_item(measurement_unit, priority):
 def apple_item(measurement_unit, priority):
     """Just an apple wishlist item"""
     return WishlistItem(
-        uuid="apple-uuid",
-        wishlist_uuid="populated-wishlist-uuid",
+        uuid=uuid4(),
+        wishlist_uuid=uuid4(),
         name="Apple",
         quantity=3,
         measurement_unit=measurement_unit,
@@ -60,7 +64,7 @@ def apple_item(measurement_unit, priority):
 def wishlist(user):
     """Empty wishlist"""
     return Wishlist(
-        uuid="wishlist-uuid", owner_username=user.username, name="My list", items=[]
+        uuid=uuid4(), owner_username=user.username, name="My list", items=[]
     )
 
 
@@ -68,7 +72,7 @@ def wishlist(user):
 def populated_wishlist(user, banana_item, apple_item):
     """Wishlist with 2 different items"""
     populated_wishlist = Wishlist(
-        uuid="populated-wishlist-uuid",
+        uuid=uuid4(),
         owner_username=user.username,
         name="My list",
         items=[banana_item, apple_item],
@@ -96,7 +100,7 @@ class FakeWishlistRepository(AbstractWishlistRepository):
         super().__init__()
         self._wishlists = set(wishlists)
 
-    def _get(self, uuid: str) -> Wishlist | None:
+    def _get(self, uuid: UUID) -> Wishlist | None:
         return next((wl for wl in self._wishlists if wl.uuid == uuid), None)
 
     def _list_all(self) -> list[Wishlist]:

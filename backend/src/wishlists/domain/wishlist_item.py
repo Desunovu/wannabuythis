@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from uuid import UUID
 
 from src.common.domain.entities import Entity
 from src.common.domain.value_objects import ValueObject
@@ -17,8 +18,8 @@ class Priority(ValueObject):
 class WishlistItem(Entity):
     def __init__(
         self,
-        uuid: str,
-        wishlist_uuid: str,
+        uuid: UUID,
+        wishlist_uuid: UUID,
         name: str,
         quantity: int,
         measurement_unit: MeasurementUnit,
