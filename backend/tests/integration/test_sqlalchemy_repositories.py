@@ -1,7 +1,9 @@
 import uuid
 
 from src.integration.adapters.sqlalchemy_user_repository import SQLAlchemyUserRepository
-from src.integration.adapters.sqlalchemy_wishlist_repository import SQLAlchemyWishlistRepository
+from src.integration.adapters.sqlalchemy_wishlist_repository import (
+    SQLAlchemyWishlistRepository,
+)
 
 
 class TestSQLAlchemyUserRepository:
@@ -38,7 +40,9 @@ class TestSQLAlchemyWishlistRepository:
         repository = SQLAlchemyWishlistRepository(sqlite_session)
         assert repository.list_all() == [wishlist, populated_wishlist]
 
-    def test_list_wishlists_owned_by(self, sqlite_session, user, wishlist, populated_wishlist):
+    def test_list_wishlists_owned_by(
+        self, sqlite_session, user, wishlist, populated_wishlist
+    ):
         sqlite_session.add_all([user, wishlist, populated_wishlist])
         sqlite_session.commit()
         repository = SQLAlchemyWishlistRepository(sqlite_session)
