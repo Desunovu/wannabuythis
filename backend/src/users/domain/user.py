@@ -28,6 +28,10 @@ class User(AggregateRoot):
         self.password_hash = password_hash
         self.add_event(PasswordChanged(self.username))
 
+    def activate(self):
+        self.is_active = True
+        self.add_event(UserDeactivated(self.username))
+
     def deactivate(self):
         self.is_active = False
         self.add_event(UserDeactivated(self.username))

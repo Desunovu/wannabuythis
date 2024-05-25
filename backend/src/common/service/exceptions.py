@@ -6,6 +6,10 @@ class UserExists(Exception):
     pass
 
 
+class UserAlreadyActive(Exception):
+    pass
+
+
 class UserNotActive(Exception):
     pass
 

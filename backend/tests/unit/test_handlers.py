@@ -8,8 +8,14 @@ from src.common.service.exceptions import (
     WishlistNotFound,
     WishlistItemNotFound,
     UserNotActive,
+    UserAlreadyActive,
 )
-from src.users.domain.commands import CreateUser, ChangePassword, DeactivateUser
+from src.users.domain.commands import (
+    CreateUser,
+    ChangePassword,
+    DeactivateUser,
+    ActivateUser,
+)
 from src.wishlists.domain.commands import (
     CreateWishlist,
     ChangeWishlistName,
@@ -176,6 +182,24 @@ class TestRemoveWishlistItem:
                     item_uuid="non-existing-wishlist-item",
                 )
             )
+
+
+class TestActivateUser:
+    def test_activate_user(self, messagebus, user):
+        user.is_active = False
+        messagebus.uow.user_repository.add(user)
+        assert user.is_active is False
+        messagebus.handle(ActivateUser(username=user.username))
+        assert user.is_active is True
+
+    def test_activate_non_existing_user(self, messagebus):
+        with pytest.raises(UserNotFound):
+            messagebus.handle(ActivateUser(username="non-existing-user"))
+
+    def test_activate_already_active_user(self, messagebus, user):
+        messagebus.uow.user_repository.add(user)
+        with pytest.raises(UserAlreadyActive):
+            messagebus.handle(ActivateUser(username=user.username))
 
 
 class TestDeactivateUser:

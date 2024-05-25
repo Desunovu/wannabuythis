@@ -19,5 +19,10 @@ class ChangePassword(Command):
 
 
 @dataclass
+class ActivateUser(Command):
+    username: str
+
+
+@dataclass
 class DeactivateUser(Command):
     username: str
