@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from src.bootstrap import bootstrap
 from src.common.service.uow import UnitOfWork
 from src.integration.adapters.sqlalchemy_orm import mapper_registry
+from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.users.adapters.user_repository import UserRepository
 from src.users.domain.user import User
 from src.wishlists.adapters.wishlist_repository import WishlistRepository
@@ -176,3 +177,8 @@ def sqlite_session(sqlite_session_factory):
     session = sqlite_session_factory()
     yield session
     session.close()
+
+
+@pytest.fixture
+def sqlalchemy_uow(sqlite_session_factory):
+    return SQLAlchemyUnitOfWork(sqlite_session_factory)
