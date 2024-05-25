@@ -3,14 +3,14 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.users.adapters.user_repository import AbstractUserRepository
-    from src.wishlists.adapters.wishlist_repository import AbstractWishlistRepository
+    from src.wishlists.adapters.wishlist_repository import WishlistRepository
 
 
-class AbstractUnitOfWork(abc.ABC):
+class UnitOfWork(abc.ABC):
     def __init__(
         self,
         user_repository: "AbstractUserRepository",
-        wishlist_repository: "AbstractWishlistRepository",
+        wishlist_repository: "WishlistRepository",
     ):
         self.user_repository = user_repository
         self.wishlist_repository = wishlist_repository

@@ -1,6 +1,6 @@
 from src.common.domain.commands import Command
 from src.common.domain.events import DomainEvent
-from src.common.service.uow import AbstractUnitOfWork
+from src.common.service.uow import UnitOfWork
 
 # At this point dependencies should be injected in handlers by bootstrap script (see src/bootstrap.py)
 # So we don't need to pass any dependencies to handlers. Usage: handler_name(message)
@@ -9,7 +9,7 @@ from src.common.service.uow import AbstractUnitOfWork
 class Messagebus:
     def __init__(
         self,
-        uow: AbstractUnitOfWork,
+        uow: UnitOfWork,
         command_handlers: dict[type[Command], callable],
         event_handlers: dict[type[DomainEvent], list[callable]],
     ):

@@ -5,11 +5,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from src.bootstrap import bootstrap
-from src.common.service.uow import AbstractUnitOfWork
+from src.common.service.uow import UnitOfWork
 from src.integration.adapters.sqlalchemy_orm import mapper_registry
 from src.users.adapters.user_repository import AbstractUserRepository
 from src.users.domain.user import User
-from src.wishlists.adapters.wishlist_repository import AbstractWishlistRepository
+from src.wishlists.adapters.wishlist_repository import WishlistRepository
 from src.wishlists.domain.wishlist import Wishlist
 from src.wishlists.domain.wishlist_item import MeasurementUnit, WishlistItem, Priority
 
@@ -96,7 +96,7 @@ class FakeUserRepository(AbstractUserRepository):
         self._users.add(user)
 
 
-class FakeWishlistRepository(AbstractWishlistRepository):
+class FakeWishlistRepository(WishlistRepository):
     def __init__(self, wishlists: set[Wishlist]):
         super().__init__()
         self._wishlists = set(wishlists)
@@ -114,7 +114,7 @@ class FakeWishlistRepository(AbstractWishlistRepository):
         self._wishlists.add(wishlist)
 
 
-class FakeUnitOfWork(AbstractUnitOfWork):
+class FakeUnitOfWork(UnitOfWork):
     def __init__(self):
         super().__init__(FakeUserRepository(set()), FakeWishlistRepository(set()))
         self.committed = False

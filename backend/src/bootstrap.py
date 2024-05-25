@@ -1,13 +1,13 @@
 import inspect
 
 from src.common.adapters.dependencies import (
-    AbstractPasswordManager,
-    DefaultPasswordManager,
-    AbstractUUIDGenerator,
+    PasswordHasher,
+    DefaultPasswordHasher,
+    UUIDGenerator,
     DefaultUUIDGenerator,
 )
 from src.common.service.messagebus import Messagebus
-from src.common.service.uow import AbstractUnitOfWork
+from src.common.service.uow import UnitOfWork
 from src.users.service.user_handlers import (
     USER_COMMAND_HANDLERS,
     USER_EVENT_HANDLERS,
@@ -19,9 +19,9 @@ from src.wishlists.service.wishlist_handlers import (
 
 
 def bootstrap(
-    uow: AbstractUnitOfWork,
-    password_manager: AbstractPasswordManager = DefaultPasswordManager,
-    uuid_generator: AbstractUUIDGenerator = DefaultUUIDGenerator,
+    uow: UnitOfWork,
+    password_manager: PasswordHasher = DefaultPasswordHasher,
+    uuid_generator: UUIDGenerator = DefaultUUIDGenerator,
 ) -> Messagebus:
     """
     Bootstrap script:
