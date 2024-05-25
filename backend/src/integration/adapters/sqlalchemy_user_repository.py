@@ -10,7 +10,12 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
         self.session = session
 
     def _get(self, username: str) -> User | None:
-        return self.session.query(User).filter_by(username=username).first()
+        return (
+            self.session.query(User)
+            .filter_by(username=username)
+            .with_for_update()
+            .first()
+        )
 
     def _add(self, user: User):
         self.session.add(user)

@@ -13,7 +13,9 @@ class SQLAlchemyWishlistRepository(WishlistRepository):
         self.session = session
 
     def _get(self, uuid: UUID) -> Wishlist | None:
-        return self.session.query(Wishlist).filter_by(uuid=uuid).first()
+        return (
+            self.session.query(Wishlist).filter_by(uuid=uuid).with_for_update().first()
+        )
 
     def _list_all(self) -> list[Type[Wishlist]]:
         return self.session.query(Wishlist).all()
