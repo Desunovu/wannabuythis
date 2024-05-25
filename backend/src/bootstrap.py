@@ -1,3 +1,4 @@
+from typing import Callable, Dict
 import inspect
 
 from src.common.adapters.dependencies import (
@@ -6,8 +7,11 @@ from src.common.adapters.dependencies import (
     UUIDGenerator,
     DefaultUUIDGenerator,
 )
+from src.common.domain.commands import Command
+from src.common.domain.events import DomainEvent
 from src.common.service.messagebus import Messagebus
 from src.common.service.uow import UnitOfWork
+from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.users.service.user_handlers import (
     USER_COMMAND_HANDLERS,
     USER_EVENT_HANDLERS,
@@ -19,34 +23,27 @@ from src.wishlists.service.wishlist_handlers import (
 
 
 def bootstrap(
-    uow: UnitOfWork,
+    uow: UnitOfWork = SQLAlchemyUnitOfWork,
     password_manager: PasswordHasher = DefaultPasswordHasher,
     uuid_generator: UUIDGenerator = DefaultUUIDGenerator,
 ) -> Messagebus:
     """
-    Bootstrap script:
-    - Combine handlers
-    - Declare dependencies and provide them to handlers
-    - Initialize staff for application
-    - Give application a messagebus
+    Initializes the application's core components and returns a configured Messagebus instance.
+    Sets up handlers, declares essential dependencies, and injects these dependencies into the handlers.
     """
-
-    # Dependencies injection
+    # Combine handlers
     command_handlers = USER_COMMAND_HANDLERS | WISHLIST_COMMAND_HANDLERS
     event_handlers = USER_EVENT_HANDLERS | WISHLIST_EVENT_HANDLERS
+    # Declare dependencies
     dependencies = {
         "uow": uow,
         "password_manager": password_manager,
         "uuid_generator": uuid_generator,
     }
-    injected_command_handlers = {
-        command_type: inject_dependencies(handler, dependencies)
-        for command_type, handler in command_handlers.items()
-    }
-    injected_event_handlers = {
-        event_type: [inject_dependencies(handler, dependencies) for handler in handlers]
-        for event_type, handlers in event_handlers.items()
-    }
+    # Inject dependencies
+    injected_command_handlers, injected_event_handlers = inject_dependencies(
+        command_handlers, event_handlers, dependencies
+    )
 
     return Messagebus(
         uow=uow,
@@ -55,10 +52,55 @@ def bootstrap(
     )
 
 
-def inject_dependencies(handler, dependencies):
-    """Builds a handler function with injected dependencies"""
+def build_handler_with_injected_dependencies(
+    handler: Callable, dependencies: Dict
+) -> Callable:
+    """
+    Builds a new handler function with injected dependencies based on the original handler's required parameters.
+
+    Args:
+        handler (Callable): The original handler function.
+        dependencies (Dict): A dictionary mapping dependency names to their respective instances.
+
+    Returns:
+        Callable: A new handler function with injected dependencies.
+    """
     params = inspect.signature(handler).parameters
     dependencies_to_inject = {
         name: dependencies[name] for name in params if name in dependencies
     }
-    return lambda message: handler(message, **dependencies_to_inject)
+
+    def injected_handler(message):
+        return handler(message, **dependencies_to_inject)
+
+    return injected_handler
+
+
+def inject_dependencies(
+    command_handlers: dict[type[Command], Callable],
+    event_handlers: dict[type[DomainEvent], list[Callable]],
+    dependencies,
+):
+    """
+    Inject dependencies into command and event handlers.
+
+    Args:
+        command_handlers: A dictionary mapping command types to their handler functions.
+        event_handlers: A dictionary mapping event types to lists of handler functions.
+        dependencies: A dictionary mapping dependency names to their respective instances.
+
+    Returns:
+        Tuple: A tuple containing the injected command handlers and injected event handlers.
+    """
+    injected_command_handlers = {
+        command_type: build_handler_with_injected_dependencies(handler, dependencies)
+        for command_type, handler in command_handlers.items()
+    }
+    injected_event_handlers = {
+        event_type: [
+            build_handler_with_injected_dependencies(handler, dependencies)
+            for handler in handlers
+        ]
+        for event_type, handlers in event_handlers.items()
+    }
+    return injected_command_handlers, injected_event_handlers
