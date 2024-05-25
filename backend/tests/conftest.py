@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from src.bootstrap import bootstrap
 from src.common.service.uow import UnitOfWork
 from src.integration.adapters.sqlalchemy_orm import mapper_registry
-from src.users.adapters.user_repository import AbstractUserRepository
+from src.users.adapters.user_repository import UserRepository
 from src.users.domain.user import User
 from src.wishlists.adapters.wishlist_repository import WishlistRepository
 from src.wishlists.domain.wishlist import Wishlist
@@ -84,7 +84,7 @@ def populated_wishlist(user, banana_item, apple_item):
 # Service layer
 
 
-class FakeUserRepository(AbstractUserRepository):
+class FakeUserRepository(UserRepository):
     def __init__(self, users: set[User]):
         super().__init__()
         self._users = set(users)

@@ -2,14 +2,14 @@ import abc
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.users.adapters.user_repository import AbstractUserRepository
+    from src.users.adapters.user_repository import UserRepository
     from src.wishlists.adapters.wishlist_repository import WishlistRepository
 
 
 class UnitOfWork(abc.ABC):
     def __init__(
         self,
-        user_repository: "AbstractUserRepository",
+        user_repository: "UserRepository",
         wishlist_repository: "WishlistRepository",
     ):
         self.user_repository = user_repository

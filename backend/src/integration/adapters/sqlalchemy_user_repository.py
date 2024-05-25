@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Session
 
-from src.users.adapters.user_repository import AbstractUserRepository
+from src.users.adapters.user_repository import UserRepository
 from src.users.domain.user import User
 
 
-class SQLAlchemyUserRepository(AbstractUserRepository):
+class SQLAlchemyUserRepository(UserRepository):
     def __init__(self, session: Session):
         super().__init__()
         self.session = session
