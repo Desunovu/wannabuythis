@@ -9,6 +9,7 @@ from sqlalchemy import (
     TypeDecorator,
     Dialect,
     Uuid,
+    Boolean,
 )
 from sqlalchemy.orm import registry, relationship
 
@@ -54,6 +55,7 @@ users_table = Table(
     Column("username", String, unique=True),
     Column("email", String, unique=True),
     Column("password_hash", String),
+    Column("is_active", Boolean),
 )
 
 wishlists_table = Table(

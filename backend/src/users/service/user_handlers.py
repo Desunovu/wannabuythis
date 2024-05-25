@@ -6,10 +6,11 @@ from src.common.service.exceptions import (
     UserExists,
     PasswordValidationFailed,
     PasswordVerificationFailed,
+    UserNotActive,
 )
 from src.common.service.uow import UnitOfWork
-from src.users.domain.commands import CreateUser, ChangePassword
-from src.users.domain.events import UserCreated, PasswordChanged
+from src.users.domain.commands import CreateUser, ChangePassword, DeactivateUser
+from src.users.domain.events import UserCreated, PasswordChanged, UserDeactivated
 from src.users.domain.user import User
 
 
@@ -53,12 +54,25 @@ def handle_change_password(
         uow.commit()
 
 
+def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
+    with uow:
+        user = uow.user_repository.get(username=command.username)
+        if not user:
+            raise UserNotFound(f"User {command.username} not found")
+        if not user.is_active:
+            raise UserNotActive(f"User {command.username} is already deactivated")
+        user.deactivate()
+        uow.commit()
+
+
 USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     CreateUser: handle_create_user,
     ChangePassword: handle_change_password,
+    DeactivateUser: handle_deactivate_user,
 }
 
 USER_EVENT_HANDLERS: dict[type[DomainEvent], list[callable]] = {
     UserCreated: [],
     PasswordChanged: [],
+    UserDeactivated: [],
 }

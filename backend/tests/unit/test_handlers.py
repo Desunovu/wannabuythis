@@ -7,8 +7,9 @@ from src.common.service.exceptions import (
     PasswordVerificationFailed,
     WishlistNotFound,
     WishlistItemNotFound,
+    UserNotActive,
 )
-from src.users.domain.commands import CreateUser, ChangePassword
+from src.users.domain.commands import CreateUser, ChangePassword, DeactivateUser
 from src.wishlists.domain.commands import (
     CreateWishlist,
     ChangeWishlistName,
@@ -175,3 +176,21 @@ class TestRemoveWishlistItem:
                     item_uuid="non-existing-wishlist-item",
                 )
             )
+
+
+class TestDeactivateUser:
+    def test_deactivate_user(self, messagebus, user):
+        messagebus.uow.user_repository.add(user)
+        assert user.is_active is True
+        messagebus.handle(DeactivateUser(username=user.username))
+        assert user.is_active is False
+
+    def test_deactivate_non_existing_user(self, messagebus):
+        with pytest.raises(UserNotFound):
+            messagebus.handle(DeactivateUser(username="non-existing-user"))
+
+    def test_deactivate_non_active_user(self, messagebus, user):
+        user.is_active = False
+        messagebus.uow.user_repository.add(user)
+        with pytest.raises(UserNotActive):
+            messagebus.handle(DeactivateUser(username=user.username))

@@ -16,3 +16,8 @@ class ChangePassword(Command):
     new_password: str
     old_password: str = ""
     called_by_admin: bool = False
+
+
+@dataclass
+class DeactivateUser(Command):
+    username: str

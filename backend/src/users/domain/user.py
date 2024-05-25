@@ -1,5 +1,5 @@
 from src.common.domain.aggregates import AggregateRoot
-from src.users.domain.events import PasswordChanged
+from src.users.domain.events import PasswordChanged, UserDeactivated
 
 
 class User(AggregateRoot):
@@ -8,6 +8,7 @@ class User(AggregateRoot):
         self.username = username
         self.email = email
         self.password_hash = password_hash
+        self.is_active = True
 
     @staticmethod
     def validate_password(new_password: str) -> bool:
@@ -26,3 +27,7 @@ class User(AggregateRoot):
         """Setter for password hash"""
         self.password_hash = password_hash
         self.add_event(PasswordChanged(self.username))
+
+    def deactivate(self):
+        self.is_active = False
+        self.add_event(UserDeactivated(self.username))
