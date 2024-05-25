@@ -32,8 +32,8 @@ def bootstrap(
     Sets up handlers, declares essential dependencies, and injects these dependencies into the handlers.
     """
     # Combine handlers
-    command_handlers = USER_COMMAND_HANDLERS | WISHLIST_COMMAND_HANDLERS
-    event_handlers = USER_EVENT_HANDLERS | WISHLIST_EVENT_HANDLERS
+    command_handlers = {**USER_COMMAND_HANDLERS, **WISHLIST_COMMAND_HANDLERS}
+    event_handlers = {**USER_EVENT_HANDLERS, **WISHLIST_EVENT_HANDLERS}
     # Declare dependencies
     dependencies = {
         "uow": uow,
