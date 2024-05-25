@@ -116,7 +116,9 @@ class FakeWishlistRepository(WishlistRepository):
 
 class FakeUnitOfWork(UnitOfWork):
     def __init__(self):
-        super().__init__(FakeUserRepository(set()), FakeWishlistRepository(set()))
+        super().__init__()
+        self.user_repository = FakeUserRepository(set())
+        self.wishlist_repository = FakeWishlistRepository(set())
         self.committed = False
 
     def _commit(self):

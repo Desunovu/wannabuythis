@@ -7,13 +7,10 @@ if TYPE_CHECKING:
 
 
 class UnitOfWork(abc.ABC):
-    def __init__(
-        self,
-        user_repository: "UserRepository",
-        wishlist_repository: "WishlistRepository",
-    ):
-        self.user_repository = user_repository
-        self.wishlist_repository = wishlist_repository
+    user_repository: "UserRepository"
+    wishlist_repository: "WishlistRepository"
+
+    def __init__(self):
         self.committed = None  # used only in tests
 
     def __enter__(self):
