@@ -84,7 +84,9 @@ def start_mappers():
         Wishlist,
         wishlists_table,
         properties={
-            "items": relationship(WishlistItem, order_by=wishlist_items_table.c.id)
+            "items": relationship(
+                WishlistItem, order_by=wishlist_items_table.c.id, lazy="dynamic"
+            )
         },
     )
     mapper_registry.map_imperatively(WishlistItem, wishlist_items_table)
