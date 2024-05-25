@@ -167,3 +167,10 @@ def sqlite_database_engine():
 @pytest.fixture
 def sqlite_session_factory(sqlite_database_engine):
     yield sessionmaker(bind=sqlite_database_engine)
+
+
+@pytest.fixture
+def sqlite_session(sqlite_session_factory):
+    session = sqlite_session_factory()
+    yield session
+    session.close()
