@@ -1,49 +1,33 @@
-import uuid
-
-from src.integration.adapters.sqlalchemy_orm import start_mappers
-from src.users.domain.user import User
-from src.wishlists.domain.wishlist import Wishlist
-from src.wishlists.domain.wishlist_item import WishlistItem, Priority, MeasurementUnit
+def get_mapped_fields(domain_object) -> list[str]:
+    """Get the list of mapped fields after mapping"""
+    return [field.name for field in domain_object.__mapper__.columns]
 
 
-def test_start_mappers(sqlite_session_factory):
-    start_mappers()
-    session = sqlite_session_factory()
+def get_object_fields(domain_object) -> list[str]:
+    """Get the list of object fields. Doesn't include fields starting with _ and events"""
+    return [
+        field
+        for field in domain_object.__dict__
+        if not field.startswith("_") and field != "events"
+    ]
 
-    # Test mapping of User
-    assert session.query(User).first() is None
-    user = User(
-        username="testuser", email="testemail@example.com", password_hash="password"
-    )
-    session.add(user)
-    session.commit()
-    assert session.query(User).first().username == "testuser"
 
-    # Test mapping of Wishlist
-    assert session.query(Wishlist).first() is None
-    wishlist = Wishlist(
-        uuid=uuid.uuid4(),
-        owner_username="testuser",
-        name="testwishlist",
-        items=[],
-    )
-    session.add(wishlist)
-    session.commit()
-    assert session.query(Wishlist).first().name == "testwishlist"
+def check_fields_mapping(domain_object, excluded_fields: list[str]):
+    """Check if all object fields are mapped field list"""
+    object_fields = get_object_fields(domain_object)
+    mapped_fields = get_mapped_fields(domain_object)
+    for field in excluded_fields:
+        object_fields.remove(field)
+    for field in object_fields:
+        assert field in mapped_fields, f"Field '{field}' is not mapped correctly"
 
-    # Test mapping of WishlistItem and its value-objects
-    assert session.query(WishlistItem).first() is None
-    wishlist_item = WishlistItem(
-        uuid=uuid.uuid4(),
-        wishlist_uuid=uuid.uuid4(),
-        name="testwishlistitem",
-        quantity=1,
-        measurement_unit=MeasurementUnit(name="kg."),
-        priority=Priority(value=1),
-    )
-    session.add(wishlist_item)
-    session.commit()
-    wishlist_item_from_db: WishlistItem = session.query(WishlistItem).first()
-    assert wishlist_item_from_db.name == "testwishlistitem"
-    assert wishlist_item_from_db.measurement_unit.name == "kg."
-    assert wishlist_item_from_db.priority.value == 1
+
+class TestSQLAlchemyORM:
+    def test_user_mapping(self, mappers, user):
+        check_fields_mapping(domain_object=user, excluded_fields=[])
+
+    def test_wishlist_mapping(self, mappers, wishlist):
+        check_fields_mapping(domain_object=wishlist, excluded_fields=["items"])
+
+    def test_wishlist_item_mapping(self, mappers, apple_item):
+        check_fields_mapping(domain_object=apple_item, excluded_fields=[])

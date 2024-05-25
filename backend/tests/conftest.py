@@ -2,11 +2,11 @@ from uuid import UUID, uuid4
 
 import pytest
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, clear_mappers
 
 from src.bootstrap import bootstrap
 from src.common.service.uow import UnitOfWork
-from src.integration.adapters.sqlalchemy_orm import mapper_registry
+from src.integration.adapters.sqlalchemy_orm import mapper_registry, start_mappers
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.users.adapters.user_repository import UserRepository
 from src.users.domain.user import User
@@ -159,7 +159,14 @@ def invalid_old_password():
 
 
 @pytest.fixture
-def sqlite_database_engine():
+def mappers():
+    start_mappers()
+    yield
+    clear_mappers()
+
+
+@pytest.fixture
+def sqlite_database_engine(mappers):
     # Create an in-memory SQLite database
     engine = create_engine("sqlite:///:memory:")
     mapper_registry.metadata.create_all(engine)
