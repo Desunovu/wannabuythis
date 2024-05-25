@@ -4,7 +4,7 @@ from uuid import UUID
 from src.wishlists.domain.wishlist import Wishlist
 
 
-class AbstractWishlistRepository(abc.ABC):
+class WishlistRepository(abc.ABC):
     def __init__(self):
         self.seen: set[Wishlist] = set()
 

@@ -1,4 +1,4 @@
-from src.common.adapters.dependencies import AbstractPasswordManager
+from src.common.adapters.dependencies import PasswordHasher
 from src.common.domain.commands import Command
 from src.common.domain.events import DomainEvent
 from src.common.service.exceptions import (
@@ -7,7 +7,7 @@ from src.common.service.exceptions import (
     PasswordValidationFailed,
     PasswordVerificationFailed,
 )
-from src.common.service.uow import AbstractUnitOfWork
+from src.common.service.uow import UnitOfWork
 from src.users.domain.commands import CreateUser, ChangePassword
 from src.users.domain.events import UserCreated, PasswordChanged
 from src.users.domain.user import User
@@ -15,8 +15,8 @@ from src.users.domain.user import User
 
 def handle_create_user(
     command: CreateUser,
-    uow: AbstractUnitOfWork,
-    password_manager: AbstractPasswordManager,
+    uow: UnitOfWork,
+    password_manager: PasswordHasher,
 ):
     with uow:
         user = uow.user_repository.get(username=command.username)
@@ -33,8 +33,8 @@ def handle_create_user(
 
 def handle_change_password(
     command: ChangePassword,
-    uow: AbstractUnitOfWork,
-    password_manager: AbstractPasswordManager,
+    uow: UnitOfWork,
+    password_manager: PasswordHasher,
 ):
     with uow:
         user = uow.user_repository.get(username=command.username)

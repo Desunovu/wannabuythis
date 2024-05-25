@@ -3,11 +3,11 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from src.wishlists.adapters.wishlist_repository import AbstractWishlistRepository
+from src.wishlists.adapters.wishlist_repository import WishlistRepository
 from src.wishlists.domain.wishlist import Wishlist
 
 
-class SQLAlchemyWishlistRepository(AbstractWishlistRepository):
+class SQLAlchemyWishlistRepository(WishlistRepository):
     def __init__(self, session: Session):
         super().__init__()
         self.session = session

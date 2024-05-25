@@ -3,7 +3,7 @@ import hashlib
 from uuid import uuid4, UUID
 
 
-class AbstractPasswordManager(abc.ABC):
+class PasswordHasher(abc.ABC):
     @staticmethod
     @abc.abstractmethod
     def hash_password(password: str) -> str: ...
@@ -13,23 +13,23 @@ class AbstractPasswordManager(abc.ABC):
     def verify_password(password: str, password_hash: str) -> bool: ...
 
 
-class DefaultPasswordManager(AbstractPasswordManager):
+class DefaultPasswordHasher(PasswordHasher):
     @staticmethod
     def hash_password(password: str) -> str:
         return hashlib.sha256(password.encode()).hexdigest()
 
     @staticmethod
     def verify_password(password: str, password_hash: str) -> bool:
-        return DefaultPasswordManager.hash_password(password) == password_hash
+        return DefaultPasswordHasher.hash_password(password) == password_hash
 
 
-class AbstractUUIDGenerator(abc.ABC):
+class UUIDGenerator(abc.ABC):
     @staticmethod
     @abc.abstractmethod
     def generate() -> UUID: ...
 
 
-class DefaultUUIDGenerator(AbstractUUIDGenerator):
+class DefaultUUIDGenerator(UUIDGenerator):
     @staticmethod
     def generate() -> UUID:
         return uuid4()
