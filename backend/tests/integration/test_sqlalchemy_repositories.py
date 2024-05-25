@@ -1,6 +1,4 @@
-from src.common.adapters.dependencies import DefaultPasswordManager
 from src.integration.adapters.sqlalchemy_user_repository import SQLAlchemyUserRepository
-from src.users.domain.user import User
 
 
 class TestSQLAlchemyUserRepository:
