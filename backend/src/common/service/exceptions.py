@@ -1,50 +1,67 @@
+from uuid import UUID
+
+
 class UserNotFound(Exception):
-    pass
+    def __init__(self, username: str):
+        super().__init__(f"User '{username}' not found")
 
 
 class UserExists(Exception):
-    pass
+    def __init__(self, username: str):
+        super().__init__(f"User '{username}' already exists")
 
 
 class UserAlreadyActive(Exception):
-    pass
+    def __init__(self, username: str):
+        super().__init__(f"User '{username}' is already active")
 
 
 class UserNotActive(Exception):
-    pass
+    def __init__(self, username: str):
+        super().__init__(f"User {username} is already deactivated")
 
 
 class UserAlreadyHasRole(Exception):
-    pass
+    def __init__(self, username: str, role_name: str):
+        super().__init__(f"User {username} already has role {role_name}")
 
 
 class UserDoesNotHaveRole(Exception):
-    pass
+    def __init__(self, username: str, role_name: str):
+        super().__init__(f"User {username} does not have role {role_name}")
 
 
 class RoleNotFound(Exception):
-    pass
+    def __init__(self, role_name: str):
+        super().__init__(f"Role '{role_name}' not found")
 
 
-class PasswordValidationFailed(Exception):
-    pass
+class PasswordValidationError(Exception):
+    def __init__(self, error_message: str = "Password validation failed"):
+        super().__init__(error_message)
 
 
-class PasswordVerificationFailed(Exception):
-    pass
+class PasswordVerificationError(Exception):
+    def __init__(self, error_message: str = "Password does not match"):
+        super().__init__(error_message)
 
 
 class WishlistNotFound(Exception):
-    pass
+    def __init__(self, uuid: UUID):
+        super().__init__(f"Wishlist '{uuid}' not found")
 
 
 class WishlistItemNotFound(Exception):
-    pass
+    def __init__(self, uuid: UUID):
+        super().__init__(f"Wishlist item '{uuid}' not found")
 
 
 class WishlistAlreadyArchived(Exception):
-    pass
+    def __init__(self, uuid: UUID):
+        super().__init__(f"Wishlist '{uuid}' already archived")
 
 
 class WishlistNotArchived(Exception):
-    pass
+    def __init__(self, uuid: UUID):
+        super().__init__(f"Wishlist '{uuid}' is not archived")
+

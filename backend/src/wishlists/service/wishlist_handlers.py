@@ -34,9 +34,7 @@ def handle_create_wishlist(
     with uow:
         user = uow.user_repository.get(username=command.owner_username)
         if not user:
-            raise UserNotFound(
-                f"User {command.owner_username} not found to create wishlist"
-            )
+            raise UserNotFound(command.owner_username)
         wishlist = Wishlist(
             uuid=uuid_generator.generate(),
             owner_username=command.owner_username,
@@ -52,7 +50,7 @@ def handle_change_wishlist_name(command: ChangeWishlistName, uow: UnitOfWork):
     with uow:
         wishlist = uow.wishlist_repository.get(command.uuid)
         if not wishlist:
-            raise WishlistNotFound(f"Wishlist {command.uuid} not found")
+            raise WishlistNotFound(command.uuid)
         wishlist.change_name(command.new_name)
         wishlist.add_event(WishlistNameChanged(wishlist.uuid, wishlist.name))
         uow.commit()
@@ -66,7 +64,7 @@ def handle_add_wishlist_item(
     with uow:
         wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
         if not wishlist:
-            raise WishlistNotFound(f"Wishlist {command.wishlist_uuid} not found")
+            raise WishlistNotFound(command.wishlist_uuid)
         item = WishlistItem(
             uuid=uuid_generator.generate(),
             wishlist_uuid=wishlist.uuid,
@@ -83,9 +81,9 @@ def handle_remove_wishlist_item(command: RemoveWishlistItem, uow: UnitOfWork):
     with uow:
         wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
         if not wishlist:
-            raise WishlistNotFound(f"Wishlist {command.wishlist_uuid} not found")
+            raise WishlistNotFound(command.wishlist_uuid)
         if command.item_uuid not in [item.uuid for item in wishlist.items]:
-            raise WishlistItemNotFound(f"Wishlist item {command.item_uuid} not found")
+            raise WishlistItemNotFound(command.item_uuid)
         wishlist.remove_item(command.item_uuid)
         uow.commit()
 
@@ -94,9 +92,9 @@ def handle_set_wishlist_item_status(command: SetWishlistItemStatus, uow: UnitOfW
     with uow:
         wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
         if not wishlist:
-            raise WishlistNotFound(f"Wishlist {command.wishlist_uuid} not found")
+            raise WishlistNotFound(command.wishlist_uuid)
         if command.item_uuid not in [item.uuid for item in wishlist.items]:
-            raise WishlistItemNotFound(f"Wishlist item {command.item_uuid} not found")
+            raise WishlistItemNotFound(command.wishlist_uuid)
         wishlist.set_item_status(command.item_uuid, command.is_purchased)
         uow.commit()
 
@@ -105,9 +103,9 @@ def handle_archive_wishlist(command: ArchiveWishlist, uow: UnitOfWork):
     with uow:
         wishlist = uow.wishlist_repository.get(command.uuid)
         if not wishlist:
-            raise WishlistNotFound(f"Wishlist {command.uuid} not found")
+            raise WishlistNotFound(command.uuid)
         if wishlist.is_archived:
-            raise WishlistAlreadyArchived(f"Wishlist {command.uuid} already archived")
+            raise WishlistAlreadyArchived(command.uuid)
         wishlist.archive()
         uow.commit()
 
@@ -116,9 +114,9 @@ def handle_unarchive_wishlist(command: UnarchiveWishlist, uow: UnitOfWork):
     with uow:
         wishlist = uow.wishlist_repository.get(command.uuid)
         if not wishlist:
-            raise WishlistNotFound(f"Wishlist {command.uuid} not found")
+            raise WishlistNotFound(command.uuid)
         if not wishlist.is_archived:
-            raise WishlistNotArchived(f"Wishlist {command.uuid} not archived")
+            raise WishlistNotArchived(command.uuid)
         wishlist.unarchive()
         uow.commit()
 

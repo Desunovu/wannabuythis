@@ -3,8 +3,8 @@ import pytest
 from src.common.service.exceptions import (
     UserExists,
     UserNotFound,
-    PasswordVerificationFailed,
-    PasswordValidationFailed,
+    PasswordVerificationError,
+    PasswordValidationError,
     UserAlreadyActive,
     UserNotActive,
     UserAlreadyHasRole,
@@ -34,7 +34,7 @@ class TestCreateUser:
         assert messagebus.uow.user_repository.get("testuser") is not None
 
     def test_create_user_invalid_password(self, messagebus, invalid_password):
-        with pytest.raises(PasswordValidationFailed):
+        with pytest.raises(PasswordValidationError):
             messagebus.handle(
                 CreateUser(
                     username="testuser",
@@ -96,7 +96,7 @@ class TestChangePassword:
         self, messagebus, user, invalid_password, valid_new_password
     ):
         messagebus.uow.user_repository.add(user)
-        with pytest.raises(PasswordVerificationFailed):
+        with pytest.raises(PasswordVerificationError):
             messagebus.handle(
                 ChangePassword(
                     username=user.username,
@@ -107,7 +107,7 @@ class TestChangePassword:
 
     def test_change_password_invalid_password(self, messagebus, user, invalid_password):
         messagebus.uow.user_repository.add(user)
-        with pytest.raises(PasswordValidationFailed):
+        with pytest.raises(PasswordValidationError):
             messagebus.handle(
                 ChangePassword(
                     username=user.username,

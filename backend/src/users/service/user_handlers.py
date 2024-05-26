@@ -4,8 +4,8 @@ from src.common.domain.events import DomainEvent
 from src.common.service.exceptions import (
     UserNotFound,
     UserExists,
-    PasswordValidationFailed,
-    PasswordVerificationFailed,
+    PasswordValidationError,
+    PasswordVerificationError,
     UserNotActive,
     UserAlreadyActive,
     RoleNotFound,
@@ -41,9 +41,9 @@ def handle_create_user(
     with uow:
         user = uow.user_repository.get(username=command.username)
         if user:
-            raise UserExists(f"User {command.username} already exists")
+            raise UserExists(command.username)
         if not User.validate_password(command.password):
-            raise PasswordValidationFailed("Password is not valid")
+            raise PasswordValidationError()
         password_hash = password_manager.hash_password(command.password)
         user = User(command.username, command.email, password_hash)
         uow.user_repository.add(user)
@@ -59,14 +59,14 @@ def handle_change_password(
     with uow:
         user = uow.user_repository.get(username=command.username)
         if not user:
-            raise UserNotFound(f"User {command.username} not found")
+            raise UserNotFound(command.username)
         if not User.validate_password(command.new_password):
-            raise PasswordValidationFailed("New password is not valid")
+            raise PasswordValidationError()
         if not command.called_by_admin:
             if not password_manager.verify_password(
                 password=command.old_password, password_hash=user.password_hash
             ):
-                raise PasswordVerificationFailed("Old password is not correct")
+                raise PasswordVerificationError()
         new_password_hash = password_manager.hash_password(command.new_password)
         user.change_password_hash(new_password_hash)
         user.add_event(PasswordChanged(user.username))
@@ -77,7 +77,7 @@ def handle_change_user_email(command: ChangeUserEmail, uow: UnitOfWork):
     with uow:
         user = uow.user_repository.get(username=command.username)
         if not user:
-            raise UserNotFound(f"User {command.username} not found")
+            raise UserNotFound(command.username)
         user.change_email(command.new_email)
         uow.commit()
 
@@ -86,9 +86,9 @@ def handle_activate_user(command: ActivateUser, uow: UnitOfWork):
     with uow:
         user = uow.user_repository.get(username=command.username)
         if not user:
-            raise UserNotFound(f"User {command.username} not found")
+            raise UserNotFound(command.username)
         if user.is_active:
-            raise UserAlreadyActive(f"User {command.username} is already active")
+            raise UserAlreadyActive(command.username)
         user.activate()
         uow.commit()
 
@@ -97,9 +97,9 @@ def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
     with uow:
         user = uow.user_repository.get(username=command.username)
         if not user:
-            raise UserNotFound(f"User {command.username} not found")
+            raise UserNotFound(command.username)
         if not user.is_active:
-            raise UserNotActive(f"User {command.username} is already deactivated")
+            raise UserNotActive(command.username)
         user.deactivate()
         uow.commit()
 
@@ -108,13 +108,13 @@ def handle_add_role_to_user(command: AddRoleToUser, uow: UnitOfWork):
     with uow:
         role = uow.role_repository.get(name=command.role_name)
         if not role:
-            raise RoleNotFound(f"Role {command.role_name} not found")
+            raise RoleNotFound(command.role_name)
         user = uow.user_repository.get(username=command.username)
         if not user:
-            raise UserNotFound(f"User {command.username} not found")
+            raise UserNotFound(command.username)
         if user.has_role(role):
             raise UserAlreadyHasRole(
-                f"User {command.username} already has role {command.role_name}"
+                command.username, command.role_name
             )
         user.add_role(role)
         uow.commit()
@@ -124,13 +124,13 @@ def handle_remove_role_from_user(command: RemoveRoleFromUser, uow: UnitOfWork):
     with uow:
         role = uow.role_repository.get(name=command.role_name)
         if not role:
-            raise RoleNotFound(f"Role {command.role_name} not found")
+            raise RoleNotFound(command.role_name)
         user = uow.user_repository.get(username=command.username)
         if not user:
-            raise UserNotFound(f"User {command.username} not found")
+            raise UserNotFound(command.username)
         if not user.has_role(role):
             raise UserDoesNotHaveRole(
-                f"User {command.username} does not have role {command.role_name}"
+                command.username, command.role_name
             )
         user.remove_role(role)
         uow.commit()
