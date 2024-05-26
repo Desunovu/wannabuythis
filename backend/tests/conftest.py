@@ -90,22 +90,25 @@ def apple_item(measurement_unit, priority):
 
 
 @pytest.fixture
-def wishlist(user):
+def wishlist(user, wishlist_name):
     """Empty wishlist"""
     return Wishlist(
-        uuid=uuid4(), owner_username=user.username, name="My list", items=[]
+        uuid=uuid4(), owner_username=user.username, name=wishlist_name, items=[]
     )
 
 
 @pytest.fixture
-def populated_wishlist(user, banana_item, apple_item):
-    """Wishlist with 2 different items"""
+def populated_wishlist(user, banana_item, apple_item, wishlist_name):
+    """Wishlist containing two wishlist items"""
     populated_wishlist = Wishlist(
         uuid=uuid4(),
         owner_username=user.username,
-        name="My list",
-        items=[banana_item, apple_item],
+        name=wishlist_name,
+        items=[],
     )
+    banana_item.wishlist_uuid = populated_wishlist.uuid
+    apple_item.wishlist_uuid = populated_wishlist.uuid
+    populated_wishlist.items = [banana_item, apple_item]
     return populated_wishlist
 
 
@@ -198,6 +201,18 @@ def user_email():
 def new_email():
     """User email used for email change test"""
     return "newtestemail@example.com"
+
+
+@pytest.fixture
+def wishlist_name():
+    """Default wishlist name. Used in wishlist fixture"""
+    return "My wishlist"
+
+
+@pytest.fixture
+def wishlist_new_name():
+    """Wishlist name used for wishlist name change test"""
+    return "My new wishlist name"
 
 
 @pytest.fixture
