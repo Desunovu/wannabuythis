@@ -88,7 +88,7 @@ def populated_wishlist(user, banana_item, apple_item):
 class FakeUserRepository(UserRepository):
     def __init__(self, users: set[User]):
         super().__init__()
-        self._users = set(users)
+        self._users = users
 
     def _get(self, username: str) -> User | None:
         return next((user for user in self._users if user.username == username), None)
@@ -100,7 +100,7 @@ class FakeUserRepository(UserRepository):
 class FakeWishlistRepository(WishlistRepository):
     def __init__(self, wishlists: set[Wishlist]):
         super().__init__()
-        self._wishlists = set(wishlists)
+        self._wishlists = wishlists
 
     def _get(self, uuid: UUID) -> Wishlist | None:
         return next((wl for wl in self._wishlists if wl.uuid == uuid), None)
