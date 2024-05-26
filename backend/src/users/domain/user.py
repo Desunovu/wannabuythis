@@ -5,7 +5,7 @@ from src.users.domain.events import (
     UserDeactivated,
     EmailChanged,
     RoleAddedToUser,
-    RoleRemovedFromUser,
+    RoleRemovedFromUser, UserActivated,
 )
 
 
@@ -42,7 +42,7 @@ class User(AggregateRoot):
 
     def activate(self):
         self.is_active = True
-        self.add_event(UserDeactivated(self.username))
+        self.add_event(UserActivated(self.username))
 
     def deactivate(self):
         self.is_active = False
