@@ -8,7 +8,9 @@ from src.common.service.exceptions import (
     PasswordVerificationFailed,
     UserNotActive,
     UserAlreadyActive,
-    RoleNotFound, UserDoesNotHaveRole, UserAlreadyHasRole,
+    RoleNotFound,
+    UserDoesNotHaveRole,
+    UserAlreadyHasRole,
 )
 from src.common.service.uow import UnitOfWork
 from src.users.domain.commands import (
@@ -111,7 +113,9 @@ def handle_add_role_to_user(command: AddRoleToUser, uow: UnitOfWork):
         if not user:
             raise UserNotFound(f"User {command.username} not found")
         if user.has_role(role):
-            raise UserAlreadyHasRole(f"User {command.username} already has role {command.role_name}")
+            raise UserAlreadyHasRole(
+                f"User {command.username} already has role {command.role_name}"
+            )
         user.add_role(role)
         uow.commit()
 
@@ -125,7 +129,9 @@ def handle_remove_role_from_user(command: RemoveRoleFromUser, uow: UnitOfWork):
         if not user:
             raise UserNotFound(f"User {command.username} not found")
         if not user.has_role(role):
-            raise UserDoesNotHaveRole(f"User {command.username} does not have role {command.role_name}")
+            raise UserDoesNotHaveRole(
+                f"User {command.username} does not have role {command.role_name}"
+            )
         user.remove_role(role)
         uow.commit()
 

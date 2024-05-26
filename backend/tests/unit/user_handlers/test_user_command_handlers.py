@@ -1,9 +1,25 @@
 import pytest
 
-from src.common.service.exceptions import UserExists, UserNotFound, PasswordVerificationFailed, \
-    PasswordValidationFailed, UserAlreadyActive, UserNotActive, UserAlreadyHasRole, RoleNotFound, UserDoesNotHaveRole
-from src.users.domain.commands import CreateUser, ChangePassword, ChangeUserEmail, ActivateUser, DeactivateUser, \
-    AddRoleToUser, RemoveRoleFromUser
+from src.common.service.exceptions import (
+    UserExists,
+    UserNotFound,
+    PasswordVerificationFailed,
+    PasswordValidationFailed,
+    UserAlreadyActive,
+    UserNotActive,
+    UserAlreadyHasRole,
+    RoleNotFound,
+    UserDoesNotHaveRole,
+)
+from src.users.domain.commands import (
+    CreateUser,
+    ChangePassword,
+    ChangeUserEmail,
+    ActivateUser,
+    DeactivateUser,
+    AddRoleToUser,
+    RemoveRoleFromUser,
+)
 
 
 class TestCreateUser:

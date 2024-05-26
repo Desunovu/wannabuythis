@@ -1,7 +1,16 @@
 import pytest
 
-from src.common.service.exceptions import UserNotFound, WishlistNotFound, WishlistItemNotFound
-from src.wishlists.domain.commands import CreateWishlist, ChangeWishlistName, AddWishlistItem, RemoveWishlistItem
+from src.common.service.exceptions import (
+    UserNotFound,
+    WishlistNotFound,
+    WishlistItemNotFound,
+)
+from src.wishlists.domain.commands import (
+    CreateWishlist,
+    ChangeWishlistName,
+    AddWishlistItem,
+    RemoveWishlistItem,
+)
 
 
 class TestCreateWishlist:
