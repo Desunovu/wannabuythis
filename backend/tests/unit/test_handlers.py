@@ -15,6 +15,7 @@ from src.users.domain.commands import (
     ChangePassword,
     DeactivateUser,
     ActivateUser,
+    ChangeUserEmail,
 )
 from src.wishlists.domain.commands import (
     CreateWishlist,
@@ -90,6 +91,19 @@ class TestChangePassword:
         with pytest.raises(PasswordValidationFailed):
             messagebus.handle(
                 ChangePassword("testuser", invalid_password, valid_old_password)
+            )
+
+
+class TestChangeUserEmail:
+    def test_update_user_email(self, messagebus, user):
+        messagebus.uow.user_repository.add(user)
+        messagebus.handle(ChangeUserEmail(username=user.username, new_email="newemail"))
+        assert user.email == "newemail"
+
+    def test_update_user_email_non_existing_user(self, messagebus):
+        with pytest.raises(UserNotFound):
+            messagebus.handle(
+                ChangeUserEmail(username="non-existing-user", new_email="newemail")
             )
 
 

@@ -1,5 +1,5 @@
 from src.common.domain.aggregates import AggregateRoot
-from src.users.domain.events import PasswordChanged, UserDeactivated
+from src.users.domain.events import PasswordChanged, UserDeactivated, EmailChanged
 
 
 class User(AggregateRoot):
@@ -27,6 +27,10 @@ class User(AggregateRoot):
         """Setter for password hash"""
         self.password_hash = password_hash
         self.add_event(PasswordChanged(self.username))
+
+    def change_email(self, email: str):
+        self.email = email
+        self.add_event(EmailChanged(self.username))
 
     def activate(self):
         self.is_active = True

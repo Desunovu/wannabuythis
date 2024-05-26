@@ -15,8 +15,14 @@ from src.users.domain.commands import (
     ChangePassword,
     DeactivateUser,
     ActivateUser,
+    ChangeUserEmail,
 )
-from src.users.domain.events import UserCreated, PasswordChanged, UserDeactivated
+from src.users.domain.events import (
+    UserCreated,
+    PasswordChanged,
+    UserDeactivated,
+    EmailChanged,
+)
 from src.users.domain.user import User
 
 
@@ -60,6 +66,15 @@ def handle_change_password(
         uow.commit()
 
 
+def handle_change_user_email(command: ChangeUserEmail, uow: UnitOfWork):
+    with uow:
+        user = uow.user_repository.get(username=command.username)
+        if not user:
+            raise UserNotFound(f"User {command.username} not found")
+        user.change_email(command.new_email)
+        uow.commit()
+
+
 def handle_activate_user(command: ActivateUser, uow: UnitOfWork):
     with uow:
         user = uow.user_repository.get(username=command.username)
@@ -85,6 +100,7 @@ def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
 USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     CreateUser: handle_create_user,
     ChangePassword: handle_change_password,
+    ChangeUserEmail: handle_change_user_email,
     ActivateUser: handle_activate_user,
     DeactivateUser: handle_deactivate_user,
 }
@@ -92,5 +108,6 @@ USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
 USER_EVENT_HANDLERS: dict[type[DomainEvent], list[callable]] = {
     UserCreated: [],
     PasswordChanged: [],
+    EmailChanged: [],
     UserDeactivated: [],
 }

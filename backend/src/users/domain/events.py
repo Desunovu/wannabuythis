@@ -14,6 +14,11 @@ class PasswordChanged(DomainEvent):
 
 
 @dataclass
+class EmailChanged(DomainEvent):
+    username: str
+
+
+@dataclass
 class UserActivated(DomainEvent):
     username: str
 
