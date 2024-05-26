@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 
 from src.bootstrap import bootstrap
+from src.common.adapters.dependencies import PasswordHasher, DefaultPasswordHasher
 from src.common.domain.entities import Role
 from src.common.service.uow import UnitOfWork
 from src.integration.adapters.sqlalchemy_orm import mapper_registry, start_mappers
@@ -17,15 +18,34 @@ from src.wishlists.domain.wishlist import Wishlist
 from src.wishlists.domain.wishlist_item import MeasurementUnit, WishlistItem, Priority
 
 
-# Domain layer
+@pytest.fixture
+def user(user_email, valid_password):
+    """Default user with #valid_password"""
+    return User(
+        username="testuser",
+        email=user_email,
+        password_hash=DefaultPasswordHasher.hash_password(valid_password),
+    )
 
 
 @pytest.fixture
-def user():
-    """Default user"""
-    return User(
-        username="testuser", email="testemail@example.com", password_hash="password"
-    )
+def admin_user(user, admin_role):
+    user.roles.append(admin_role)
+    return user
+
+
+@pytest.fixture
+def deactivated_user(user):
+    """User with is_active=False"""
+    user.is_active = False
+    return user
+
+
+@pytest.fixture
+def activated_user(user):
+    """User with is_active=True"""
+    user.is_active = True
+    return user
 
 
 @pytest.fixture
@@ -89,9 +109,6 @@ def populated_wishlist(user, banana_item, apple_item):
     return populated_wishlist
 
 
-# Service layer
-
-
 class FakeUserRepository(UserRepository):
     def __init__(self, users: set[User]):
         super().__init__()
@@ -149,7 +166,6 @@ class FakeUnitOfWork(UnitOfWork):
         pass
 
 
-# TODO bootstrap messagebus
 @pytest.fixture
 def messagebus():
     return bootstrap(uow=FakeUnitOfWork())
@@ -157,12 +173,14 @@ def messagebus():
 
 @pytest.fixture
 def valid_password():
+    """Valid password. Used in user fixture"""
     return "passWORD123"
 
 
 @pytest.fixture
-def valid_old_password():
-    return "OLDpassWORD123"
+def valid_new_password():
+    """Another valid password used for password change test"""
+    return "NEWpassWORD123"
 
 
 @pytest.fixture
@@ -171,11 +189,15 @@ def invalid_password():
 
 
 @pytest.fixture
-def invalid_old_password():
-    return "123"
+def user_email():
+    """Default user email. Used in user fixture"""
+    return "testemail@example.com"
 
 
-# Integration Tests
+@pytest.fixture
+def new_email():
+    """User email used for email change test"""
+    return "newtestemail@example.com"
 
 
 @pytest.fixture
