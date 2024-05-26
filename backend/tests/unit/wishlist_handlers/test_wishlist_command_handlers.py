@@ -6,6 +6,8 @@ from src.common.service.exceptions import (
     UserNotFound,
     WishlistNotFound,
     WishlistItemNotFound,
+    WishlistAlreadyArchived,
+    WishlistNotArchived,
 )
 from src.wishlists.domain.commands import (
     CreateWishlist,
@@ -13,7 +15,10 @@ from src.wishlists.domain.commands import (
     AddWishlistItem,
     RemoveWishlistItem,
     SetWishlistItemStatus,
+    ArchiveWishlist,
+    UnarchiveWishlist,
 )
+from tests.conftest import populated_wishlist
 
 
 class TestCreateWishlist:
@@ -156,3 +161,35 @@ class TestSetWishlistItemStatus:
                     is_purchased=True,
                 )
             )
+
+
+class TestArchiveWishlist:
+    def test_archive_wishlist(self, messagebus, wishlist):
+        messagebus.uow.wishlist_repository.add(wishlist)
+        messagebus.handle(ArchiveWishlist(uuid=wishlist.uuid))
+        assert wishlist.is_archived is True
+
+    def test_archive_wishlist_non_existing_wishlist(self, messagebus):
+        with pytest.raises(WishlistNotFound):
+            messagebus.handle(ArchiveWishlist(uuid=uuid.uuid4()))
+
+    def test_archive_wishlist_already_archived(self, messagebus, archived_wishlist):
+        messagebus.uow.wishlist_repository.add(archived_wishlist)
+        with pytest.raises(WishlistAlreadyArchived):
+            messagebus.handle(ArchiveWishlist(uuid=archived_wishlist.uuid))
+
+
+class TestUnarchiveWishlist:
+    def test_unarchive_wishlist(self, messagebus, archived_wishlist):
+        messagebus.uow.wishlist_repository.add(archived_wishlist)
+        messagebus.handle(UnarchiveWishlist(uuid=archived_wishlist.uuid))
+        assert archived_wishlist.is_archived is False
+
+    def test_unarchive_wishlist_non_existing_wishlist(self, messagebus):
+        with pytest.raises(WishlistNotFound):
+            messagebus.handle(UnarchiveWishlist(uuid=uuid.uuid4()))
+
+    def test_unarchive_wishlist_not_archived(self, messagebus, wishlist):
+        messagebus.uow.wishlist_repository.add(wishlist)
+        with pytest.raises(WishlistNotArchived):
+            messagebus.handle(UnarchiveWishlist(uuid=wishlist.uuid))

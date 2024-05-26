@@ -18,6 +18,16 @@ class WishlistNameChanged(DomainEvent):
 
 
 @dataclass
+class WishlistArchived(DomainEvent):
+    uuid: UUID
+
+
+@dataclass
+class WishlistUnarchived(DomainEvent):
+    uuid: UUID
+
+
+@dataclass
 class WishlistItemAdded(DomainEvent):
     item_uuid: UUID
     wishlist_uuid: UUID

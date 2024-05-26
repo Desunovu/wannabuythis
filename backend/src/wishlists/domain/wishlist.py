@@ -7,6 +7,8 @@ from src.wishlists.domain.events import (
     WishlistItemRemoved,
     WishlistItemMarkedAsPurchased,
     WishlistItemMarkedAsNotPurchased,
+    WishlistUnarchived,
+    WishlistArchived,
 )
 from src.wishlists.domain.wishlist_item import WishlistItem
 
@@ -21,10 +23,19 @@ class Wishlist(AggregateRoot):
         self.owner_username = owner_username
         self.name = name
         self.items = items
+        self.is_archived = False
 
     def change_name(self, name: str):
         self.name = name
         self.add_event(WishlistNameChanged(self.uuid, self.name))
+
+    def archive(self):
+        self.is_archived = True
+        self.add_event(WishlistArchived(self.uuid))
+
+    def unarchive(self):
+        self.is_archived = False
+        self.add_event(WishlistUnarchived(self.uuid))
 
     def add_item(self, item: WishlistItem):
         self.items.append(item)

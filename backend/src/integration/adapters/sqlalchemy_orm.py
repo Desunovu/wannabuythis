@@ -94,6 +94,7 @@ wishlists_table = Table(
     Column("uuid", Uuid, unique=True),
     Column("owner_username", String, ForeignKey("users.username"), nullable=False),
     Column("name", String),
+    Column("is_archived", Boolean),
 )
 
 wishlist_items_table = Table(

@@ -17,6 +17,16 @@ class ChangeWishlistName(Command):
 
 
 @dataclass
+class ArchiveWishlist(Command):
+    uuid: UUID
+
+
+@dataclass
+class UnarchiveWishlist(Command):
+    uuid: UUID
+
+
+@dataclass
 class AddWishlistItem(Command):
     wishlist_uuid: UUID
     name: str

@@ -40,3 +40,11 @@ class WishlistNotFound(Exception):
 
 class WishlistItemNotFound(Exception):
     pass
+
+
+class WishlistAlreadyArchived(Exception):
+    pass
+
+
+class WishlistNotArchived(Exception):
+    pass

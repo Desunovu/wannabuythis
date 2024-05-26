@@ -112,6 +112,13 @@ def populated_wishlist(user, banana_item, apple_item, wishlist_name):
     return populated_wishlist
 
 
+@pytest.fixture
+def archived_wishlist(wishlist):
+    """Archived wishlist"""
+    wishlist.is_archived = True
+    return wishlist
+
+
 class FakeUserRepository(UserRepository):
     def __init__(self, users: set[User]):
         super().__init__()
