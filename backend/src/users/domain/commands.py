@@ -32,3 +32,15 @@ class ActivateUser(Command):
 @dataclass
 class DeactivateUser(Command):
     username: str
+
+
+@dataclass
+class AddRoleToUser(Command):
+    username: str
+    role_name: str
+
+
+@dataclass
+class RemoveRoleFromUser(Command):
+    username: str
+    role_name: str

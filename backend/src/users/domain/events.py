@@ -26,3 +26,15 @@ class UserActivated(DomainEvent):
 @dataclass
 class UserDeactivated(DomainEvent):
     username: str
+
+
+@dataclass
+class RoleAddedToUser(DomainEvent):
+    username: str
+    role_name: str
+
+
+@dataclass
+class RoleRemovedFromUser(DomainEvent):
+    username: str
+    role_name: str

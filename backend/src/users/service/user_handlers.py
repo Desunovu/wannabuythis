@@ -8,6 +8,7 @@ from src.common.service.exceptions import (
     PasswordVerificationFailed,
     UserNotActive,
     UserAlreadyActive,
+    RoleNotFound, UserDoesNotHaveRole, UserAlreadyHasRole,
 )
 from src.common.service.uow import UnitOfWork
 from src.users.domain.commands import (
@@ -16,12 +17,16 @@ from src.users.domain.commands import (
     DeactivateUser,
     ActivateUser,
     ChangeUserEmail,
+    AddRoleToUser,
+    RemoveRoleFromUser,
 )
 from src.users.domain.events import (
     UserCreated,
     PasswordChanged,
     UserDeactivated,
     EmailChanged,
+    RoleAddedToUser,
+    RoleRemovedFromUser,
 )
 from src.users.domain.user import User
 
@@ -97,12 +102,42 @@ def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
         uow.commit()
 
 
+def handle_add_role_to_user(command: AddRoleToUser, uow: UnitOfWork):
+    with uow:
+        role = uow.role_repository.get(name=command.role_name)
+        if not role:
+            raise RoleNotFound(f"Role {command.role_name} not found")
+        user = uow.user_repository.get(username=command.username)
+        if not user:
+            raise UserNotFound(f"User {command.username} not found")
+        if user.has_role(role):
+            raise UserAlreadyHasRole(f"User {command.username} already has role {command.role_name}")
+        user.add_role(role)
+        uow.commit()
+
+
+def handle_remove_role_from_user(command: RemoveRoleFromUser, uow: UnitOfWork):
+    with uow:
+        role = uow.role_repository.get(name=command.role_name)
+        if not role:
+            raise RoleNotFound(f"Role {command.role_name} not found")
+        user = uow.user_repository.get(username=command.username)
+        if not user:
+            raise UserNotFound(f"User {command.username} not found")
+        if not user.has_role(role):
+            raise UserDoesNotHaveRole(f"User {command.username} does not have role {command.role_name}")
+        user.remove_role(role)
+        uow.commit()
+
+
 USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     CreateUser: handle_create_user,
     ChangePassword: handle_change_password,
     ChangeUserEmail: handle_change_user_email,
     ActivateUser: handle_activate_user,
     DeactivateUser: handle_deactivate_user,
+    AddRoleToUser: handle_add_role_to_user,
+    RemoveRoleFromUser: handle_remove_role_from_user,
 }
 
 USER_EVENT_HANDLERS: dict[type[DomainEvent], list[callable]] = {
@@ -110,4 +145,6 @@ USER_EVENT_HANDLERS: dict[type[DomainEvent], list[callable]] = {
     PasswordChanged: [],
     EmailChanged: [],
     UserDeactivated: [],
+    RoleAddedToUser: [],
+    RoleRemovedFromUser: [],
 }

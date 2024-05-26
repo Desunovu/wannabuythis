@@ -5,9 +5,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 
 from src.bootstrap import bootstrap
+from src.common.domain.entities import Role
 from src.common.service.uow import UnitOfWork
 from src.integration.adapters.sqlalchemy_orm import mapper_registry, start_mappers
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
+from src.roles.adapters.role_repository import RoleRepository
 from src.users.adapters.user_repository import UserRepository
 from src.users.domain.user import User
 from src.wishlists.adapters.wishlist_repository import WishlistRepository
@@ -24,6 +26,11 @@ def user():
     return User(
         username="testuser", email="testemail@example.com", password_hash="password"
     )
+
+
+@pytest.fixture
+def admin_role() -> Role:
+    return Role(name="admin")
 
 
 @pytest.fixture
@@ -115,11 +122,24 @@ class FakeWishlistRepository(WishlistRepository):
         self._wishlists.add(wishlist)
 
 
+class FakeRoleRepository(RoleRepository):
+    def __init__(self, roles: set[Role]):
+        super().__init__()
+        self._roles = roles
+
+    def _get(self, name: str) -> Role | None:
+        return next((role for role in self._roles if role.name == name), None)
+
+    def _add(self, role: Role):
+        self._roles.add(role)
+
+
 class FakeUnitOfWork(UnitOfWork):
     def __init__(self):
         super().__init__()
         self.user_repository = FakeUserRepository(set())
         self.wishlist_repository = FakeWishlistRepository(set())
+        self.role_repository = FakeRoleRepository(set())
         self.committed = False
 
     def _commit(self):

@@ -14,6 +14,18 @@ class UserNotActive(Exception):
     pass
 
 
+class UserAlreadyHasRole(Exception):
+    pass
+
+
+class UserDoesNotHaveRole(Exception):
+    pass
+
+
+class RoleNotFound(Exception):
+    pass
+
+
 class PasswordValidationFailed(Exception):
     pass
 

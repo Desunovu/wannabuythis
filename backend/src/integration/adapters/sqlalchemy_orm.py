@@ -13,6 +13,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import registry, relationship
 
+from src.common.domain.entities import Role, Permission
 from src.users.domain.user import User
 from src.wishlists.domain.wishlist import Wishlist
 from src.wishlists.domain.wishlist_item import WishlistItem, MeasurementUnit, Priority
@@ -58,6 +59,34 @@ users_table = Table(
     Column("is_active", Boolean),
 )
 
+roles_table = Table(
+    "roles",
+    mapper_registry.metadata,
+    Column("id", Integer, primary_key=True),
+    Column("name", String, unique=True),
+)
+
+user_roles_table = Table(
+    "user_roles",
+    mapper_registry.metadata,
+    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("role_id", Integer, ForeignKey("roles.id"), primary_key=True),
+)
+
+permissions_table = Table(
+    "permissions",
+    mapper_registry.metadata,
+    Column("id", Integer, primary_key=True),
+    Column("name", String, unique=True),
+)
+
+role_permissions_table = Table(
+    "role_permissions",
+    mapper_registry.metadata,
+    Column("role_id", Integer, ForeignKey("roles.id"), primary_key=True),
+    Column("permission_id", Integer, ForeignKey("permissions.id"), primary_key=True),
+)
+
 wishlists_table = Table(
     "wishlists",
     mapper_registry.metadata,
@@ -81,7 +110,19 @@ wishlist_items_table = Table(
 
 
 def start_mappers():
-    mapper_registry.map_imperatively(User, users_table)
+    mapper_registry.map_imperatively(
+        User,
+        users_table,
+        properties={"roles": relationship(Role, secondary=user_roles_table)},
+    )
+    mapper_registry.map_imperatively(
+        Role,
+        roles_table,
+        properties={
+            "permissions": relationship(Permission, secondary=role_permissions_table)
+        },
+    )
+    mapper_registry.map_imperatively(Permission, permissions_table)
     mapper_registry.map_imperatively(
         Wishlist,
         wishlists_table,

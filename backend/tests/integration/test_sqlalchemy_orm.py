@@ -24,7 +24,7 @@ def check_fields_mapping(domain_object, excluded_fields: list[str]):
 
 class TestSQLAlchemyORM:
     def test_user_mapping(self, mappers, user):
-        check_fields_mapping(domain_object=user, excluded_fields=[])
+        check_fields_mapping(domain_object=user, excluded_fields=["roles"])
 
     def test_wishlist_mapping(self, mappers, wishlist):
         check_fields_mapping(domain_object=wishlist, excluded_fields=["items"])

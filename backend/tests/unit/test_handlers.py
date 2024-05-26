@@ -9,6 +9,9 @@ from src.common.service.exceptions import (
     WishlistItemNotFound,
     UserNotActive,
     UserAlreadyActive,
+    UserAlreadyHasRole,
+    RoleNotFound,
+    UserDoesNotHaveRole,
 )
 from src.users.domain.commands import (
     CreateUser,
@@ -16,6 +19,8 @@ from src.users.domain.commands import (
     DeactivateUser,
     ActivateUser,
     ChangeUserEmail,
+    AddRoleToUser,
+    RemoveRoleFromUser,
 )
 from src.wishlists.domain.commands import (
     CreateWishlist,
@@ -232,3 +237,80 @@ class TestDeactivateUser:
         messagebus.uow.user_repository.add(user)
         with pytest.raises(UserNotActive):
             messagebus.handle(DeactivateUser(username=user.username))
+
+
+class TestAddRoleToUser:
+    def test_add_role_to_user(self, messagebus, user, admin_role):
+        messagebus.uow.user_repository.add(user)
+        messagebus.uow.role_repository.add(admin_role)
+        messagebus.handle(
+            AddRoleToUser(username=user.username, role_name=admin_role.name)
+        )
+        assert user.has_role(admin_role)
+
+    def test_add_role_to_non_existing_user(self, messagebus, admin_role):
+        messagebus.uow.role_repository.add(admin_role)
+        with pytest.raises(UserNotFound):
+            messagebus.handle(
+                AddRoleToUser(username="non-existing-user", role_name=admin_role.name)
+            )
+
+    def test_add_role_to_user_already_has_role(self, messagebus, user, admin_role):
+        messagebus.uow.user_repository.add(user)
+        messagebus.uow.role_repository.add(admin_role)
+        messagebus.handle(
+            AddRoleToUser(username=user.username, role_name=admin_role.name)
+        )
+        with pytest.raises(UserAlreadyHasRole):
+            messagebus.handle(
+                AddRoleToUser(username=user.username, role_name=admin_role.name)
+            )
+
+    def test_add_role_to_user_non_existing_role(self, messagebus, user):
+        messagebus.uow.user_repository.add(user)
+        with pytest.raises(RoleNotFound):
+            messagebus.handle(
+                AddRoleToUser(username=user.username, role_name="non-existing-role")
+            )
+
+
+class TestRemoveRoleFromUser:
+    def test_remove_role_from_user(self, messagebus, user, admin_role):
+        messagebus.uow.user_repository.add(user)
+        messagebus.uow.role_repository.add(admin_role)
+        messagebus.handle(
+            AddRoleToUser(username=user.username, role_name=admin_role.name)
+        )
+        assert user.has_role(admin_role)
+        messagebus.handle(
+            RemoveRoleFromUser(username=user.username, role_name=admin_role.name)
+        )
+        assert not user.has_role(admin_role)
+
+    def test_remove_role_from_non_existing_user(self, messagebus, admin_role):
+        messagebus.uow.role_repository.add(admin_role)
+        with pytest.raises(UserNotFound):
+            messagebus.handle(
+                RemoveRoleFromUser(
+                    username="non-existing-user", role_name=admin_role.name
+                )
+            )
+
+    def test_remove_role_from_user_does_not_have_role(
+        self, messagebus, user, admin_role
+    ):
+        messagebus.uow.role_repository.add(admin_role)
+        messagebus.uow.user_repository.add(user)
+        with pytest.raises(UserDoesNotHaveRole):
+            messagebus.handle(
+                RemoveRoleFromUser(username=user.username, role_name=admin_role.name)
+            )
+
+    def test_remove_role_from_user_non_existing_role(self, messagebus, user):
+        messagebus.uow.user_repository.add(user)
+        with pytest.raises(RoleNotFound):
+            messagebus.handle(
+                RemoveRoleFromUser(
+                    username=user.username, role_name="non-existing-role"
+                )
+            )

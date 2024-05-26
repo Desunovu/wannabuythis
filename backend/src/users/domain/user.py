@@ -1,5 +1,12 @@
 from src.common.domain.aggregates import AggregateRoot
-from src.users.domain.events import PasswordChanged, UserDeactivated, EmailChanged
+from src.common.domain.entities import Role
+from src.users.domain.events import (
+    PasswordChanged,
+    UserDeactivated,
+    EmailChanged,
+    RoleAddedToUser,
+    RoleRemovedFromUser,
+)
 
 
 class User(AggregateRoot):
@@ -9,6 +16,7 @@ class User(AggregateRoot):
         self.email = email
         self.password_hash = password_hash
         self.is_active = True
+        self.roles: list[Role] = []
 
     @staticmethod
     def validate_password(new_password: str) -> bool:
@@ -39,3 +47,14 @@ class User(AggregateRoot):
     def deactivate(self):
         self.is_active = False
         self.add_event(UserDeactivated(self.username))
+
+    def add_role(self, role: Role):
+        self.roles.append(role)
+        self.add_event(RoleAddedToUser(self.username, role.name))
+
+    def remove_role(self, role: Role):
+        self.roles.remove(role)
+        self.add_event(RoleRemovedFromUser(self.username, role.name))
+
+    def has_role(self, role: Role) -> bool:
+        return role in self.roles
