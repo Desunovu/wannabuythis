@@ -64,7 +64,7 @@ def handle_change_password(
             raise PasswordValidationFailed("New password is not valid")
         if not command.called_by_admin:
             if not password_manager.verify_password(
-                command.old_password, user.password_hash
+                password=command.old_password, password_hash=user.password_hash
             ):
                 raise PasswordVerificationFailed("Old password is not correct")
         new_password_hash = password_manager.hash_password(command.new_password)
