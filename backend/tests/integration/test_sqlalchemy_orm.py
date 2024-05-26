@@ -1,6 +1,8 @@
 def get_mapped_fields(domain_object) -> list[str]:
-    """Get the list of mapped fields after mapping"""
-    return [field.name for field in domain_object.__mapper__.columns]
+    """Get the list of mapped columns/relations after mapping"""
+    columns = [field.name for field in domain_object.__mapper__.columns]
+    relations = [field.key for field in domain_object.__mapper__.relationships]
+    return columns + relations
 
 
 def get_object_fields(domain_object) -> list[str]:
@@ -12,22 +14,20 @@ def get_object_fields(domain_object) -> list[str]:
     ]
 
 
-def check_fields_mapping(domain_object, excluded_fields: list[str]):
+def check_fields_mapping(domain_object):
     """Check if all object fields are mapped field list"""
     object_fields = get_object_fields(domain_object)
     mapped_fields = get_mapped_fields(domain_object)
-    for field in excluded_fields:
-        object_fields.remove(field)
     for field in object_fields:
         assert field in mapped_fields, f"Field '{field}' is not mapped correctly"
 
 
 class TestSQLAlchemyORM:
     def test_user_mapping(self, mappers, user):
-        check_fields_mapping(domain_object=user, excluded_fields=["roles"])
+        check_fields_mapping(domain_object=user)
 
     def test_wishlist_mapping(self, mappers, wishlist):
-        check_fields_mapping(domain_object=wishlist, excluded_fields=["items"])
+        check_fields_mapping(domain_object=wishlist)
 
     def test_wishlist_item_mapping(self, mappers, apple_item):
-        check_fields_mapping(domain_object=apple_item, excluded_fields=[])
+        check_fields_mapping(domain_object=apple_item)
