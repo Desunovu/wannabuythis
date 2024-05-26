@@ -29,3 +29,10 @@ class AddWishlistItem(Command):
 class RemoveWishlistItem(Command):
     wishlist_uuid: UUID
     item_uuid: UUID
+
+
+@dataclass
+class SetWishlistItemStatus(Command):
+    wishlist_uuid: UUID
+    item_uuid: UUID
+    is_purchased: bool

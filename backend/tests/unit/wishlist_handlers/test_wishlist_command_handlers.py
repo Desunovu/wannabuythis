@@ -12,6 +12,7 @@ from src.wishlists.domain.commands import (
     ChangeWishlistName,
     AddWishlistItem,
     RemoveWishlistItem,
+    SetWishlistItemStatus,
 )
 
 
@@ -101,5 +102,57 @@ class TestRemoveWishlistItem:
             messagebus.handle(
                 RemoveWishlistItem(
                     wishlist_uuid=populated_wishlist.uuid, item_uuid=uuid.uuid4()
+                )
+            )
+
+
+class TestSetWishlistItemStatus:
+    def test_set_wishlist_item_is_purchased(self, messagebus, populated_wishlist):
+        messagebus.uow.wishlist_repository.add(populated_wishlist)
+        item_to_mark = populated_wishlist.items[0]
+        messagebus.handle(
+            SetWishlistItemStatus(
+                wishlist_uuid=populated_wishlist.uuid,
+                item_uuid=item_to_mark.uuid,
+                is_purchased=True,
+            )
+        )
+        assert item_to_mark.is_purchased is True
+
+    def test_set_wishlist_item_is_not_purchased(self, messagebus, populated_wishlist):
+        messagebus.uow.wishlist_repository.add(populated_wishlist)
+        item_to_mark = populated_wishlist.items[0]
+        item_to_mark.is_purchased = True
+        messagebus.handle(
+            SetWishlistItemStatus(
+                wishlist_uuid=populated_wishlist.uuid,
+                item_uuid=item_to_mark.uuid,
+                is_purchased=False,
+            )
+        )
+        assert item_to_mark.is_purchased is False
+
+    def test_set_wishlist_item_status_non_existing_wishlist(
+        self, messagebus, apple_item
+    ):
+        with pytest.raises(WishlistNotFound):
+            messagebus.handle(
+                SetWishlistItemStatus(
+                    wishlist_uuid=uuid.uuid4(),
+                    item_uuid=apple_item.uuid,
+                    is_purchased=True,
+                )
+            )
+
+    def test_set_wishlist_item_status_non_existing_wishlist_item(
+        self, populated_wishlist, messagebus
+    ):
+        messagebus.uow.wishlist_repository.add(populated_wishlist)
+        with pytest.raises(WishlistItemNotFound):
+            messagebus.handle(
+                SetWishlistItemStatus(
+                    wishlist_uuid=populated_wishlist.uuid,
+                    item_uuid=uuid.uuid4(),
+                    is_purchased=True,
                 )
             )

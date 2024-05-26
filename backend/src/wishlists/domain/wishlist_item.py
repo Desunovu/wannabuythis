@@ -32,3 +32,4 @@ class WishlistItem(Entity):
         self.quantity = quantity
         self.measurement_unit = measurement_unit
         self.priority = priority
+        self.is_purchased = False

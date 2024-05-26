@@ -12,12 +12,15 @@ from src.wishlists.domain.commands import (
     ChangeWishlistName,
     AddWishlistItem,
     RemoveWishlistItem,
+    SetWishlistItemStatus,
 )
 from src.wishlists.domain.events import (
     WishlistNameChanged,
     WishlistCreated,
     WishlistItemAdded,
     WishlistItemRemoved,
+    WishlistItemMarkedAsNotPurchased,
+    WishlistItemMarkedAsPurchased,
 )
 from src.wishlists.domain.wishlist import Wishlist
 from src.wishlists.domain.wishlist_item import WishlistItem, MeasurementUnit, Priority
@@ -87,11 +90,23 @@ def handle_remove_wishlist_item(command: RemoveWishlistItem, uow: UnitOfWork):
         uow.commit()
 
 
+def handle_set_wishlist_item_status(command: SetWishlistItemStatus, uow: UnitOfWork):
+    with uow:
+        wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
+        if not wishlist:
+            raise WishlistNotFound(f"Wishlist {command.wishlist_uuid} not found")
+        if command.item_uuid not in [item.uuid for item in wishlist.items]:
+            raise WishlistItemNotFound(f"Wishlist item {command.item_uuid} not found")
+        wishlist.set_item_status(command.item_uuid, command.is_purchased)
+        uow.commit()
+
+
 WISHLIST_COMMAND_HANDLERS: dict[type[Command], callable] = {
     CreateWishlist: handle_create_wishlist,
     ChangeWishlistName: handle_change_wishlist_name,
     AddWishlistItem: handle_add_wishlist_item,
     RemoveWishlistItem: handle_remove_wishlist_item,
+    SetWishlistItemStatus: handle_set_wishlist_item_status,
 }
 
 WISHLIST_EVENT_HANDLERS: dict[type[DomainEvent], list[callable]] = {
@@ -99,4 +114,6 @@ WISHLIST_EVENT_HANDLERS: dict[type[DomainEvent], list[callable]] = {
     WishlistNameChanged: [],
     WishlistItemAdded: [],
     WishlistItemRemoved: [],
+    WishlistItemMarkedAsPurchased: [],
+    WishlistItemMarkedAsNotPurchased: [],
 }

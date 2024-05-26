@@ -106,6 +106,7 @@ wishlist_items_table = Table(
     Column("quantity", Integer),
     Column("measurement_unit", MeasurementUnitType),
     Column("priority", PriorityType),
+    Column("is_purchased", Boolean),
 )
 
 

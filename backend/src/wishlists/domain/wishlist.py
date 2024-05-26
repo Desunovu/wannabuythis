@@ -5,6 +5,8 @@ from src.wishlists.domain.events import (
     WishlistNameChanged,
     WishlistItemAdded,
     WishlistItemRemoved,
+    WishlistItemMarkedAsPurchased,
+    WishlistItemMarkedAsNotPurchased,
 )
 from src.wishlists.domain.wishlist_item import WishlistItem
 
@@ -42,3 +44,21 @@ class Wishlist(AggregateRoot):
         self.add_event(
             WishlistItemRemoved(item_uuid=item_uuid, wishlist_uuid=self.uuid)
         )
+
+    def find_item(self, item_uuid: UUID):
+        return next((item for item in self.items if item.uuid == item_uuid), None)
+
+    def set_item_status(self, item_uuid: UUID, is_purchased: bool):
+        item = self.find_item(item_uuid)
+        if item is None:
+            raise ValueError(
+                f"Item with UUID {item_uuid} not found in wishlist {self.uuid}"
+            )
+
+        item.is_purchased = is_purchased
+        event_class = (
+            WishlistItemMarkedAsPurchased
+            if is_purchased
+            else WishlistItemMarkedAsNotPurchased
+        )
+        self.add_event(event_class(item_uuid=item_uuid, wishlist_uuid=self.uuid))

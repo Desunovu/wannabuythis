@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Protocol
 from uuid import UUID
 
 from src.common.domain.events import DomainEvent
@@ -28,5 +29,17 @@ class WishlistItemAdded(DomainEvent):
 
 @dataclass
 class WishlistItemRemoved(DomainEvent):
+    item_uuid: UUID
+    wishlist_uuid: UUID
+
+
+@dataclass
+class WishlistItemMarkedAsPurchased(DomainEvent):
+    item_uuid: UUID
+    wishlist_uuid: UUID
+
+
+@dataclass
+class WishlistItemMarkedAsNotPurchased(DomainEvent):
     item_uuid: UUID
     wishlist_uuid: UUID
