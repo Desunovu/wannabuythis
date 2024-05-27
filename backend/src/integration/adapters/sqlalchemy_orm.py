@@ -13,8 +13,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import registry, relationship
 
-from src.users.domain.model import User, Permission, Role
-from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
+from src.users.domain import model as user_model
+from src.wishlists.domain import model as wishlist_model
 
 mapper_registry = registry()
 
@@ -23,31 +23,33 @@ class MeasurementUnitType(TypeDecorator):
     impl = String
 
     def process_bind_param(
-        self, measurement_unit: MeasurementUnit, dialect: Dialect
+        self, measurement_unit: wishlist_model.MeasurementUnit, dialect: Dialect
     ) -> str:
         return measurement_unit.name
 
     def process_result_value(
         self, value: Optional[str], dialect: Dialect
-    ) -> Optional[MeasurementUnit]:
+    ) -> Optional[wishlist_model.MeasurementUnit]:
         if value is not None:
-            return MeasurementUnit(name=value)
+            return wishlist_model.MeasurementUnit(name=value)
 
 
 class PriorityType(TypeDecorator):
     impl = Integer
 
-    def process_bind_param(self, priority: Priority, dialect: Dialect) -> int:
+    def process_bind_param(
+        self, priority: wishlist_model.Priority, dialect: Dialect
+    ) -> int:
         return priority.value
 
     def process_result_value(
         self, value: Optional[int], dialect: Dialect
-    ) -> Optional[Priority]:
+    ) -> Optional[wishlist_model.Priority]:
         if value is not None:
-            return Priority(value=value)
+            return wishlist_model.Priority(value=value)
 
 
-users_table = Table(
+users = Table(
     "users",
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True),
@@ -57,35 +59,35 @@ users_table = Table(
     Column("is_active", Boolean),
 )
 
-roles_table = Table(
+roles = Table(
     "roles",
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True),
     Column("name", String, unique=True),
 )
 
-user_roles_table = Table(
+user_roles = Table(
     "user_roles",
     mapper_registry.metadata,
     Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
     Column("role_id", Integer, ForeignKey("roles.id"), primary_key=True),
 )
 
-permissions_table = Table(
+permissions = Table(
     "permissions",
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True),
     Column("name", String, unique=True),
 )
 
-role_permissions_table = Table(
+role_permissions = Table(
     "role_permissions",
     mapper_registry.metadata,
     Column("role_id", Integer, ForeignKey("roles.id"), primary_key=True),
     Column("permission_id", Integer, ForeignKey("permissions.id"), primary_key=True),
 )
 
-wishlists_table = Table(
+wishlists = Table(
     "wishlists",
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True),
@@ -95,7 +97,7 @@ wishlists_table = Table(
     Column("is_archived", Boolean),
 )
 
-wishlist_items_table = Table(
+wishlist_items = Table(
     "wishlist_items",
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True),
@@ -108,28 +110,53 @@ wishlist_items_table = Table(
     Column("is_purchased", Boolean),
 )
 
+measurement_units = Table(
+    "measurement_units",
+    mapper_registry.metadata,
+    Column("id", Integer, primary_key=True),
+    Column("name", String, unique=True),
+)
+
+priorities = Table(
+    "priorities",
+    mapper_registry.metadata,
+    Column("id", Integer, primary_key=True),
+    Column("value", Integer, unique=True),
+)
+
 
 def start_mappers():
+    # Users context
     mapper_registry.map_imperatively(
-        User,
-        users_table,
-        properties={"roles": relationship(Role, secondary=user_roles_table)},
+        user_model.User,
+        users,
+        properties={"roles": relationship(user_model.Role, secondary=user_roles)},
     )
     mapper_registry.map_imperatively(
-        Role,
-        roles_table,
+        user_model.Role,
+        roles,
         properties={
-            "permissions": relationship(Permission, secondary=role_permissions_table)
-        },
-    )
-    mapper_registry.map_imperatively(Permission, permissions_table)
-    mapper_registry.map_imperatively(
-        Wishlist,
-        wishlists_table,
-        properties={
-            "items": relationship(
-                WishlistItem, order_by=wishlist_items_table.c.id, lazy="dynamic"
+            "permissions": relationship(
+                user_model.Permission, secondary=role_permissions
             )
         },
     )
-    mapper_registry.map_imperatively(WishlistItem, wishlist_items_table)
+    mapper_registry.map_imperatively(user_model.Permission, permissions)
+
+    # Wishlists context
+    mapper_registry.map_imperatively(
+        wishlist_model.Wishlist,
+        wishlists,
+        properties={
+            "items": relationship(
+                wishlist_model.WishlistItem,
+                order_by=wishlist_items.c.id,
+                lazy="dynamic",
+            )
+        },
+    )
+    mapper_registry.map_imperatively(wishlist_model.WishlistItem, wishlist_items)
+    mapper_registry.map_imperatively(
+        wishlist_model.MeasurementUnit, measurement_units
+    )
+    mapper_registry.map_imperatively(wishlist_model.Priority, priorities)
