@@ -1,7 +1,9 @@
+import importlib
 import inspect
+import pkgutil
 
-from src.users.domain import model as user_model
-from src.wishlists.domain import model as wishlist_model
+from src.users.domain import model as user_model_module
+from src.wishlists.domain import model as wishlist_model_module
 
 
 def get_mapper_columns_and_relationships(domain_class) -> list[str]:
@@ -16,7 +18,9 @@ def get_class_fields(domain_class) -> list[str]:
     return [
         name
         for name, value in inspect.getmembers(domain_class)
-        if not name.startswith("_") and not inspect.isroutine(value) and name != "events"
+        if not name.startswith("_")
+        and not inspect.isroutine(value)
+        and name != "events"
     ]
 
 
@@ -34,18 +38,24 @@ def check_classes_mapping(domain_classes: list):
         check_fields_mapping(domain_class)
 
 
+def discover_classes(module):
+    """Discover all classes in the given module"""
+    members = inspect.getmembers(module)
+    classes = [
+        member[1]
+        for member in members
+        if inspect.isclass(member[1]) and member[1].__module__ == module.__name__
+    ]
+    return classes
+
+
 class TestUserContextClassMapping:
     def test_user_context_mapping(self, prepare_mappers):
-        check_classes_mapping([user_model.User, user_model.Role, user_model.Permission])
+        user_context_classes = discover_classes(user_model_module)
+        check_classes_mapping(user_context_classes)
 
 
 class TestWishlistContextClassMapping:
     def test_wishlist_context_mapping(self, prepare_mappers):
-        check_classes_mapping(
-            [
-                wishlist_model.Wishlist,
-                wishlist_model.WishlistItem,
-                wishlist_model.Priority,
-                wishlist_model.MeasurementUnit,
-            ]
-        )
+        wishlist_context_classes = discover_classes(wishlist_model_module)
+        check_classes_mapping(wishlist_context_classes)
