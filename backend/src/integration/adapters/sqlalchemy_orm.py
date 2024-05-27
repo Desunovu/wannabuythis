@@ -156,7 +156,5 @@ def start_mappers():
         },
     )
     mapper_registry.map_imperatively(wishlist_model.WishlistItem, wishlist_items)
-    mapper_registry.map_imperatively(
-        wishlist_model.MeasurementUnit, measurement_units
-    )
+    mapper_registry.map_imperatively(wishlist_model.MeasurementUnit, measurement_units)
     mapper_registry.map_imperatively(wishlist_model.Priority, priorities)
