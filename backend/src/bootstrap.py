@@ -1,5 +1,5 @@
-from typing import Callable, Dict
 import inspect
+from typing import Callable, Dict
 
 from src.common.adapters.dependencies import (
     PasswordHasher,
@@ -12,6 +12,7 @@ from src.common.domain.events import DomainEvent
 from src.common.service.messagebus import Messagebus
 from src.common.service.uow import UnitOfWork
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
+from src.roles.service.role_handlers import ROLE_COMMAND_HANDLERS, ROLE_EVENT_HANDLERS
 from src.users.service.user_handlers import (
     USER_COMMAND_HANDLERS,
     USER_EVENT_HANDLERS,
@@ -32,8 +33,16 @@ def bootstrap(
     Sets up handlers, declares essential dependencies, and injects these dependencies into the handlers.
     """
     # Combine handlers
-    command_handlers = {**USER_COMMAND_HANDLERS, **WISHLIST_COMMAND_HANDLERS}
-    event_handlers = {**USER_EVENT_HANDLERS, **WISHLIST_EVENT_HANDLERS}
+    command_handlers = {
+        **USER_COMMAND_HANDLERS,
+        **WISHLIST_COMMAND_HANDLERS,
+        **ROLE_COMMAND_HANDLERS,
+    }
+    event_handlers = {
+        **USER_EVENT_HANDLERS,
+        **WISHLIST_EVENT_HANDLERS,
+        **ROLE_EVENT_HANDLERS,
+    }
     # Declare dependencies
     dependencies = {
         "uow": uow,

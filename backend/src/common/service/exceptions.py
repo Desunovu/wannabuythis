@@ -64,3 +64,22 @@ class WishlistAlreadyArchived(Exception):
 class WishlistNotArchived(Exception):
     def __init__(self, uuid: UUID):
         super().__init__(f"Wishlist '{uuid}' is not archived")
+
+
+class RoleAlreadyExists(Exception):
+    def __init__(self, role_name: str):
+        super().__init__(f"Role '{role_name}' already exists")
+
+
+class RoleAlreadyHasPermission(Exception):
+    def __init__(self, role_name: str, permission_name: str):
+        super().__init__(
+            f"Role '{role_name}' already has permission '{permission_name}'"
+        )
+
+
+class RoleDoesNotHavePermission(Exception):
+    def __init__(self, role_name: str, permission_name: str):
+        super().__init__(
+            f"Role '{role_name}' does not have permission '{permission_name}'"
+        )

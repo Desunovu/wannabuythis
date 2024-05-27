@@ -65,6 +65,13 @@ def default_role():
 
 
 @pytest.fixture
+def role_with_permissions(default_role, permission):
+    """Role aggregate with permissions"""
+    default_role.permissions.append(permission)
+    return default_role
+
+
+@pytest.fixture
 def measurement_unit():
     return MeasurementUnit(name="kg.")
 
