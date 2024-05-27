@@ -11,7 +11,7 @@ from src.integration.adapters.sqlalchemy_orm import mapper_registry, start_mappe
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.roles.adapters.role_repository import RoleRepository
 from src.users.adapters.user_repository import UserRepository
-from src.users.domain.model import User, Role
+from src.users.domain.model import User, Role, Permission
 from src.wishlists.adapters.wishlist_repository import WishlistRepository
 from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
 
@@ -49,6 +49,11 @@ def activated_user(user):
 @pytest.fixture
 def admin_role() -> Role:
     return Role(name="admin")
+
+
+@pytest.fixture
+def permission():
+    return Permission(name="CREATE_WISHLIST")
 
 
 @pytest.fixture
@@ -221,14 +226,14 @@ def wishlist_new_name():
 
 
 @pytest.fixture
-def mappers():
+def prepare_mappers():
     start_mappers()
     yield
     clear_mappers()
 
 
 @pytest.fixture
-def sqlite_database_engine(mappers):
+def sqlite_database_engine(prepare_mappers):
     # Create an in-memory SQLite database
     engine = create_engine("sqlite:///:memory:")
     mapper_registry.metadata.create_all(engine)

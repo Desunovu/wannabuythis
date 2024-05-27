@@ -22,12 +22,18 @@ def check_fields_mapping(domain_object):
         assert field in mapped_fields, f"Field '{field}' is not mapped correctly"
 
 
-class TestSQLAlchemyORM:
-    def test_user_mapping(self, mappers, user):
+class TestUserContextClassMapping:
+    def test_user_context_mapping(self, prepare_mappers, user, admin_role, permission):
         check_fields_mapping(domain_object=user)
+        check_fields_mapping(domain_object=admin_role)
+        check_fields_mapping(domain_object=permission)
 
-    def test_wishlist_mapping(self, mappers, wishlist):
+
+class TestWishlistContextClassMapping:
+    def test_wishlist_context_mapping(
+        self, prepare_mappers, wishlist, apple_item, measurement_unit, priority
+    ):
         check_fields_mapping(domain_object=wishlist)
-
-    def test_wishlist_item_mapping(self, mappers, apple_item):
         check_fields_mapping(domain_object=apple_item)
+        check_fields_mapping(domain_object=measurement_unit)
+        check_fields_mapping(domain_object=priority)
