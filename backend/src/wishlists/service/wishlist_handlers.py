@@ -22,8 +22,7 @@ from src.wishlists.domain.events import (
     WishlistItemMarkedAsNotPurchased,
     WishlistItemMarkedAsPurchased, WishlistArchived, WishlistUnarchived,
 )
-from src.wishlists.domain.wishlist import Wishlist
-from src.wishlists.domain.wishlist_item import WishlistItem, MeasurementUnit, Priority
+from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
 
 
 def handle_create_wishlist(

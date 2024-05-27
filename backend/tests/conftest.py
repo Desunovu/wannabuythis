@@ -5,17 +5,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 
 from src.bootstrap import bootstrap
-from src.common.adapters.dependencies import PasswordHasher, DefaultPasswordHasher
-from src.common.domain.entities import Role
+from src.common.adapters.dependencies import DefaultPasswordHasher
 from src.common.service.uow import UnitOfWork
 from src.integration.adapters.sqlalchemy_orm import mapper_registry, start_mappers
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.roles.adapters.role_repository import RoleRepository
 from src.users.adapters.user_repository import UserRepository
-from src.users.domain.user import User
+from src.users.domain.model import User, Role
 from src.wishlists.adapters.wishlist_repository import WishlistRepository
-from src.wishlists.domain.wishlist import Wishlist
-from src.wishlists.domain.wishlist_item import MeasurementUnit, WishlistItem, Priority
+from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
 
 
 @pytest.fixture

@@ -1,6 +1,6 @@
 import abc
 
-from src.users.domain.user import User
+from src.users.domain.model import User
 
 
 class UserRepository(abc.ABC):

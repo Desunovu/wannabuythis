@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from src.wishlists.adapters.wishlist_repository import WishlistRepository
-from src.wishlists.domain.wishlist import Wishlist
+from src.wishlists.domain.model import Wishlist
 
 
 class SQLAlchemyWishlistRepository(WishlistRepository):

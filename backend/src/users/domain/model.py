@@ -1,5 +1,7 @@
+from dataclasses import dataclass
+
 from src.common.domain.aggregates import AggregateRoot
-from src.common.domain.entities import Role
+from src.common.domain.entities import Entity
 from src.users.domain.events import (
     PasswordChanged,
     UserDeactivated,
@@ -7,6 +9,20 @@ from src.users.domain.events import (
     RoleAddedToUser,
     RoleRemovedFromUser, UserActivated,
 )
+
+
+@dataclass
+class Permission(Entity):
+    name: str
+
+
+class Role(Entity):
+    def __init__(self, name: str):
+        self.name = name
+        self.permissions = []
+
+    def has_permission(self, permission: Permission):
+        return permission in self.permissions
 
 
 class User(AggregateRoot):

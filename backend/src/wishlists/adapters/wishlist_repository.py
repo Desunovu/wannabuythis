@@ -1,7 +1,7 @@
 import abc
 from uuid import UUID
 
-from src.wishlists.domain.wishlist import Wishlist
+from src.wishlists.domain.model import Wishlist
 
 
 class WishlistRepository(abc.ABC):

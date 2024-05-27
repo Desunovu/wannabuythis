@@ -30,7 +30,7 @@ from src.users.domain.events import (
     RoleAddedToUser,
     RoleRemovedFromUser, UserActivated,
 )
-from src.users.domain.user import User
+from src.users.domain.model import User
 
 
 def handle_create_user(

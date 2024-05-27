@@ -13,10 +13,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import registry, relationship
 
-from src.common.domain.entities import Role, Permission
-from src.users.domain.user import User
-from src.wishlists.domain.wishlist import Wishlist
-from src.wishlists.domain.wishlist_item import WishlistItem, MeasurementUnit, Priority
+from src.users.domain.model import User, Permission, Role
+from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
 
 mapper_registry = registry()
 

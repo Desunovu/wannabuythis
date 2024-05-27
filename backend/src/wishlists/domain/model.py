@@ -1,6 +1,9 @@
+from dataclasses import dataclass
 from uuid import UUID
 
 from src.common.domain.aggregates import AggregateRoot
+from src.common.domain.entities import Entity
+from src.common.domain.value_objects import ValueObject
 from src.wishlists.domain.events import (
     WishlistNameChanged,
     WishlistItemAdded,
@@ -10,10 +13,38 @@ from src.wishlists.domain.events import (
     WishlistUnarchived,
     WishlistArchived,
 )
-from src.wishlists.domain.wishlist_item import WishlistItem
 
 
-# TODO: Add WORKSPACE Aggregate???
+@dataclass
+class MeasurementUnit(ValueObject):
+    name: str
+
+
+@dataclass
+class Priority(ValueObject):
+    value: int
+
+
+class WishlistItem(Entity):
+    def __init__(
+        self,
+        uuid: UUID,
+        wishlist_uuid: UUID,
+        name: str,
+        quantity: int,
+        measurement_unit: MeasurementUnit,
+        priority: Priority,
+    ):
+        super().__init__()
+        self.uuid = uuid
+        self.wishlist_uuid = wishlist_uuid
+        self.name = name
+        self.quantity = quantity
+        self.measurement_unit = measurement_unit
+        self.priority = priority
+        self.is_purchased = False
+
+
 class Wishlist(AggregateRoot):
     def __init__(
         self, uuid: UUID, owner_username: str, name: str, items: list[WishlistItem]
@@ -65,7 +96,6 @@ class Wishlist(AggregateRoot):
             raise ValueError(
                 f"Item with UUID {item_uuid} not found in wishlist {self.uuid}"
             )
-
         item.is_purchased = is_purchased
         event_class = (
             WishlistItemMarkedAsPurchased
