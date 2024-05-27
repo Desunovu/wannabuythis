@@ -1,22 +1,10 @@
 import abc
 
+from src.common.adapters.repository import BaseRepository
 from src.users.domain.model import User
 
 
-class UserRepository(abc.ABC):
-    def __init__(self):
-        self.seen: set[User] = set()
-
-    def get(self, username: str) -> User | None:
-        user = self._get(username)
-        if user:
-            self.seen.add(user)
-        return user
-
-    def add(self, user: User):
-        self._add(user)
-        self.seen.add(user)
-
+class UserRepository(BaseRepository[User]):
     @abc.abstractmethod
     def _get(self, username: str) -> User | None: ...
 

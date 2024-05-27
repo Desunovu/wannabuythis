@@ -40,7 +40,7 @@ def handle_create_user(
     password_manager: PasswordHasher,
 ):
     with uow:
-        user = uow.user_repository.get(username=command.username)
+        user = uow.user_repository.get(command.username)
         if user:
             raise UserExists(command.username)
         if not User.validate_password(command.password):
@@ -58,7 +58,7 @@ def handle_change_password(
     password_manager: PasswordHasher,
 ):
     with uow:
-        user = uow.user_repository.get(username=command.username)
+        user = uow.user_repository.get(command.username)
         if not user:
             raise UserNotFound(command.username)
         if not User.validate_password(command.new_password):
@@ -76,7 +76,7 @@ def handle_change_password(
 
 def handle_change_user_email(command: ChangeUserEmail, uow: UnitOfWork):
     with uow:
-        user = uow.user_repository.get(username=command.username)
+        user = uow.user_repository.get(command.username)
         if not user:
             raise UserNotFound(command.username)
         user.change_email(command.new_email)
@@ -85,7 +85,7 @@ def handle_change_user_email(command: ChangeUserEmail, uow: UnitOfWork):
 
 def handle_activate_user(command: ActivateUser, uow: UnitOfWork):
     with uow:
-        user = uow.user_repository.get(username=command.username)
+        user = uow.user_repository.get(command.username)
         if not user:
             raise UserNotFound(command.username)
         if user.is_active:
@@ -96,7 +96,7 @@ def handle_activate_user(command: ActivateUser, uow: UnitOfWork):
 
 def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
     with uow:
-        user = uow.user_repository.get(username=command.username)
+        user = uow.user_repository.get(command.username)
         if not user:
             raise UserNotFound(command.username)
         if not user.is_active:
@@ -107,10 +107,10 @@ def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
 
 def handle_add_role_to_user(command: AddRoleToUser, uow: UnitOfWork):
     with uow:
-        role = uow.role_repository.get(name=command.role_name)
+        role = uow.role_repository.get(command.role_name)
         if not role:
             raise RoleNotFound(command.role_name)
-        user = uow.user_repository.get(username=command.username)
+        user = uow.user_repository.get(command.username)
         if not user:
             raise UserNotFound(command.username)
         if user.has_role(role):
@@ -121,10 +121,10 @@ def handle_add_role_to_user(command: AddRoleToUser, uow: UnitOfWork):
 
 def handle_remove_role_from_user(command: RemoveRoleFromUser, uow: UnitOfWork):
     with uow:
-        role = uow.role_repository.get(name=command.role_name)
+        role = uow.role_repository.get(command.role_name)
         if not role:
             raise RoleNotFound(command.role_name)
-        user = uow.user_repository.get(username=command.username)
+        user = uow.user_repository.get(command.username)
         if not user:
             raise UserNotFound(command.username)
         if not user.has_role(role):
