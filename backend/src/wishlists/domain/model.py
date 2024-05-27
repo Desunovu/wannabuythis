@@ -4,6 +4,7 @@ from uuid import UUID
 from src.common.domain.aggregates import AggregateRoot
 from src.common.domain.entities import Entity
 from src.common.domain.value_objects import ValueObject
+from src.common.service.exceptions import WishlistItemNotFound
 from src.wishlists.domain.events import (
     WishlistNameChanged,
     WishlistItemAdded,
@@ -81,25 +82,28 @@ class Wishlist(AggregateRoot):
             )
         )
 
+    def find_item(self, item_uuid: UUID):
+        return next((item for item in self.items if item.uuid == item_uuid), None)
+
     def remove_item(self, item_uuid: UUID):
-        self.items = [item for item in self.items if item.uuid != item_uuid]
+        item = self.find_item(item_uuid)
+        if item is None:
+            raise WishlistItemNotFound(item_uuid)
+        self.items.remove(item)
         self.add_event(
             WishlistItemRemoved(item_uuid=item_uuid, wishlist_uuid=self.uuid)
         )
 
-    def find_item(self, item_uuid: UUID):
-        return next((item for item in self.items if item.uuid == item_uuid), None)
-
     def set_item_status(self, item_uuid: UUID, is_purchased: bool):
         item = self.find_item(item_uuid)
         if item is None:
-            raise ValueError(
-                f"Item with UUID {item_uuid} not found in wishlist {self.uuid}"
-            )
+            raise WishlistItemNotFound(item_uuid)
         item.is_purchased = is_purchased
-        event_class = (
-            WishlistItemMarkedAsPurchased
+        event = (
+            WishlistItemMarkedAsPurchased(item_uuid=item_uuid, wishlist_uuid=self.uuid)
             if is_purchased
-            else WishlistItemMarkedAsNotPurchased
+            else WishlistItemMarkedAsNotPurchased(
+                item_uuid=item_uuid, wishlist_uuid=self.uuid
+            )
         )
-        self.add_event(event_class(item_uuid=item_uuid, wishlist_uuid=self.uuid))
+        self.add_event(event)
