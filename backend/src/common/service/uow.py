@@ -9,8 +9,8 @@ if TYPE_CHECKING:
 
 class UnitOfWork(abc.ABC):
     user_repository: "UserRepository"
-    role_repository: "RoleRepository"
     wishlist_repository: "WishlistRepository"
+    role_repository: "RoleRepository"
 
     def __init__(self):
         self.committed = None  # used only in tests

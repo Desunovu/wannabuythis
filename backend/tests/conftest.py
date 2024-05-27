@@ -12,6 +12,7 @@ from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.roles.adapters.role_repository import RoleRepository
 from src.users.adapters.user_repository import UserRepository
 from src.users.domain.model import User, Role, Permission
+from src.roles.domain import model as role_domain_model
 from src.wishlists.adapters.wishlist_repository import WishlistRepository
 from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
 
@@ -48,12 +49,19 @@ def activated_user(user):
 
 @pytest.fixture
 def admin_role() -> Role:
+    """Role entity from users bounded context"""
     return Role(name="admin")
 
 
 @pytest.fixture
 def permission():
     return Permission(name="CREATE_WISHLIST")
+
+
+@pytest.fixture
+def default_role():
+    """Role aggregate from roles bounded context"""
+    return role_domain_model.Role(name="default")
 
 
 @pytest.fixture

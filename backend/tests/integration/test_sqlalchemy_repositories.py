@@ -1,5 +1,6 @@
 import uuid
 
+from src.integration.adapters.sqlalchemy_role_repository import SQLAlchemyRoleRepository
 from src.integration.adapters.sqlalchemy_user_repository import SQLAlchemyUserRepository
 from src.integration.adapters.sqlalchemy_wishlist_repository import (
     SQLAlchemyWishlistRepository,
@@ -52,3 +53,20 @@ class TestSQLAlchemyWishlistRepository:
         repository = SQLAlchemyWishlistRepository(sqlite_session)
         repository.add(wishlist)
         assert repository.get(wishlist.uuid) is not None
+
+
+class TestSQLAlchemyRoleRepository:
+    def test_get_role(self, sqlite_session, default_role):
+        sqlite_session.add(default_role)
+        sqlite_session.commit()
+        repository = SQLAlchemyRoleRepository(sqlite_session)
+        assert repository.get(default_role.name) is not None
+
+    def test_get_non_existing_role(self, sqlite_session):
+        repository = SQLAlchemyRoleRepository(sqlite_session)
+        assert repository.get("testrole") is None
+
+    def test_add_role(self, sqlite_session, default_role):
+        repository = SQLAlchemyRoleRepository(sqlite_session)
+        repository.add(default_role)
+        assert repository.get(default_role.name) is not None
