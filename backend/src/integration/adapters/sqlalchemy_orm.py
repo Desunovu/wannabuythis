@@ -13,9 +13,9 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import registry, relationship
 
-from src.users.domain import model as user_model
-from src.wishlists.domain import model as wishlist_model
-from src.roles.domain import model as role_model
+from src.roles.domain import model as role_domain_model
+from src.users.domain import model as user_domain_model
+from src.wishlists.domain import model as wishlist_domain_model
 
 mapper_registry = registry()
 
@@ -24,30 +24,30 @@ class MeasurementUnitType(TypeDecorator):
     impl = String
 
     def process_bind_param(
-        self, measurement_unit: wishlist_model.MeasurementUnit, dialect: Dialect
+        self, measurement_unit: wishlist_domain_model.MeasurementUnit, dialect: Dialect
     ) -> str:
         return measurement_unit.name
 
     def process_result_value(
         self, value: Optional[str], dialect: Dialect
-    ) -> Optional[wishlist_model.MeasurementUnit]:
+    ) -> Optional[wishlist_domain_model.MeasurementUnit]:
         if value is not None:
-            return wishlist_model.MeasurementUnit(name=value)
+            return wishlist_domain_model.MeasurementUnit(name=value)
 
 
 class PriorityType(TypeDecorator):
     impl = Integer
 
     def process_bind_param(
-        self, priority: wishlist_model.Priority, dialect: Dialect
+        self, priority: wishlist_domain_model.Priority, dialect: Dialect
     ) -> int:
         return priority.value
 
     def process_result_value(
         self, value: Optional[int], dialect: Dialect
-    ) -> Optional[wishlist_model.Priority]:
+    ) -> Optional[wishlist_domain_model.Priority]:
         if value is not None:
-            return wishlist_model.Priority(value=value)
+            return wishlist_domain_model.Priority(value=value)
 
 
 users = Table(
@@ -129,45 +129,51 @@ priorities = Table(
 def start_mappers():
     # Users context
     mapper_registry.map_imperatively(
-        user_model.User,
+        user_domain_model.User,
         users,
-        properties={"roles": relationship(user_model.Role, secondary=user_roles)},
+        properties={
+            "roles": relationship(user_domain_model.Role, secondary=user_roles)
+        },
     )
     mapper_registry.map_imperatively(
-        user_model.Role,
+        user_domain_model.Role,
         roles,
         properties={
             "permissions": relationship(
-                user_model.Permission, secondary=role_permissions, viewonly=True
+                user_domain_model.Permission, secondary=role_permissions, viewonly=True
             )
         },
     )
-    mapper_registry.map_imperatively(user_model.Permission, permissions)
+    mapper_registry.map_imperatively(user_domain_model.Permission, permissions)
 
     # Wishlists context
     mapper_registry.map_imperatively(
-        wishlist_model.Wishlist,
+        wishlist_domain_model.Wishlist,
         wishlists,
         properties={
             "items": relationship(
-                wishlist_model.WishlistItem,
+                wishlist_domain_model.WishlistItem,
                 order_by=wishlist_items.c.id,
                 lazy="dynamic",
             )
         },
     )
-    mapper_registry.map_imperatively(wishlist_model.WishlistItem, wishlist_items)
-    mapper_registry.map_imperatively(wishlist_model.MeasurementUnit, measurement_units)
-    mapper_registry.map_imperatively(wishlist_model.Priority, priorities)
+    mapper_registry.map_imperatively(wishlist_domain_model.WishlistItem, wishlist_items)
+    mapper_registry.map_imperatively(
+        wishlist_domain_model.MeasurementUnit, measurement_units
+    )
+    mapper_registry.map_imperatively(wishlist_domain_model.Priority, priorities)
 
     # Roles context
     mapper_registry.map_imperatively(
-        role_model.Role,
+        role_domain_model.Role,
         roles,
         properties={
             "permissions": relationship(
-                role_model.Permission, secondary=role_permissions, backref="roles"
+                role_domain_model.Permission,
+                secondary=role_permissions,
+                backref="roles",
             )
         },
     )
-    mapper_registry.map_imperatively(role_model.Permission, permissions)
+    mapper_registry.map_imperatively(role_domain_model.Permission, permissions)
