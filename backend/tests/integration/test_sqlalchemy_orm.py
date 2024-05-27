@@ -1,6 +1,4 @@
-import importlib
 import inspect
-import pkgutil
 
 from src.users.domain import model as user_model_module
 from src.wishlists.domain import model as wishlist_model_module
@@ -32,12 +30,6 @@ def check_fields_mapping(domain_class):
         assert field in mapped_fields, f"Field '{field}' is not mapped correctly"
 
 
-def check_classes_mapping(domain_classes: list):
-    """Check if all class are mapped correctly"""
-    for domain_class in domain_classes:
-        check_fields_mapping(domain_class)
-
-
 def discover_classes(module):
     """Discover all classes in the given module"""
     members = inspect.getmembers(module)
@@ -49,13 +41,17 @@ def discover_classes(module):
     return classes
 
 
+def check_module_classes_mapping(module):
+    """Check if all module classes are mapped correctly"""
+    for domain_class in discover_classes(module):
+        check_fields_mapping(domain_class)
+
+
 class TestUserContextClassMapping:
     def test_user_context_mapping(self, prepare_mappers):
-        user_context_classes = discover_classes(user_model_module)
-        check_classes_mapping(user_context_classes)
+        check_module_classes_mapping(user_model_module)
 
 
 class TestWishlistContextClassMapping:
     def test_wishlist_context_mapping(self, prepare_mappers):
-        wishlist_context_classes = discover_classes(wishlist_model_module)
-        check_classes_mapping(wishlist_context_classes)
+        check_module_classes_mapping(wishlist_model_module)
