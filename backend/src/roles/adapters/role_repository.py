@@ -1,6 +1,6 @@
 import abc
 
-from src.users.domain.model import Role
+from src.roles.domain.model import Role
 
 
 class RoleRepository(abc.ABC):
