@@ -4,7 +4,9 @@ from src.common.domain.events import DomainEvent
 from src.common.service.exceptions import (
     WishlistNotFound,
     UserNotFound,
-    WishlistItemNotFound, WishlistAlreadyArchived, WishlistNotArchived,
+    WishlistItemNotFound,
+    WishlistAlreadyArchived,
+    WishlistNotArchived,
 )
 from src.common.service.uow import UnitOfWork
 from src.wishlists.domain.commands import (
@@ -12,7 +14,9 @@ from src.wishlists.domain.commands import (
     ChangeWishlistName,
     AddWishlistItem,
     RemoveWishlistItem,
-    SetWishlistItemStatus, ArchiveWishlist, UnarchiveWishlist,
+    SetWishlistItemStatus,
+    ArchiveWishlist,
+    UnarchiveWishlist,
 )
 from src.wishlists.domain.events import (
     WishlistNameChanged,
@@ -20,7 +24,9 @@ from src.wishlists.domain.events import (
     WishlistItemAdded,
     WishlistItemRemoved,
     WishlistItemMarkedAsNotPurchased,
-    WishlistItemMarkedAsPurchased, WishlistArchived, WishlistUnarchived,
+    WishlistItemMarkedAsPurchased,
+    WishlistArchived,
+    WishlistUnarchived,
 )
 from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
 

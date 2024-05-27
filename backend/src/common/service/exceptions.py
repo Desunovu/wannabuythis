@@ -64,4 +64,3 @@ class WishlistAlreadyArchived(Exception):
 class WishlistNotArchived(Exception):
     def __init__(self, uuid: UUID):
         super().__init__(f"Wishlist '{uuid}' is not archived")
-

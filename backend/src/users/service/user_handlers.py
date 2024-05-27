@@ -28,7 +28,8 @@ from src.users.domain.events import (
     UserDeactivated,
     EmailChanged,
     RoleAddedToUser,
-    RoleRemovedFromUser, UserActivated,
+    RoleRemovedFromUser,
+    UserActivated,
 )
 from src.users.domain.model import User
 
@@ -113,9 +114,7 @@ def handle_add_role_to_user(command: AddRoleToUser, uow: UnitOfWork):
         if not user:
             raise UserNotFound(command.username)
         if user.has_role(role):
-            raise UserAlreadyHasRole(
-                command.username, command.role_name
-            )
+            raise UserAlreadyHasRole(command.username, command.role_name)
         user.add_role(role)
         uow.commit()
 
@@ -129,9 +128,7 @@ def handle_remove_role_from_user(command: RemoveRoleFromUser, uow: UnitOfWork):
         if not user:
             raise UserNotFound(command.username)
         if not user.has_role(role):
-            raise UserDoesNotHaveRole(
-                command.username, command.role_name
-            )
+            raise UserDoesNotHaveRole(command.username, command.role_name)
         user.remove_role(role)
         uow.commit()
 

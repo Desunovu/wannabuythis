@@ -7,7 +7,8 @@ from src.users.domain.events import (
     UserDeactivated,
     EmailChanged,
     RoleAddedToUser,
-    RoleRemovedFromUser, UserActivated,
+    RoleRemovedFromUser,
+    UserActivated,
 )
 
 
