@@ -2,6 +2,7 @@ import inspect
 
 from src.users.domain import model as user_model_module
 from src.wishlists.domain import model as wishlist_model_module
+from src.roles.domain import model as role_model_module
 
 
 def get_mapper_columns_and_relationships(domain_class) -> list[str]:
@@ -55,3 +56,8 @@ class TestUserContextClassMapping:
 class TestWishlistContextClassMapping:
     def test_wishlist_context_mapping(self, prepare_mappers):
         check_module_classes_mapping(wishlist_model_module)
+
+
+class TestRoleContextClassMapping:
+    def test_role_context_mapping(self, prepare_mappers):
+        check_module_classes_mapping(role_model_module)

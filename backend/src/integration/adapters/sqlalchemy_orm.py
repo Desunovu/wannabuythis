@@ -15,6 +15,7 @@ from sqlalchemy.orm import registry, relationship
 
 from src.users.domain import model as user_model
 from src.wishlists.domain import model as wishlist_model
+from src.roles.domain import model as role_model
 
 mapper_registry = registry()
 
@@ -137,7 +138,7 @@ def start_mappers():
         roles,
         properties={
             "permissions": relationship(
-                user_model.Permission, secondary=role_permissions
+                user_model.Permission, secondary=role_permissions, viewonly=True
             )
         },
     )
@@ -158,3 +159,15 @@ def start_mappers():
     mapper_registry.map_imperatively(wishlist_model.WishlistItem, wishlist_items)
     mapper_registry.map_imperatively(wishlist_model.MeasurementUnit, measurement_units)
     mapper_registry.map_imperatively(wishlist_model.Priority, priorities)
+
+    # Roles context
+    mapper_registry.map_imperatively(
+        role_model.Role,
+        roles,
+        properties={
+            "permissions": relationship(
+                role_model.Permission, secondary=role_permissions, backref="roles"
+            )
+        },
+    )
+    mapper_registry.map_imperatively(role_model.Permission, permissions)
