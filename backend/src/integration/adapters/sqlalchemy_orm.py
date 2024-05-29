@@ -23,6 +23,9 @@ mapper_registry = registry()
 class MeasurementUnitType(TypeDecorator):
     impl = String
 
+    def __repr__(self):
+        return self.impl.__repr__()
+
     def process_bind_param(
         self, measurement_unit: wishlist_domain_model.MeasurementUnit, dialect: Dialect
     ) -> str:
@@ -37,6 +40,9 @@ class MeasurementUnitType(TypeDecorator):
 
 class PriorityType(TypeDecorator):
     impl = Integer
+
+    def __repr__(self):
+        return self.impl.__repr__()
 
     def process_bind_param(
         self, priority: wishlist_domain_model.Priority, dialect: Dialect
