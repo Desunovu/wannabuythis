@@ -41,7 +41,7 @@ jobs:
     - name: Define cache for the venv based on the deps lock file
       uses: actions/cache@v3
       with:
-        path: ./.venv
+        path: ./backend/.venv
         key: venv-${{ hashFiles('poetry.lock') }}
     - name: Install the project deps
       run: poetry install
