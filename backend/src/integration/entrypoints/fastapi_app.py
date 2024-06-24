@@ -12,7 +12,7 @@ from src.common.adapters.dependencies import (
     JWTManager,
 )
 from src.common.entrypoints.fastapi_limiter import limiter
-from src.integration.adapters.sqlalchemy_orm import start_mappers
+from src.integration.adapters.sqlalchemy_orm import start_sqlalchemy_mappers
 from src.integration.entrypoints.fastapi_exception_handlers import (
     exception_to_exception_handlers,
 )
@@ -27,7 +27,7 @@ from src.users.entrypoints.fastapi_users_query_router import users_query_router
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
-    start_mappers()
+    start_sqlalchemy_mappers()
 
     dependencies = setup_dependencies_for_environment()
     messagebus = bootstrap.initialize_messagebus(dependencies=dependencies)
