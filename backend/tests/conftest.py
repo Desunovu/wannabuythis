@@ -25,11 +25,13 @@ from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, Wish
 @pytest.fixture
 def user(user_email, valid_password):
     """Default user with #valid_password"""
-    return User(
+    user = User(
         username="testuser",
         email=user_email,
         password_hash=DefaultPasswordHasher.hash_password(valid_password),
     )
+    user.is_active = True
+    return user
 
 
 @pytest.fixture
