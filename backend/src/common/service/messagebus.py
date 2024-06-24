@@ -49,7 +49,7 @@ class Messagebus:
             result = command_handler(command)
             self.queue.extend(self.uow.collect_new_events())
             self.logger.info(
-                f"Command {command} handled successfully by {command_handler}"
+                f"Command {command} handled successfully by {command_handler.__name__}"
             )
             return result
         except Exception as e:
@@ -62,10 +62,10 @@ class Messagebus:
                 event_handler(event)
                 self.queue.extend(self.uow.collect_new_events())
                 self.logger.info(
-                    f"Event {event} handled successfully by {event_handler}"
+                    f"Event {event} handled successfully by {event_handler.__name__}"
                 )
             except Exception as e:
                 self.logger.exception(
-                    f"Failed to handle event {event} by {event_handler}. Exception: {e}"
+                    f"Failed to handle event {event} by {event_handler.__name__}. Exception: {e}"
                 )
                 continue
