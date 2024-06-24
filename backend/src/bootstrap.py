@@ -18,7 +18,6 @@ from src.common.service.uow import UnitOfWork
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.roles.service.role_handlers import ROLE_COMMAND_HANDLERS, ROLE_EVENT_HANDLERS
 from src.users.service.event_handlers import USER_EVENT_HANDLERS
-from src.users.service.user_auth_service import UserAuthService
 from src.users.service.user_handlers import (
     USER_COMMAND_HANDLERS,
 )
@@ -32,17 +31,13 @@ def bootstrap(
     uow: UnitOfWork = SQLAlchemyUnitOfWork,
     password_manager: PasswordHasher = DefaultPasswordHasher,
     uuid_generator: UUIDGenerator = DefaultUUIDGenerator,
-    auth_token_manager: TokenManager = JWTManager,
+    token_manager: TokenManager = JWTManager,
     notificator: Notificator = EmailNotificator,
 ) -> Messagebus:
     """
     Initializes the application's core components and returns a configured Messagebus instance.
     Sets up handlers, declares essential dependencies, and injects these dependencies into the handlers.
     """
-    # Setup service class that will be injected into handlers
-    user_auth_service = UserAuthService(
-        uow=uow, password_manager=password_manager, token_manager=auth_token_manager
-    )
 
     # Combine handlers
     command_handlers = {
@@ -58,10 +53,9 @@ def bootstrap(
     # Declare dependencies
     dependencies = {
         "uow": uow,
-        "user_auth_service": user_auth_service,
         "password_manager": password_manager,
         "uuid_generator": uuid_generator,
-        "auth_token_manager": auth_token_manager,
+        "token_manager": token_manager,
         "notificator": notificator,
     }
     # Inject dependencies

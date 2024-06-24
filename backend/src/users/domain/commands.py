@@ -1,3 +1,4 @@
+import datetime
 from dataclasses import dataclass
 
 from src.common.domain.commands import Command
@@ -11,8 +12,20 @@ class CreateUser(Command):
 
 
 @dataclass
+class GenerateAuthToken(Command):
+    username: str
+    password: str
+    exp_time: None | datetime.timedelta
+
+
+@dataclass
 class ActivateUser(Command):
     username: str
+
+
+@dataclass
+class ActivateUserWithToken(Command):
+    token: str
 
 
 @dataclass
