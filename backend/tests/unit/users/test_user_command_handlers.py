@@ -10,10 +10,11 @@ from src.common.service.exceptions import (
     PasswordVerificationError,
     PasswordValidationError,
     UserAlreadyActive,
-    UserNotActive,
+    UserAlreadyDeactivated,
     UserAlreadyHasRole,
     RoleNotFound,
     UserDoesNotHaveRole,
+    UserNotActive,
 )
 from src.users.domain.commands import (
     CreateUser,
@@ -288,7 +289,7 @@ class TestDeactivateUser:
 
     def test_deactivate_non_active_user(self, messagebus, deactivated_user):
         messagebus.uow.user_repository.add(deactivated_user)
-        with pytest.raises(UserNotActive):
+        with pytest.raises(UserAlreadyDeactivated):
             messagebus.handle(DeactivateUser(username=deactivated_user.username))
 
 
