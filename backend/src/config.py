@@ -8,3 +8,7 @@ def get_postgres_uri() -> str:
     port = os.environ.get("POSTGRES_PORT", "5432")
     db = os.environ.get("POSTGRES_DB", "postgres")
     return f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}"
+
+
+def get_secret_key() -> str:
+    return os.environ.get("SECRET_KEY", "dev-secret-key")
