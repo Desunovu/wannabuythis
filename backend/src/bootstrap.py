@@ -73,6 +73,7 @@ def bootstrap(
         uow=uow,
         command_handlers=injected_command_handlers,
         event_handlers=injected_event_handlers,
+        dependencies=dependencies,
     )
 
 
