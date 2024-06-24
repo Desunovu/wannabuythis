@@ -1,15 +1,14 @@
 from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
-from starlette.status import HTTP_400_BAD_REQUEST
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
 
-from src.common.adapters.dependencies import DefaultPasswordHasher, JWTManager
-from src.users.domain.commands import CreateUser
+from src.users.domain.commands import CreateUser, ActivateUser
 from src.users.entrypoints.fastapi_models import (
     LoginUserRequest,
     LoginUserResponse,
     CreateUserResponse,
 )
-from src.users.service.user_auth_service import generate_token
+from src.users.service.user_auth_service import UserAuthService
 
 auth_router = APIRouter()
 
@@ -42,3 +41,15 @@ def register(command: CreateUser, request: Request):
     except Exception as e:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=str(e))
     return {"message": "User created successfully"}
+
+
+@auth_router.get("/activate/{activation_token}", status_code=HTTP_200_OK)
+def activate_user(activation_token: str, request: Request):
+    try:
+        user_auth_service: UserAuthService = request.app.state.messagebus.dependencies[
+            "user_auth_service"
+        ]
+        username = user_auth_service.get_username_from_token(activation_token)
+        request.app.state.messagebus.handle(ActivateUser(username))
+    except Exception as e:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=str(e))
