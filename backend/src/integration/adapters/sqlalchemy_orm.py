@@ -186,6 +186,7 @@ def start_mappers():
     mapper_registry.map_imperatively(role_domain_model.Permission, permissions)
 
     # add 'missing after loading' events field to all aggregates
+    # TODO: find a way not to use this trick in imperative mapping
     aggregates = [
         user_domain_model.User,
         wishlist_domain_model.Wishlist,
@@ -197,6 +198,5 @@ def start_mappers():
 
 def add_events_field_listener(aggregate):
     @event.listens_for(aggregate, "load")
-    @event.listens_for(aggregate, "refresh")
     def add_events_field(target, context):
         target.events = []
