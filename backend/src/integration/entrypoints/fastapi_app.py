@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 
+import uvicorn
 from fastapi import FastAPI
 
 from src import bootstrap, config
@@ -31,3 +32,7 @@ app.include_router(auth_router)
 @app.get("/")
 async def root():
     return {"message": "This is the WannaBuyThis REST API."}
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
