@@ -1,4 +1,4 @@
-from src.common.adapters.dependencies import PasswordHasher, Notificator
+from src.common.adapters.dependencies import PasswordHasher, Notificator, TokenManager
 from src.common.domain.commands import Command
 from src.common.service.exceptions import (
     UserNotFound,
@@ -21,12 +21,13 @@ from src.users.domain.commands import (
     AddRoleToUser,
     RemoveRoleFromUser,
     ResendActivationLink,
+    GenerateAuthToken,
+    ActivateUserWithToken,
 )
 from src.users.domain.events import (
     PasswordChanged,
 )
 from src.users.domain.model import User
-from src.users.service.user_auth_service import UserAuthService
 
 
 def handle_create_user(
@@ -44,6 +45,31 @@ def handle_create_user(
         user = User(command.username, command.email, password_hash)
         uow.user_repository.add(user)
         uow.commit()
+
+
+def handle_generate_auth_token(
+    command: GenerateAuthToken,
+    uow: UnitOfWork,
+    password_manager: PasswordHasher,
+    token_manager: TokenManager,
+):
+
+    with uow:
+        user = uow.user_repository.get(command.username)
+    if not user:
+        raise UserNotFound(username=command.username)
+    if not user.is_active:
+        raise UserNotActive(username=command.username)
+    if not password_manager.verify_password(
+        password=command.password, password_hash=user.password_hash
+    ):
+        raise PasswordVerificationError
+
+    token = token_manager.generate_token(
+        username=user.username, exp_time=command.exp_time
+    )
+
+    return token
 
 
 def handle_change_password(
@@ -88,11 +114,25 @@ def handle_activate_user(command: ActivateUser, uow: UnitOfWork):
         uow.commit()
 
 
+def handle_activate_user_with_token(
+    command: ActivateUserWithToken, uow: UnitOfWork, token_manager: TokenManager
+):
+    username = token_manager.get_username_from_token(command.token)
+    with uow:
+        user = uow.user_repository.get(username)
+        if not user:
+            raise UserNotFound(username)
+        if user.is_active:
+            raise UserAlreadyActive(username)
+        user.activate()
+        uow.commit()
+
+
 def handle_resend_activation_link(
     command: ResendActivationLink,
     uow: UnitOfWork,
-    user_auth_service: UserAuthService,
     notificator: Notificator,
+    token_manager: TokenManager,
     password_manager: PasswordHasher,
 ):
     with uow:
@@ -105,9 +145,10 @@ def handle_resend_activation_link(
             raise PasswordVerificationError
         if user.is_active:
             raise UserAlreadyActive(command.username)
-        # TODO: dry this. This is a duplication of logic in handle_user_created
-        activation_token = user_auth_service.generate_activation_token(
-            username=user.username
+        # TODO set activation token expiration time from config
+        # TODO maybe dry this code, because it's similar to the handle_user_created
+        activation_token = token_manager.generate_token(
+            username=user.username, exp_time=None
         )
         notificator.send_activation_link(
             recipient=user.email, activation_token=activation_token
@@ -155,6 +196,8 @@ def handle_remove_role_from_user(command: RemoveRoleFromUser, uow: UnitOfWork):
 
 USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     CreateUser: handle_create_user,
+    GenerateAuthToken: handle_generate_auth_token,
+    ActivateUserWithToken: handle_activate_user_with_token,
     ChangePassword: handle_change_password,
     ChangeUserEmail: handle_change_user_email,
     ActivateUser: handle_activate_user,

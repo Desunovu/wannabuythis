@@ -1,4 +1,4 @@
-from src.common.adapters.dependencies import Notificator
+from src.common.adapters.dependencies import Notificator, TokenManager
 from src.common.domain.events import DomainEvent
 from src.users.domain.events import (
     UserCreated,
@@ -9,16 +9,16 @@ from src.users.domain.events import (
     RoleAddedToUser,
     RoleRemovedFromUser,
 )
-from src.users.service.user_auth_service import UserAuthService
 
 
 def handle_user_created(
     event: UserCreated,
-    user_auth_service: UserAuthService,
     notificator: Notificator,
+    token_manager: TokenManager,
 ):
-    activation_token = user_auth_service.generate_activation_token(
-        username=event.username
+    # TODO set activation token expiration time from config
+    activation_token = token_manager.generate_token(
+        username=event.username, exp_time=None
     )
     notificator.send_activation_link(
         recipient=event.email, activation_token=activation_token
