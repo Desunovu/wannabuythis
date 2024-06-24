@@ -13,12 +13,34 @@ from src.integration.adapters.sqlalchemy_orm import start_sqlalchemy_mappers
 from src.integration.entrypoints.fastapi_exception_handlers import (
     exception_to_exception_handlers,
 )
+from src.integration.service.fake_sqlalchemy_uow import FakeSQLAlchemyUnitOfWork
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.users.entrypoints.fastapi.admin_router import users_admin_router
 from src.users.entrypoints.fastapi.auth_router import users_auth_router
 from src.users.entrypoints.fastapi.command_router import users_command_router
 from src.users.entrypoints.fastapi.query_router import users_query_router
 from tests.conftest import FakeNotificator
+
+TEST_MODE = False
+
+
+def create_app(test_mode: bool = False):
+    global TEST_MODE
+    TEST_MODE = test_mode
+
+    app = FastAPI(lifespan=lifespan)
+
+    app.include_router(users_auth_router)
+    app.include_router(users_query_router)
+    app.include_router(users_command_router)
+    app.include_router(users_admin_router)
+
+    for exception, exception_handler in exception_to_exception_handlers.items():
+        app.add_exception_handler(
+            exc_class_or_status_code=exception, handler=exception_handler
+        )
+
+    return app
 
 
 @asynccontextmanager
@@ -42,9 +64,10 @@ def setup_dependencies_for_environment():
     notificator = (
         FakeNotificator() if config.get_env() == "development" else EmailNotificator()
     )
+    uow = FakeSQLAlchemyUnitOfWork() if TEST_MODE else SQLAlchemyUnitOfWork()
 
     dependencies = bootstrap.initialize_dependencies(
-        uow=SQLAlchemyUnitOfWork(),
+        uow=uow,
         password_hash_util=HashlibPasswordHashUtil(),
         uuid_generator=DefaultUUIDGenerator(),
         token_manager=JWTManager(),
@@ -53,23 +76,6 @@ def setup_dependencies_for_environment():
     return dependencies
 
 
-app = FastAPI(lifespan=lifespan)
-
-app.include_router(users_auth_router)
-app.include_router(users_query_router)
-app.include_router(users_command_router)
-app.include_router(users_admin_router)
-
-for exception, exception_handler in exception_to_exception_handlers.items():
-    app.add_exception_handler(
-        exc_class_or_status_code=exception, handler=exception_handler
-    )
-
-
-@app.get("/")
-async def root():
-    return {"message": "This is the WannaBuyThis REST API."}
-
-
 if __name__ == "__main__":
+    app = create_app()
     uvicorn.run(app, host="0.0.0.0", port=8000)
