@@ -1,8 +1,10 @@
+from logging import Logger
 from typing import Any
 
 from src.common.domain.commands import Command
 from src.common.domain.events import DomainEvent
 from src.common.service.uow import UnitOfWork
+
 
 # Dependencies should be injected in handlers by bootstrap script (see src/bootstrap.py)
 # So we don't need to pass any dependencies to handlers. Usage: handler_name(message)
@@ -15,11 +17,13 @@ class Messagebus:
         command_handlers: dict[type[Command], callable],
         event_handlers: dict[type[DomainEvent], list[callable]],
         dependencies: dict[str, object],
+        logger: Logger,
     ):
         self.uow = uow
         self.command_handlers = command_handlers
         self.event_handlers = event_handlers
         self.dependencies = dependencies
+        self.logger = logger
         self.queue = []
 
     def handle(self, message: Command | DomainEvent):
@@ -44,8 +48,12 @@ class Messagebus:
             command_handler = self.command_handlers[type(command)]
             result = command_handler(command)
             self.queue.extend(self.uow.collect_new_events())
+            self.logger.info(
+                f"Command {command} handled successfully by {command_handler}"
+            )
             return result
         except Exception as e:
+            self.logger.exception(f"Failed to handle command {command}. Exception: {e}")
             raise e
 
     def _handle_event(self, event: DomainEvent):
@@ -53,5 +61,11 @@ class Messagebus:
             try:
                 event_handler(event)
                 self.queue.extend(self.uow.collect_new_events())
-            except Exception:
+                self.logger.info(
+                    f"Event {event} handled successfully by {event_handler}"
+                )
+            except Exception as e:
+                self.logger.exception(
+                    f"Failed to handle event {event} by {event_handler}. Exception: {e}"
+                )
                 continue

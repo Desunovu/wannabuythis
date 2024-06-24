@@ -232,7 +232,10 @@ def messagebus():
         token_manager=JWTManager(),
         notificator=FakeNotificator(),
     )
-    return bootstrap.initialize_messagebus(dependencies=dependencies)
+    return bootstrap.initialize_messagebus(
+        dependencies=dependencies,
+        start_logging=False,
+    )
 
 
 @pytest.fixture
