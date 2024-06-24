@@ -14,7 +14,11 @@ from src.common.adapters.dependencies import (
 from src.common.entrypoints.fastapi_limiter import limiter
 from src.integration.adapters.sqlalchemy_orm import start_mappers
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
+from src.users.entrypoints.fastapi_admin_user_command_router import (
+    admin_user_command_router,
+)
 from src.users.entrypoints.fastapi_auth_router import auth_router
+from src.users.entrypoints.fastapi_users_command_router import users_command_router
 from src.users.entrypoints.fastapi_users_query_router import users_query_router
 
 
@@ -54,6 +58,8 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(auth_router)
 app.include_router(users_query_router)
+app.include_router(users_command_router)
+app.include_router(admin_user_command_router)
 
 
 @app.get("/")

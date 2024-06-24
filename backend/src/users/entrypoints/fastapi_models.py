@@ -15,3 +15,22 @@ class UserResponse(BaseModel):
     email: str
     is_active: bool
     roles: list
+
+
+class ChangePasswordByUserRequest(BaseModel):
+    old_password: str
+    new_password: str
+
+
+class ChangeEmailByUserRequest(BaseModel):
+    new_email: str
+
+
+class ChangePasswordByAdminRequest(BaseModel):
+    username: str
+    new_password: str
+
+
+class ChangeEmailByAdminRequest(BaseModel):
+    username: str
+    new_email: str
