@@ -6,6 +6,8 @@ from src.common.adapters.dependencies import (
     DefaultPasswordHasher,
     UUIDGenerator,
     DefaultUUIDGenerator,
+    AuthTokenManager,
+    JWTManager,
 )
 from src.common.domain.commands import Command
 from src.common.domain.events import DomainEvent
@@ -27,6 +29,7 @@ def bootstrap(
     uow: UnitOfWork = SQLAlchemyUnitOfWork,
     password_manager: PasswordHasher = DefaultPasswordHasher,
     uuid_generator: UUIDGenerator = DefaultUUIDGenerator,
+        auth_token_manager: AuthTokenManager = JWTManager,
 ) -> Messagebus:
     """
     Initializes the application's core components and returns a configured Messagebus instance.
@@ -48,6 +51,7 @@ def bootstrap(
         "uow": uow,
         "password_manager": password_manager,
         "uuid_generator": uuid_generator,
+        "auth_token_manager": auth_token_manager,
     }
     # Inject dependencies
     injected_command_handlers, injected_event_handlers = inject_dependencies(
