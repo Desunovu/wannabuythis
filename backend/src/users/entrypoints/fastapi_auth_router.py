@@ -1,6 +1,8 @@
 import datetime
+from typing import Annotated
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from starlette.requests import Request
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
 
@@ -12,7 +14,6 @@ from src.users.domain.commands import (
     GenerateAuthToken,
 )
 from src.users.entrypoints.fastapi_models import (
-    LoginUserRequest,
     LoginUserResponse,
     CreateUserResponse,
 )
@@ -21,12 +22,12 @@ auth_router = APIRouter()
 
 
 @auth_router.post("/login", response_model=LoginUserResponse)
-def login(user_data: LoginUserRequest, request: Request):
+def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], request: Request):
     try:
         auth_token = request.app.state.messagebus.handle(
             GenerateAuthToken(
-                username=user_data.username,
-                password=user_data.password,
+                username=form_data.username,
+                password=form_data.password,
                 exp_time=datetime.timedelta(
                     minutes=5
                 ),  # TODO add expiration time from config
@@ -34,7 +35,7 @@ def login(user_data: LoginUserRequest, request: Request):
         )
     except Exception as e:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=str(e))
-    return {"token": auth_token}
+    return {"access_token": auth_token, "token_type": "bearer"}
 
 
 @auth_router.post("/register", response_model=CreateUserResponse)
