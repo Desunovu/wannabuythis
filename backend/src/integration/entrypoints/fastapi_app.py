@@ -4,23 +4,21 @@ import uvicorn
 from fastapi import FastAPI
 
 from src import bootstrap, config
-from tests.conftest import FakeNotificator
 from src.common.dependencies.notificator import EmailNotificator
-from src.common.dependencies.uuid_generator import DefaultUUIDGenerator
 from src.common.dependencies.password_hash_util import HashlibPasswordHashUtil
 from src.common.dependencies.token_manager import JWTManager
+from src.common.dependencies.uuid_generator import DefaultUUIDGenerator
 from src.common.entrypoints.fastapi_limiter import limiter
 from src.integration.adapters.sqlalchemy_orm import start_sqlalchemy_mappers
 from src.integration.entrypoints.fastapi_exception_handlers import (
     exception_to_exception_handlers,
 )
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
-from src.users.entrypoints.fastapi_admin_user_command_router import (
-    admin_user_command_router,
-)
-from src.users.entrypoints.fastapi_auth_router import auth_router
-from src.users.entrypoints.fastapi_users_command_router import users_command_router
-from src.users.entrypoints.fastapi_users_query_router import users_query_router
+from src.users.entrypoints.fastapi.admin_router import users_admin_router
+from src.users.entrypoints.fastapi.auth_router import users_auth_router
+from src.users.entrypoints.fastapi.command_router import users_command_router
+from src.users.entrypoints.fastapi.query_router import users_query_router
+from tests.conftest import FakeNotificator
 
 
 @asynccontextmanager
@@ -57,10 +55,10 @@ def setup_dependencies_for_environment():
 
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(auth_router)
+app.include_router(users_auth_router)
 app.include_router(users_query_router)
 app.include_router(users_command_router)
-app.include_router(admin_user_command_router)
+app.include_router(users_admin_router)
 
 for exception, exception_handler in exception_to_exception_handlers.items():
     app.add_exception_handler(

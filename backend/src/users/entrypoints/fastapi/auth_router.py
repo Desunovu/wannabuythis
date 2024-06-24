@@ -13,15 +13,15 @@ from src.users.domain.commands import (
     GenerateAuthToken,
     ActivateUserWithToken,
 )
-from src.users.entrypoints.fastapi_models import (
+from src.users.entrypoints.fastapi._pydantic_models import (
     LoginUserResponse,
     CreateUserResponse,
 )
 
-auth_router = APIRouter(tags=["auth"])
+users_auth_router = APIRouter(tags=["auth"])
 
 
-@auth_router.post("/login", response_model=LoginUserResponse)
+@users_auth_router.post("/login", response_model=LoginUserResponse)
 def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], request: Request):
     command = GenerateAuthToken(
         username=form_data.username,
@@ -32,7 +32,7 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], request: R
     return {"access_token": auth_token, "token_type": "bearer"}
 
 
-@auth_router.post("/register", response_model=CreateUserResponse)
+@users_auth_router.post("/register", response_model=CreateUserResponse)
 def register(command: CreateUser, request: Request):
     command = CreateUser(
         username=command.username,
@@ -43,12 +43,12 @@ def register(command: CreateUser, request: Request):
     return {"message": "User created successfully"}
 
 
-@auth_router.get("/activate/{activation_token}", status_code=HTTP_200_OK)
+@users_auth_router.get("/activate/{activation_token}", status_code=HTTP_200_OK)
 def activate_user(activation_token: str, request: Request):
     request.app.state.messagebus.handle(ActivateUserWithToken(activation_token))
 
 
-@auth_router.post("/activate/resend-activation-link", status_code=HTTP_200_OK)
+@users_auth_router.post("/activate/resend-activation-link", status_code=HTTP_200_OK)
 @limiter.limit("5/minute")
 def resend_activation_link(command: ResendActivationLink, request: Request):
     request.app.state.messagebus.handle(command)

@@ -6,7 +6,7 @@ from src.common.entrypoints.fastapi_dependencies import (
     CurrentUserDependency,
 )
 from src.users.domain.commands import ChangePassword, ChangeEmail
-from src.users.entrypoints.fastapi_models import (
+from src.users.entrypoints.fastapi._pydantic_models import (
     ChangePasswordByUserRequest,
     ChangeEmailByUserRequest,
 )
