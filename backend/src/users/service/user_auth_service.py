@@ -25,6 +25,6 @@ def generate_token(
     ):
         raise PasswordVerificationError
 
-    token = token_manager.generate_token(user.email)
+    token = token_manager.generate_token(user.username)
 
     return token
