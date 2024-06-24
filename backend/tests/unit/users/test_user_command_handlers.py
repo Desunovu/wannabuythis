@@ -19,6 +19,7 @@ from src.users.domain.commands import (
     DeactivateUser,
     AddRoleToUser,
     RemoveRoleFromUser,
+    ResendActivationLink,
 )
 
 
@@ -144,6 +145,40 @@ class TestActivateUser:
         messagebus.uow.user_repository.add(activated_user)
         with pytest.raises(UserAlreadyActive):
             messagebus.handle(ActivateUser(username=activated_user.username))
+
+
+class TestResendActivationLink:
+    def test_resend_activation_link(self, capsys, messagebus, deactivated_user, valid_password):
+        messagebus.uow.user_repository.add(deactivated_user)
+        messagebus.handle(
+            ResendActivationLink(username=deactivated_user.username, password=valid_password)
+        )
+        captured = capsys.readouterr()
+        assert deactivated_user.email in captured.out
+
+    def test_resend_activation_link_non_existing_user(self, messagebus, valid_password):
+        with pytest.raises(UserNotFound):
+            messagebus.handle(
+                ResendActivationLink(
+                    username="non-existing-user", password=valid_password
+                )
+            )
+
+    def test_resend_activation_link_wrong_password(self, messagebus, deactivated_user):
+        messagebus.uow.user_repository.add(deactivated_user)
+        with pytest.raises(PasswordVerificationError):
+            messagebus.handle(
+                ResendActivationLink(username=deactivated_user.username, password="wrong-password")
+            )
+
+    def test_resend_activation_link_already_active(self, messagebus, activated_user, valid_password):
+        messagebus.uow.user_repository.add(activated_user)
+        with pytest.raises(UserAlreadyActive):
+            messagebus.handle(
+                ResendActivationLink(
+                    username=activated_user.username, password=valid_password
+                )
+            )
 
 
 class TestDeactivateUser:
