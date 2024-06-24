@@ -1,5 +1,7 @@
 import pytest
 
+from src.common.service.exceptions import UserNotFound
+
 
 class TestSQLAlchemyUnitOfWork:
     def test_uow_can_use_repositories(self, sqlalchemy_uow):
@@ -18,7 +20,8 @@ class TestSQLAlchemyUnitOfWork:
         with sqlalchemy_uow:
             sqlalchemy_uow.user_repository.add(user)
 
-        assert sqlalchemy_uow.user_repository.get(user.username) is None
+        with pytest.raises(Exception):
+            _user = sqlalchemy_uow.user_repository.get(user.username)
 
     def test_uow_rollback_on_error(self, sqlalchemy_uow, user):
         with pytest.raises(Exception):
@@ -26,4 +29,5 @@ class TestSQLAlchemyUnitOfWork:
                 sqlalchemy_uow.user_repository.add(user)
                 raise Exception
 
-        assert sqlalchemy_uow.user_repository.get(user.username) is None
+        with pytest.raises(UserNotFound):
+            _user = sqlalchemy_uow.user_repository.get(user.username)
