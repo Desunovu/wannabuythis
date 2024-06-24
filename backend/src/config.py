@@ -20,3 +20,8 @@ def get_smtp_host() -> str:
 
 def get_smtp_sender() -> str:
     return os.environ.get("SMTP_SENDER", "admin@localhost")
+
+
+# Selector of production vs. development environment
+def get_env() -> str:
+    return os.environ.get("ENV", "development")
