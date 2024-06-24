@@ -1,77 +1,95 @@
 from uuid import UUID
 
+from fastapi.exceptions import ValidationException
 
-class UserNotFound(Exception):
+
+class NotFoundException(Exception):
+    pass
+
+
+class ConflictException(Exception):
+    pass
+
+
+class VerificationException(Exception):
+    pass
+
+
+class Forbidden(Exception):
+    pass
+
+
+class UserNotFound(NotFoundException):
     def __init__(self, username: str):
         super().__init__(f"User '{username}' not found")
 
 
-class UserExists(Exception):
+class UserExists(ConflictException):
     def __init__(self, username: str):
         super().__init__(f"User '{username}' already exists")
 
 
-class UserAlreadyActive(Exception):
+class UserAlreadyActive(ConflictException):
     def __init__(self, username: str):
         super().__init__(f"User '{username}' is already active")
 
 
-class UserNotActive(Exception):
+class UserNotActive(ConflictException):
     def __init__(self, username: str):
         super().__init__(f"User {username} is already deactivated")
 
 
-class UserAlreadyHasRole(Exception):
+class UserAlreadyHasRole(ConflictException):
     def __init__(self, username: str, role_name: str):
         super().__init__(f"User {username} already has role {role_name}")
 
 
-class UserDoesNotHaveRole(Exception):
+class UserDoesNotHaveRole(ConflictException):
     def __init__(self, username: str, role_name: str):
         super().__init__(f"User {username} does not have role {role_name}")
 
 
-class RoleNotFound(Exception):
+class RoleNotFound(NotFoundException):
     def __init__(self, role_name: str):
         super().__init__(f"Role '{role_name}' not found")
 
 
-class PasswordValidationError(Exception):
+class PasswordValidationError(ValidationException):
     def __init__(self, error_message: str = "Password validation failed"):
         super().__init__(error_message)
 
 
-class PasswordVerificationError(Exception):
+class PasswordVerificationError(VerificationException):
     def __init__(self, error_message: str = "Password does not match"):
         super().__init__(error_message)
 
 
-class WishlistNotFound(Exception):
+class WishlistNotFound(NotFoundException):
     def __init__(self, uuid: UUID):
         super().__init__(f"Wishlist '{uuid}' not found")
 
 
-class WishlistItemNotFound(Exception):
+class WishlistItemNotFound(NotFoundException):
     def __init__(self, uuid: UUID):
         super().__init__(f"Wishlist item '{uuid}' not found")
 
 
-class WishlistAlreadyArchived(Exception):
+class WishlistAlreadyArchived(ConflictException):
     def __init__(self, uuid: UUID):
         super().__init__(f"Wishlist '{uuid}' already archived")
 
 
-class WishlistNotArchived(Exception):
+class WishlistNotArchived(ConflictException):
     def __init__(self, uuid: UUID):
         super().__init__(f"Wishlist '{uuid}' is not archived")
 
 
-class RoleAlreadyExists(Exception):
+class RoleAlreadyExists(ConflictException):
     def __init__(self, role_name: str):
         super().__init__(f"Role '{role_name}' already exists")
 
 
-class RoleAlreadyHasPermission(Exception):
+class RoleAlreadyHasPermission(ConflictException):
     def __init__(self, role_name: str, permission_name: str):
         super().__init__(
             f"Role '{role_name}' already has permission '{permission_name}'"
