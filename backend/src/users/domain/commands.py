@@ -11,6 +11,16 @@ class CreateUser(Command):
 
 
 @dataclass
+class ActivateUser(Command):
+    username: str
+
+
+@dataclass
+class DeactivateUser(Command):
+    username: str
+
+
+@dataclass
 class ChangePassword(Command):
     username: str
     new_password: str
@@ -22,16 +32,6 @@ class ChangePassword(Command):
 class ChangeUserEmail(Command):
     username: str
     new_email: str
-
-
-@dataclass
-class ActivateUser(Command):
-    username: str
-
-
-@dataclass
-class DeactivateUser(Command):
-    username: str
 
 
 @dataclass
