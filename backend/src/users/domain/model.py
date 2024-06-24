@@ -9,6 +9,7 @@ from src.users.domain.events import (
     RoleAddedToUser,
     RoleRemovedFromUser,
     UserActivated,
+    UserCreated,
 )
 
 
@@ -34,6 +35,7 @@ class User(AggregateRoot):
         self.password_hash = password_hash
         self.is_active = True
         self.roles: list[Role] = []
+        self.add_event(UserCreated(username=self.username, email=self.email))
 
     @staticmethod
     def validate_password(new_password: str) -> bool:
