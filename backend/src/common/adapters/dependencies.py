@@ -12,7 +12,9 @@ from src import config
 class TokenManager(abc.ABC):
     @staticmethod
     @abc.abstractmethod
-    def generate_auth_token(username: str) -> str: ...
+    def generate_auth_token(
+            username: str, exp: None | datetime.timedelta = None
+    ) -> str: ...
 
     @staticmethod
     @abc.abstractmethod
@@ -21,14 +23,15 @@ class TokenManager(abc.ABC):
 
 class JWTManager(TokenManager):
     @staticmethod
-    def generate_auth_token(username: str) -> str:
+    def generate_auth_token(
+            username: str, exp: None | datetime.timedelta = None
+    ) -> str:
+        payload = {"username": username}
+        if exp:
+            payload["exp"] = datetime.datetime.now(datetime.UTC) + exp
         token = jwt.encode(
-            {
-                "username": username,
-                "exp": datetime.datetime.now(datetime.UTC)
-                + datetime.timedelta(hours=1),
-            },
-            config.get_secret_key(),
+            payload=payload,
+            key=config.get_secret_key(),
             algorithm="HS256",
         )
         return token
