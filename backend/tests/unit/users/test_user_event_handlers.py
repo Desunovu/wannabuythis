@@ -6,4 +6,4 @@ class TestUserCreated:
         messagebus.handle(UserCreated(username=user.username, email=user.email))
         # Test what fakenotificator print message to stdout
         captured = capsys.readouterr()
-        assert user.username in captured.out
+        assert user.email in captured.out
