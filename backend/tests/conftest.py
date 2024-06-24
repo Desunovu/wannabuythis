@@ -5,14 +5,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 
 from src.bootstrap import bootstrap
-from src.common.adapters.dependencies import DefaultPasswordHasher
+from src.common.adapters.dependencies import DefaultPasswordHasher, FakeNotificator
 from src.common.service.uow import UnitOfWork
 from src.integration.adapters.sqlalchemy_orm import mapper_registry, start_mappers
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.roles.adapters.role_repository import RoleRepository
+from src.roles.domain import model as role_domain_model
 from src.users.adapters.user_repository import UserRepository
 from src.users.domain.model import User, Role, Permission
-from src.roles.domain import model as role_domain_model
 from src.wishlists.adapters.wishlist_repository import WishlistRepository
 from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
 
@@ -196,7 +196,7 @@ class FakeUnitOfWork(UnitOfWork):
 
 @pytest.fixture
 def messagebus():
-    return bootstrap(uow=FakeUnitOfWork())
+    return bootstrap(uow=FakeUnitOfWork(), notificator=FakeNotificator())
 
 
 @pytest.fixture

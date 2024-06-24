@@ -89,3 +89,8 @@ class EmailNotificator(Notificator):
                 to_addrs=[recipient],
                 msg=f"Subject: {subject}\n\n{message}".encode(),
             )
+
+
+class FakeNotificator(Notificator):
+    def send_notification(self, recipient: str, subject: str, message: str) -> None:
+        print(f"Fake notificator: {recipient}, {subject}, {message}")
