@@ -11,17 +11,17 @@ from src.common.service.uow import UnitOfWork
 
 class UserAuthService:
     def __init__(
-            self,
-            password_manager: PasswordHasher,
+        self,
+        password_manager: PasswordHasher,
         token_manager: TokenManager,
-            uow: UnitOfWork,
+        uow: UnitOfWork,
     ):
         self.password_manager = password_manager
         self.token_manager = token_manager
         self.uow = uow
 
     def generate_auth_token(
-            self, username: str, password: str, exp_time: None | datetime.timedelta = None
+        self, username: str, password: str, exp_time: None | datetime.timedelta = None
     ) -> str:
         with self.uow as uow:
             user = uow.user_repository.get(username)
@@ -30,7 +30,7 @@ class UserAuthService:
         if not user.is_active:
             raise UserNotActive(username=username)
         if not self.password_manager.verify_password(
-                password=password, password_hash=user.password_hash
+            password=password, password_hash=user.password_hash
         ):
             raise PasswordVerificationError
 

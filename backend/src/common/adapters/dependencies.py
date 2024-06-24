@@ -13,7 +13,7 @@ class TokenManager(abc.ABC):
     @staticmethod
     @abc.abstractmethod
     def generate_token(
-            username: str, exp_time: None | datetime.timedelta = None
+        username: str, exp_time: None | datetime.timedelta = None
     ) -> str: ...
 
     @staticmethod
@@ -24,7 +24,7 @@ class TokenManager(abc.ABC):
 class JWTManager(TokenManager):
     @staticmethod
     def generate_token(
-            username: str, exp_time: None | datetime.timedelta = None
+        username: str, exp_time: None | datetime.timedelta = None
     ) -> str:
         payload = {"username": username}
         if exp_time:

@@ -12,7 +12,7 @@ class Messagebus:
         uow: UnitOfWork,
         command_handlers: dict[type[Command], callable],
         event_handlers: dict[type[DomainEvent], list[callable]],
-            dependencies: dict[str, object],
+        dependencies: dict[str, object],
     ):
         self.uow = uow
         self.command_handlers = command_handlers
