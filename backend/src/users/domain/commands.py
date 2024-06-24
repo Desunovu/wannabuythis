@@ -48,7 +48,7 @@ class ChangePassword(Command):
 
 
 @dataclass
-class ChangeUserEmail(Command):
+class ChangeEmail(Command):
     username: str
     new_email: str
 

@@ -18,7 +18,7 @@ from src.common.service.exceptions import (
 from src.users.domain.commands import (
     CreateUser,
     ChangePassword,
-    ChangeUserEmail,
+    ChangeEmail,
     ActivateUser,
     DeactivateUser,
     AddRoleToUser,
@@ -173,16 +173,16 @@ class TestChangePassword:
             )
 
 
-class TestChangeUserEmail:
-    def test_update_user_email(self, messagebus, user, new_email):
+class TestChangeEmail:
+    def test_update_email(self, messagebus, user, new_email):
         messagebus.uow.user_repository.add(user)
-        messagebus.handle(ChangeUserEmail(username=user.username, new_email=new_email))
+        messagebus.handle(ChangeEmail(username=user.username, new_email=new_email))
         assert user.email == new_email
 
-    def test_update_user_email_non_existing_user(self, messagebus, new_email):
+    def test_update_email_non_existing_user(self, messagebus, new_email):
         with pytest.raises(UserNotFound):
             messagebus.handle(
-                ChangeUserEmail(username="non-existing-user", new_email=new_email)
+                ChangeEmail(username="non-existing-user", new_email=new_email)
             )
 
 

@@ -7,7 +7,7 @@ from src.users.domain.commands import (
     ActivateUser,
     DeactivateUser,
     ChangePassword,
-    ChangeUserEmail,
+    ChangeEmail,
     AddRoleToUser,
     RemoveRoleFromUser,
 )
@@ -60,7 +60,7 @@ def change_email(
     _admin: CurrentAdminDependency,
     request: Request,
 ):
-    command = ChangeUserEmail(
+    command = ChangeEmail(
         username=email_data.username,
         new_email=email_data.new_email,
     )

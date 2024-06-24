@@ -17,7 +17,7 @@ from src.users.domain.commands import (
     ChangePassword,
     DeactivateUser,
     ActivateUser,
-    ChangeUserEmail,
+    ChangeEmail,
     AddRoleToUser,
     RemoveRoleFromUser,
     ResendActivationLink,
@@ -94,7 +94,7 @@ def handle_change_password(
         uow.commit()
 
 
-def handle_change_user_email(command: ChangeUserEmail, uow: UnitOfWork):
+def handle_change_user_email(command: ChangeEmail, uow: UnitOfWork):
     with uow:
         user = uow.user_repository.get(command.username)
         if not user:
@@ -199,7 +199,7 @@ USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     GenerateAuthToken: handle_generate_auth_token,
     ActivateUserWithToken: handle_activate_user_with_token,
     ChangePassword: handle_change_password,
-    ChangeUserEmail: handle_change_user_email,
+    ChangeEmail: handle_change_user_email,
     ActivateUser: handle_activate_user,
     ResendActivationLink: handle_resend_activation_link,
     DeactivateUser: handle_deactivate_user,

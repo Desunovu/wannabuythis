@@ -5,7 +5,7 @@ from starlette.status import HTTP_200_OK
 from src.common.entrypoints.fastapi_dependencies import (
     CurrentUserDependency,
 )
-from src.users.domain.commands import ChangePassword, ChangeUserEmail
+from src.users.domain.commands import ChangePassword, ChangeEmail
 from src.users.entrypoints.fastapi_models import (
     ChangePasswordByUserRequest,
     ChangeEmailByUserRequest,
@@ -34,7 +34,7 @@ def change_email(
     current_user: CurrentUserDependency,
     request: Request,
 ):
-    command = ChangeUserEmail(
+    command = ChangeEmail(
         username=current_user.username,
         new_email=email_data.new_email,
     )
