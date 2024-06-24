@@ -2,7 +2,7 @@ import inspect
 from typing import Callable, Any
 
 from src.common.adapters.dependencies import (
-    PasswordHasher,
+    PasswordHashUtil,
     UUIDGenerator,
     TokenManager,
     Notificator,
@@ -56,7 +56,7 @@ def initialize_messagebus(dependencies: None | dict[str, object] = None) -> Mess
 
 def initialize_dependencies(
     uow: UnitOfWork,
-    password_manager: PasswordHasher,
+    password_hash_util: PasswordHashUtil,
     uuid_generator: UUIDGenerator,
     token_manager: TokenManager,
     notificator: Notificator,
@@ -65,7 +65,7 @@ def initialize_dependencies(
 
     return {
         "uow": uow,
-        "password_manager": password_manager,
+        "password_hash_util": password_hash_util,
         "uuid_generator": uuid_generator,
         "token_manager": token_manager,
         "notificator": notificator,

@@ -1,4 +1,4 @@
-from src.common.adapters.dependencies import PasswordHasher, Notificator, TokenManager
+from src.common.adapters.dependencies import PasswordHashUtil, Notificator, TokenManager
 from src.common.domain.commands import Command
 from src.common.service.exceptions import (
     UserNotFound,
@@ -34,14 +34,14 @@ from src.users.service.handlers_utils import check_user_exists
 def handle_create_user(
     command: CreateUser,
     uow: UnitOfWork,
-    password_manager: PasswordHasher,
+    password_hash_util: PasswordHashUtil,
 ):
     with uow:
         if check_user_exists(username=command.username, uow=uow):
             raise UserExists(command.username)
         if not User.validate_password(command.password):
             raise PasswordValidationError()
-        password_hash = password_manager.hash_password(command.password)
+        password_hash = password_hash_util.hash_password(command.password)
         user = User(command.username, command.email, password_hash)
         uow.user_repository.add(user)
         uow.commit()
@@ -50,7 +50,7 @@ def handle_create_user(
 def handle_generate_auth_token(
     command: GenerateAuthToken,
     uow: UnitOfWork,
-    password_manager: PasswordHasher,
+    password_hash_util: PasswordHashUtil,
     token_manager: TokenManager,
 ):
 
@@ -60,7 +60,7 @@ def handle_generate_auth_token(
         raise UserNotFound(username=command.username)
     if not user.is_active:
         raise UserNotActive(username=command.username)
-    if not password_manager.verify_password(
+    if not password_hash_util.verify_password(
         password=command.password, password_hash=user.password_hash
     ):
         raise PasswordVerificationError
@@ -75,7 +75,7 @@ def handle_generate_auth_token(
 def handle_change_password(
     command: ChangePassword,
     uow: UnitOfWork,
-    password_manager: PasswordHasher,
+    password_hash_util: PasswordHashUtil,
 ):
     with uow:
         user = uow.user_repository.get(command.username)
@@ -84,11 +84,11 @@ def handle_change_password(
         if not User.validate_password(command.new_password):
             raise PasswordValidationError()
         if not command.called_by_admin:
-            if not password_manager.verify_password(
+            if not password_hash_util.verify_password(
                 password=command.old_password, password_hash=user.password_hash
             ):
                 raise PasswordVerificationError()
-        new_password_hash = password_manager.hash_password(command.new_password)
+        new_password_hash = password_hash_util.hash_password(command.new_password)
         user.change_password_hash(new_password_hash)
         user.add_event(PasswordChanged(user.username))
         uow.commit()
@@ -133,13 +133,13 @@ def handle_resend_activation_link(
     uow: UnitOfWork,
     notificator: Notificator,
     token_manager: TokenManager,
-    password_manager: PasswordHasher,
+    password_hash_util: PasswordHashUtil,
 ):
     with uow:
         user = uow.user_repository.get(command.username)
         if not user:
             raise UserNotFound(command.username)
-        if not password_manager.verify_password(
+        if not password_hash_util.verify_password(
             password=command.password, password_hash=user.password_hash
         ):
             raise PasswordVerificationError

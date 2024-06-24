@@ -7,7 +7,7 @@ from src import bootstrap, config
 from src.common.adapters.dependencies import (
     FakeNotificator,
     EmailNotificator,
-    DefaultPasswordHasher,
+    HashlibPasswordHashUtil,
     DefaultUUIDGenerator,
     JWTManager,
 )
@@ -49,7 +49,7 @@ def setup_dependencies_for_environment():
 
     dependencies = bootstrap.initialize_dependencies(
         uow=SQLAlchemyUnitOfWork(),
-        password_manager=DefaultPasswordHasher(),
+        password_hash_util=HashlibPasswordHashUtil(),
         uuid_generator=DefaultUUIDGenerator(),
         token_manager=JWTManager(),
         notificator=notificator,
