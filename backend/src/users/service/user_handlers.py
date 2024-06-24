@@ -48,7 +48,6 @@ def handle_create_user(
         password_hash = password_manager.hash_password(command.password)
         user = User(command.username, command.email, password_hash)
         uow.user_repository.add(user)
-        user.add_event(UserCreated(user.username))
         uow.commit()
 
 
