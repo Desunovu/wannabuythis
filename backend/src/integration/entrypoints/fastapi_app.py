@@ -13,6 +13,9 @@ from src.common.adapters.dependencies import (
 )
 from src.common.entrypoints.fastapi_limiter import limiter
 from src.integration.adapters.sqlalchemy_orm import start_mappers
+from src.integration.entrypoints.fastapi_exception_handlers import (
+    exception_to_exception_handlers,
+)
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.users.entrypoints.fastapi_admin_user_command_router import (
     admin_user_command_router,
@@ -60,6 +63,11 @@ app.include_router(auth_router)
 app.include_router(users_query_router)
 app.include_router(users_command_router)
 app.include_router(admin_user_command_router)
+
+for exception, exception_handler in exception_to_exception_handlers.items():
+    app.add_exception_handler(
+        exc_class_or_status_code=exception, handler=exception_handler
+    )
 
 
 @app.get("/")
