@@ -18,7 +18,7 @@ from src.users.entrypoints.fastapi_models import (
     CreateUserResponse,
 )
 
-auth_router = APIRouter()
+auth_router = APIRouter(tags=["auth"])
 
 
 @auth_router.post("/login", response_model=LoginUserResponse)
