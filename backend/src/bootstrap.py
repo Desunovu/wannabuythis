@@ -3,19 +3,14 @@ from typing import Callable, Any
 
 from src.common.adapters.dependencies import (
     PasswordHasher,
-    DefaultPasswordHasher,
     UUIDGenerator,
-    DefaultUUIDGenerator,
     TokenManager,
-    JWTManager,
     Notificator,
-    EmailNotificator,
 )
 from src.common.domain.commands import Command
 from src.common.domain.events import DomainEvent
 from src.common.service.messagebus import Messagebus
 from src.common.service.uow import UnitOfWork
-from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.roles.service.role_handlers import ROLE_COMMAND_HANDLERS, ROLE_EVENT_HANDLERS
 from src.users.service.event_handlers import USER_EVENT_HANDLERS
 from src.users.service.user_handlers import (
@@ -59,11 +54,11 @@ def initialize_messagebus(dependencies: None | dict[str, object] = None) -> Mess
 
 
 def initialize_dependencies(
-    uow: UnitOfWork = SQLAlchemyUnitOfWork,
-    password_manager: PasswordHasher = DefaultPasswordHasher,
-    uuid_generator: UUIDGenerator = DefaultUUIDGenerator,
-    token_manager: TokenManager = JWTManager,
-    notificator: Notificator = EmailNotificator,
+    uow: UnitOfWork,
+    password_manager: PasswordHasher,
+    uuid_generator: UUIDGenerator,
+    token_manager: TokenManager,
+    notificator: Notificator,
 ) -> dict[str, Any]:
     """Declares dependencies"""
 
