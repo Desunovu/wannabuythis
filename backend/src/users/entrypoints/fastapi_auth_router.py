@@ -9,9 +9,9 @@ from starlette.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
 from src.common.entrypoints.fastapi_limiter import limiter
 from src.users.domain.commands import (
     CreateUser,
-    ActivateUser,
     ResendActivationLink,
     GenerateAuthToken,
+    ActivateUserWithToken,
 )
 from src.users.entrypoints.fastapi_models import (
     LoginUserResponse,
@@ -56,7 +56,7 @@ def register(command: CreateUser, request: Request):
 @auth_router.get("/activate/{activation_token}", status_code=HTTP_200_OK)
 def activate_user(activation_token: str, request: Request):
     try:
-        request.app.state.messagebus.handle(ActivateUser(activation_token))
+        request.app.state.messagebus.handle(ActivateUserWithToken(activation_token))
     except Exception as e:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=str(e))
 
