@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from src.common.domain.aggregates import AggregateRoot
 from src.common.domain.entities import Entity
+from src.common.domain.value_objects import ValueObject
 from src.users.domain.events import (
     PasswordChanged,
     UserDeactivated,
@@ -14,7 +15,7 @@ from src.users.domain.events import (
 
 
 @dataclass
-class Permission(Entity):
+class Permission(ValueObject):
     name: str
 
 
