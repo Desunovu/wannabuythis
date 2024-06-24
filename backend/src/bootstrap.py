@@ -6,7 +6,7 @@ from src.common.adapters.dependencies import (
     DefaultPasswordHasher,
     UUIDGenerator,
     DefaultUUIDGenerator,
-    AuthTokenManager,
+    TokenManager,
     JWTManager,
     Notificator,
     EmailNotificator,
@@ -31,7 +31,7 @@ def bootstrap(
     uow: UnitOfWork = SQLAlchemyUnitOfWork,
     password_manager: PasswordHasher = DefaultPasswordHasher,
     uuid_generator: UUIDGenerator = DefaultUUIDGenerator,
-        auth_token_manager: AuthTokenManager = JWTManager,
+        auth_token_manager: TokenManager = JWTManager,
         notificator: Notificator = EmailNotificator,
 ) -> Messagebus:
     """

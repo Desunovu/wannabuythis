@@ -1,4 +1,4 @@
-from src.common.adapters.dependencies import PasswordHasher, AuthTokenManager
+from src.common.adapters.dependencies import PasswordHasher, TokenManager
 from src.common.service.exceptions import (
     UserNotFound,
     UserNotActive,
@@ -11,7 +11,7 @@ def generate_token(
     username: str,
     password: str,
     password_manager: PasswordHasher,
-    token_manager: AuthTokenManager,
+        token_manager: TokenManager,
     uow: UnitOfWork,
 ) -> str:
     with uow:
@@ -25,14 +25,14 @@ def generate_token(
     ):
         raise PasswordVerificationError
 
-    token = token_manager.generate_token(user.username)
+    token = token_manager.generate_auth_token(user.username)
 
     return token
 
 
 def get_username_from_token(
         token: str,
-        token_manager: AuthTokenManager,
+        token_manager: TokenManager,
 ) -> str:
     username = token_manager.get_username_from_token(token)
     return username
