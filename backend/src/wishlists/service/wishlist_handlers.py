@@ -37,9 +37,7 @@ def handle_create_wishlist(
     uuid_generator: UUIDGenerator,
 ):
     with uow:
-        user = uow.user_repository.get(command.owner_username)
-        if not user:
-            raise UserNotFound(command.owner_username)
+        _user = uow.user_repository.get(command.owner_username)
         wishlist = Wishlist(
             uuid=uuid_generator.generate(),
             owner_username=command.owner_username,
