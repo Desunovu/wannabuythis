@@ -28,6 +28,7 @@ from src.users.domain.events import (
     PasswordChanged,
 )
 from src.users.domain.model import User
+from src.users.service.user_handlers_utils import check_user_exists
 
 
 def handle_create_user(
@@ -36,8 +37,7 @@ def handle_create_user(
     password_manager: PasswordHasher,
 ):
     with uow:
-        user = uow.user_repository.get(command.username)
-        if user:
+        if check_user_exists(username=command.username, uow=uow):
             raise UserExists(command.username)
         if not User.validate_password(command.password):
             raise PasswordValidationError()
