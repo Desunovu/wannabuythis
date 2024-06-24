@@ -1,6 +1,5 @@
 from src.common.adapters.dependencies import PasswordHasher
 from src.common.domain.commands import Command
-from src.common.domain.events import DomainEvent
 from src.common.service.exceptions import (
     UserNotFound,
     UserExists,
@@ -23,13 +22,7 @@ from src.users.domain.commands import (
     RemoveRoleFromUser,
 )
 from src.users.domain.events import (
-    UserCreated,
     PasswordChanged,
-    UserDeactivated,
-    EmailChanged,
-    RoleAddedToUser,
-    RoleRemovedFromUser,
-    UserActivated,
 )
 from src.users.domain.model import User
 
@@ -140,14 +133,4 @@ USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     DeactivateUser: handle_deactivate_user,
     AddRoleToUser: handle_add_role_to_user,
     RemoveRoleFromUser: handle_remove_role_from_user,
-}
-
-USER_EVENT_HANDLERS: dict[type[DomainEvent], list[callable]] = {
-    UserCreated: [],
-    PasswordChanged: [],
-    EmailChanged: [],
-    UserActivated: [],
-    UserDeactivated: [],
-    RoleAddedToUser: [],
-    RoleRemovedFromUser: [],
 }

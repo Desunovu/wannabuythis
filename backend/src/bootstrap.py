@@ -17,9 +17,9 @@ from src.common.service.messagebus import Messagebus
 from src.common.service.uow import UnitOfWork
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.roles.service.role_handlers import ROLE_COMMAND_HANDLERS, ROLE_EVENT_HANDLERS
+from src.users.service.event_handlers import USER_EVENT_HANDLERS
 from src.users.service.user_handlers import (
     USER_COMMAND_HANDLERS,
-    USER_EVENT_HANDLERS,
 )
 from src.wishlists.service.wishlist_handlers import (
     WISHLIST_COMMAND_HANDLERS,
