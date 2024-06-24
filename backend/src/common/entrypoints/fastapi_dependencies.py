@@ -32,7 +32,7 @@ CurrentUserDependency = Annotated["User", Depends(get_current_user)]
 
 
 def get_current_admin(
-    current_user=CurrentUserDependency,
+    current_user: CurrentUserDependency,
 ):
     if "admin" not in current_user.roles:
         raise HTTPException(
