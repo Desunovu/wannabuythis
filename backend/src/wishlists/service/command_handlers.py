@@ -1,9 +1,7 @@
 from src.common.adapters.dependencies import UUIDGenerator
 from src.common.domain.commands import Command
-from src.common.domain.events import DomainEvent
 from src.common.service.exceptions import (
     WishlistNotFound,
-    UserNotFound,
     WishlistItemNotFound,
     WishlistAlreadyArchived,
     WishlistNotArchived,
@@ -21,12 +19,6 @@ from src.wishlists.domain.commands import (
 from src.wishlists.domain.events import (
     WishlistNameChanged,
     WishlistCreated,
-    WishlistItemAdded,
-    WishlistItemRemoved,
-    WishlistItemMarkedAsNotPurchased,
-    WishlistItemMarkedAsPurchased,
-    WishlistArchived,
-    WishlistUnarchived,
 )
 from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
 
@@ -132,15 +124,4 @@ WISHLIST_COMMAND_HANDLERS: dict[type[Command], callable] = {
     SetWishlistItemStatus: handle_set_wishlist_item_status,
     ArchiveWishlist: handle_archive_wishlist,
     UnarchiveWishlist: handle_unarchive_wishlist,
-}
-
-WISHLIST_EVENT_HANDLERS: dict[type[DomainEvent], list[callable]] = {
-    WishlistCreated: [],
-    WishlistNameChanged: [],
-    WishlistItemAdded: [],
-    WishlistItemRemoved: [],
-    WishlistItemMarkedAsPurchased: [],
-    WishlistItemMarkedAsNotPurchased: [],
-    WishlistArchived: [],
-    WishlistUnarchived: [],
 }
