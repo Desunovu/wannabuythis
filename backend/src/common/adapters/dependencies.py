@@ -83,6 +83,14 @@ class Notificator(abc.ABC):
     @abc.abstractmethod
     def send_notification(self, recipient: str, subject: str, message: str) -> None: ...
 
+    def send_activation_link(self, recipient: str, activation_token: str):
+        link = f"{config.get_base_url()}/activate/{activation_token}"
+        self.send_notification(
+            recipient=recipient,
+            subject="WannaBuyThis Account activation",
+            message=f"Activate your account by clicking on this link: {link}",
+        )
+
 
 class EmailNotificator(Notificator):
     def send_notification(self, recipient: str, subject: str, message: str) -> None:
