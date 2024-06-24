@@ -8,6 +8,8 @@ from src.common.adapters.dependencies import (
     DefaultUUIDGenerator,
     AuthTokenManager,
     JWTManager,
+    Notificator,
+    EmailNotificator,
 )
 from src.common.domain.commands import Command
 from src.common.domain.events import DomainEvent
@@ -30,6 +32,7 @@ def bootstrap(
     password_manager: PasswordHasher = DefaultPasswordHasher,
     uuid_generator: UUIDGenerator = DefaultUUIDGenerator,
         auth_token_manager: AuthTokenManager = JWTManager,
+        notificator: Notificator = EmailNotificator,
 ) -> Messagebus:
     """
     Initializes the application's core components and returns a configured Messagebus instance.
@@ -52,6 +55,7 @@ def bootstrap(
         "password_manager": password_manager,
         "uuid_generator": uuid_generator,
         "auth_token_manager": auth_token_manager,
+        "notificator": notificator,
     }
     # Inject dependencies
     injected_command_handlers, injected_event_handlers = inject_dependencies(
