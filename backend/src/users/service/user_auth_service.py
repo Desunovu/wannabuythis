@@ -34,7 +34,6 @@ class UserAuthService:
         ):
             raise PasswordVerificationError
 
-        # TODO: add expiration time from config
         token = self.token_manager.generate_token(
             username=user.username, exp_time=exp_time
         )
