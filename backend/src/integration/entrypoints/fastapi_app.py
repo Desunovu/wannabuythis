@@ -4,9 +4,16 @@ import uvicorn
 from fastapi import FastAPI
 
 from src import bootstrap, config
-from src.common.adapters.dependencies import FakeNotificator, EmailNotificator
+from src.common.adapters.dependencies import (
+    FakeNotificator,
+    EmailNotificator,
+    DefaultPasswordHasher,
+    DefaultUUIDGenerator,
+    JWTManager,
+)
 from src.common.entrypoints.fastapi_limiter import limiter
 from src.integration.adapters.sqlalchemy_orm import start_mappers
+from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.users.entrypoints.fastapi_auth_router import auth_router
 from src.users.entrypoints.fastapi_users_query_router import users_query_router
 
@@ -28,11 +35,18 @@ async def lifespan(application: FastAPI):
 
 def setup_dependencies_for_environment():
     """Set up dependencies for app environment"""
-    notificator = EmailNotificator()
-    if config.get_env() == "development":
-        notificator = FakeNotificator()
 
-    dependencies = bootstrap.initialize_dependencies(notificator=notificator)
+    notificator = (
+        FakeNotificator() if config.get_env() == "development" else EmailNotificator()
+    )
+
+    dependencies = bootstrap.initialize_dependencies(
+        uow=SQLAlchemyUnitOfWork(),
+        password_manager=DefaultPasswordHasher(),
+        uuid_generator=DefaultUUIDGenerator(),
+        token_manager=JWTManager(),
+        notificator=notificator,
+    )
     return dependencies
 
 

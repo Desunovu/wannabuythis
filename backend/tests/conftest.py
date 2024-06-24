@@ -8,6 +8,8 @@ from src import bootstrap
 from src.common.adapters.dependencies import (
     DefaultPasswordHasher,
     FakeNotificator,
+    JWTManager,
+    DefaultUUIDGenerator,
 )
 from src.common.service.uow import UnitOfWork
 from src.integration.adapters.sqlalchemy_orm import mapper_registry, start_mappers
@@ -202,7 +204,11 @@ class FakeUnitOfWork(UnitOfWork):
 @pytest.fixture
 def messagebus():
     dependencies = bootstrap.initialize_dependencies(
-        uow=FakeUnitOfWork(), notificator=FakeNotificator()
+        uow=FakeUnitOfWork(),
+        password_manager=DefaultPasswordHasher(),
+        uuid_generator=DefaultUUIDGenerator(),
+        token_manager=JWTManager(),
+        notificator=FakeNotificator(),
     )
     return bootstrap.initialize_messagebus(dependencies=dependencies)
 
