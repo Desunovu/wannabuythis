@@ -8,18 +8,12 @@ from src.users.domain.commands import CreateUser
 auth_router = APIRouter()
 
 
-class CreateUserRequest(BaseModel):
-    username: str
-    email: str
-    password: str
-
-
 class CreateUserResponse(BaseModel):
     message: str
 
 
 @auth_router.post("/register", response_model=CreateUserResponse)
-def register(command: CreateUserRequest, request: Request):
+def register(command: CreateUser, request: Request):
     try:
         request.app.state.messagebus.handle(
             CreateUser(
