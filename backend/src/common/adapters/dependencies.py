@@ -11,19 +11,19 @@ from src import config
 class AuthTokenManager(abc.ABC):
     @staticmethod
     @abc.abstractmethod
-    def generate_token(email: str) -> str: ...
+    def generate_token(username: str) -> str: ...
 
     @staticmethod
     @abc.abstractmethod
-    def get_email_from_token(token: str) -> str: ...
+    def get_username_from_token(token: str) -> str: ...
 
 
 class JWTManager(AuthTokenManager):
     @staticmethod
-    def generate_token(email: str) -> str:
+    def generate_token(username: str) -> str:
         token = jwt.encode(
             {
-                "email": email,
+                "username": username,
                 "exp": datetime.datetime.now(datetime.UTC)
                 + datetime.timedelta(hours=1),
             },
@@ -33,9 +33,9 @@ class JWTManager(AuthTokenManager):
         return token
 
     @classmethod
-    def get_email_from_token(cls, token: str) -> str:
+    def get_username_from_token(cls, token: str) -> str:
         token_payload = cls.decode_token(token)
-        return token_payload["email"]
+        return token_payload["username"]
 
     @staticmethod
     def decode_token(token: str) -> dict:
