@@ -33,7 +33,7 @@ class User(AggregateRoot):
         self.username = username
         self.email = email
         self.password_hash = password_hash
-        self.is_active = True
+        self.is_active = False
         self.roles: list[Role] = []
         self.add_event(UserCreated(username=self.username, email=self.email))
 
