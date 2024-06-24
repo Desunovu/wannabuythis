@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from src.common.domain.aggregates import AggregateRoot
 from src.common.domain.entities import Entity
+from src.common.domain.value_objects import ValueObject
 from src.users.domain.events import (
     PasswordChanged,
     UserDeactivated,
@@ -9,11 +10,12 @@ from src.users.domain.events import (
     RoleAddedToUser,
     RoleRemovedFromUser,
     UserActivated,
+    UserCreated,
 )
 
 
 @dataclass
-class Permission(Entity):
+class Permission(ValueObject):
     name: str
 
 
@@ -32,8 +34,9 @@ class User(AggregateRoot):
         self.username = username
         self.email = email
         self.password_hash = password_hash
-        self.is_active = True
+        self.is_active = False
         self.roles: list[Role] = []
+        self.add_event(UserCreated(username=self.username, email=self.email))
 
     @staticmethod
     def validate_password(new_password: str) -> bool:

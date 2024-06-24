@@ -10,6 +10,7 @@ from sqlalchemy import (
     Dialect,
     Uuid,
     Boolean,
+    event,
 )
 from sqlalchemy.orm import registry, relationship
 
@@ -132,7 +133,7 @@ priorities = Table(
 )
 
 
-def start_mappers():
+def start_sqlalchemy_mappers():
     # Users context
     mapper_registry.map_imperatively(
         user_domain_model.User,
@@ -183,3 +184,19 @@ def start_mappers():
         },
     )
     mapper_registry.map_imperatively(role_domain_model.Permission, permissions)
+
+    # add 'missing after loading' events field to all aggregates
+    # TODO: find a way not to use this trick in imperative mapping
+    aggregates = [
+        user_domain_model.User,
+        wishlist_domain_model.Wishlist,
+        role_domain_model.Role,
+    ]
+    for aggregate in aggregates:
+        add_events_field_listener(aggregate)
+
+
+def add_events_field_listener(aggregate):
+    @event.listens_for(aggregate, "load")
+    def add_events_field(target, context):
+        target.events = []

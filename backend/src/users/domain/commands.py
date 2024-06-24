@@ -1,3 +1,4 @@
+import datetime
 from dataclasses import dataclass
 
 from src.common.domain.commands import Command
@@ -11,17 +12,10 @@ class CreateUser(Command):
 
 
 @dataclass
-class ChangePassword(Command):
+class GenerateAuthToken(Command):
     username: str
-    new_password: str
-    old_password: str = ""
-    called_by_admin: bool = False
-
-
-@dataclass
-class ChangeUserEmail(Command):
-    username: str
-    new_email: str
+    password: str
+    exp_time: None | datetime.timedelta
 
 
 @dataclass
@@ -30,8 +24,33 @@ class ActivateUser(Command):
 
 
 @dataclass
+class ActivateUserWithToken(Command):
+    token: str
+
+
+@dataclass
+class ResendActivationLink(Command):
+    username: str
+    password: str
+
+
+@dataclass
 class DeactivateUser(Command):
     username: str
+
+
+@dataclass
+class ChangePassword(Command):
+    username: str
+    new_password: str
+    old_password: str = ""
+    called_by_admin: bool = False
+
+
+@dataclass
+class ChangeEmail(Command):
+    username: str
+    new_email: str
 
 
 @dataclass

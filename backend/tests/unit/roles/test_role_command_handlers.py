@@ -32,7 +32,7 @@ class TestAddPermissionToRole:
                 role_name=default_role.name, permission_name=permission.name
             )
         )
-        assert default_role.permissions[0].name == permission.name
+        assert permission in default_role.permissions
 
     def test_add_permission_to_role_with_non_existing_role(
         self, messagebus, permission

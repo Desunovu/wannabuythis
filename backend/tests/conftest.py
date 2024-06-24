@@ -4,15 +4,22 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 
-from src.bootstrap import bootstrap
-from src.common.adapters.dependencies import DefaultPasswordHasher
+from src import bootstrap
+from src.common.dependencies.notificator import Notificator
+from src.common.dependencies.password_hash_util import HashlibPasswordHashUtil
+from src.common.dependencies.token_manager import JWTManager
+from src.common.dependencies.uuid_generator import DefaultUUIDGenerator
+from src.common.service.exceptions import RoleNotFound, WishlistNotFound, UserNotFound
 from src.common.service.uow import UnitOfWork
-from src.integration.adapters.sqlalchemy_orm import mapper_registry, start_mappers
+from src.integration.adapters.sqlalchemy_orm import (
+    mapper_registry,
+    start_sqlalchemy_mappers,
+)
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.roles.adapters.role_repository import RoleRepository
-from src.users.adapters.user_repository import UserRepository
-from src.users.domain.model import User, Role, Permission
 from src.roles.domain import model as role_domain_model
+from src.users.adapters.user_repository import UserRepository
+from src.users.domain.model import User, Role
 from src.wishlists.adapters.wishlist_repository import WishlistRepository
 from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
 
@@ -20,11 +27,13 @@ from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, Wish
 @pytest.fixture
 def user(user_email, valid_password):
     """Default user with #valid_password"""
-    return User(
+    user = User(
         username="testuser",
         email=user_email,
-        password_hash=DefaultPasswordHasher.hash_password(valid_password),
+        password_hash=HashlibPasswordHashUtil.hash_password(valid_password),
     )
+    user.is_active = True
+    return user
 
 
 @pytest.fixture
@@ -55,7 +64,8 @@ def admin_role() -> Role:
 
 @pytest.fixture
 def permission():
-    return Permission(name="CREATE_WISHLIST")
+    """Permission value object from roles bounded context"""
+    return role_domain_model.Permission("CREATE_WISHLIST")
 
 
 @pytest.fixture
@@ -142,8 +152,12 @@ class FakeUserRepository(UserRepository):
         super().__init__()
         self._users = users
 
-    def _get(self, username: str) -> User | None:
-        return next((user for user in self._users if user.username == username), None)
+    def _get(self, username: str) -> User:
+        try:
+            user = next(user for user in self._users if user.username == username)
+        except StopIteration:
+            raise UserNotFound(username=username)
+        return user
 
     def _add(self, user: User):
         self._users.add(user)
@@ -154,8 +168,12 @@ class FakeWishlistRepository(WishlistRepository):
         super().__init__()
         self._wishlists = wishlists
 
-    def _get(self, uuid: UUID) -> Wishlist | None:
-        return next((wl for wl in self._wishlists if wl.uuid == uuid), None)
+    def _get(self, uuid: UUID) -> Wishlist:
+        try:
+            wishlist = next(wl for wl in self._wishlists if wl.uuid == uuid)
+        except StopIteration:
+            raise WishlistNotFound(uuid=uuid)
+        return wishlist
 
     def _list_all(self) -> list[Wishlist]:
         return list(self._wishlists)
@@ -172,8 +190,12 @@ class FakeRoleRepository(RoleRepository):
         super().__init__()
         self._roles = roles
 
-    def _get(self, name: str) -> Role | None:
-        return next((role for role in self._roles if role.name == name), None)
+    def _get(self, name: str) -> Role:
+        try:
+            role = next(role for role in self._roles if role.name == name)
+        except StopIteration:
+            raise RoleNotFound(role_name=name)
+        return role
 
     def _add(self, role: Role):
         self._roles.add(role)
@@ -194,9 +216,26 @@ class FakeUnitOfWork(UnitOfWork):
         pass
 
 
+class FakeNotificator(Notificator):
+    def send_notification(self, recipient: "User", subject: str, message: str) -> None:
+        print(
+            f"Fake notificator: {recipient.username} ({recipient.email}), {subject}, {message}"
+        )
+
+
 @pytest.fixture
 def messagebus():
-    return bootstrap(uow=FakeUnitOfWork())
+    dependencies = bootstrap.initialize_dependencies(
+        uow=FakeUnitOfWork(),
+        password_hash_util=HashlibPasswordHashUtil(),
+        uuid_generator=DefaultUUIDGenerator(),
+        token_manager=JWTManager(),
+        notificator=FakeNotificator(),
+    )
+    return bootstrap.initialize_messagebus(
+        dependencies=dependencies,
+        start_logging=False,
+    )
 
 
 @pytest.fixture
@@ -242,7 +281,7 @@ def wishlist_new_name():
 
 @pytest.fixture
 def prepare_mappers():
-    start_mappers()
+    start_sqlalchemy_mappers()
     yield
     clear_mappers()
 
