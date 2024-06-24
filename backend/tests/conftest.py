@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker, clear_mappers
 
 from src import bootstrap
 from src.common.adapters.dependencies import (
-    DefaultPasswordHasher,
+    HashlibPasswordHashUtil,
     FakeNotificator,
     JWTManager,
     DefaultUUIDGenerator,
@@ -29,7 +29,7 @@ def user(user_email, valid_password):
     user = User(
         username="testuser",
         email=user_email,
-        password_hash=DefaultPasswordHasher.hash_password(valid_password),
+        password_hash=HashlibPasswordHashUtil.hash_password(valid_password),
     )
     user.is_active = True
     return user
@@ -218,7 +218,7 @@ class FakeUnitOfWork(UnitOfWork):
 def messagebus():
     dependencies = bootstrap.initialize_dependencies(
         uow=FakeUnitOfWork(),
-        password_manager=DefaultPasswordHasher(),
+        password_hash_util=HashlibPasswordHashUtil(),
         uuid_generator=DefaultUUIDGenerator(),
         token_manager=JWTManager(),
         notificator=FakeNotificator(),
