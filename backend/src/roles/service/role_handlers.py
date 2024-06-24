@@ -18,12 +18,12 @@ from src.roles.domain.events import (
     PermissionRemovedFromRole,
 )
 from src.roles.domain.model import Role, Permission
+from src.roles.service.role_handlers_utils import check_role_exists
 
 
 def handle_create_role(command: CreateRole, uow: UnitOfWork):
     with uow:
-        role = uow.role_repository.get(command.name)
-        if role:
+        if check_role_exists(command.name, uow):
             raise RoleAlreadyExists(command.name)
         uow.role_repository.add(Role(command.name))
         uow.commit()
