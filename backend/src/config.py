@@ -12,3 +12,11 @@ def get_postgres_uri() -> str:
 
 def get_secret_key() -> str:
     return os.environ.get("SECRET_KEY", "dev-secret-key")
+
+
+def get_smtp_host() -> str:
+    return os.environ.get("SMTP_HOST", "localhost")
+
+
+def get_smtp_sender() -> str:
+    return os.environ.get("SMTP_SENDER", "admin@localhost")
