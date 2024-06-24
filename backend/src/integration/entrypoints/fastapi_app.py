@@ -2,7 +2,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from src import bootstrap
+from src import bootstrap, config
+from src.common.adapters.dependencies import FakeNotificator, EmailNotificator
 from src.integration.adapters.sqlalchemy_orm import start_mappers
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.users.entrypoints.fastapi_auth_router import auth_router
@@ -11,7 +12,14 @@ from src.users.entrypoints.fastapi_auth_router import auth_router
 @asynccontextmanager
 async def lifespan(application: FastAPI):
     start_mappers()
-    application.state.messagebus = bootstrap.bootstrap(uow=SQLAlchemyUnitOfWork())
+    # Set up dependencies for app environment
+    notificator = EmailNotificator()
+    if config.get_env() == "development":
+        notificator = FakeNotificator()
+
+    application.state.messagebus = bootstrap.bootstrap(
+        uow=SQLAlchemyUnitOfWork(), notificator=notificator
+    )
     yield
 
 
