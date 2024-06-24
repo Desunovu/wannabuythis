@@ -8,3 +8,10 @@ class LoginUserResponse(BaseModel):
 
 class CreateUserResponse(BaseModel):
     message: str
+
+
+class UserResponse(BaseModel):
+    username: str
+    email: str
+    is_active: bool
+    roles: list

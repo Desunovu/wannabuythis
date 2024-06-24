@@ -53,6 +53,7 @@ def setup_dependencies_for_environment():
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(auth_router)
+app.include_router(users_query_router)
 
 
 @app.get("/")
