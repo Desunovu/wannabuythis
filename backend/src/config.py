@@ -25,3 +25,7 @@ def get_smtp_sender() -> str:
 # Selector of production vs. development environment
 def get_env() -> str:
     return os.environ.get("ENV", "development")
+
+
+def get_base_url() -> str:
+    return os.environ.get("BASE_URL", "http://localhost:8000")
