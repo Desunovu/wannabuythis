@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordBearer
 from starlette.requests import Request
 from starlette.status import HTTP_403_FORBIDDEN
 
-from src.common.adapters.dependencies import TokenManager
+from src.common.dependencies.token_manager import TokenManager
 from src.users.queries import user_queries
 
 if TYPE_CHECKING:

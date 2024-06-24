@@ -1,4 +1,5 @@
-from src.common.adapters.dependencies import Notificator, TokenManager
+from src.common.dependencies.notificator import Notificator
+from src.common.dependencies.token_manager import TokenManager
 from src.common.domain.events import DomainEvent
 from src.common.service.uow import UnitOfWork
 from src.users.domain.events import (
