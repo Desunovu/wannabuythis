@@ -1,4 +1,4 @@
-from src.common.adapters.dependencies import PasswordHasher
+from src.common.adapters.dependencies import PasswordHasher, Notificator
 from src.common.domain.commands import Command
 from src.common.service.exceptions import (
     UserNotFound,
@@ -20,11 +20,13 @@ from src.users.domain.commands import (
     ChangeUserEmail,
     AddRoleToUser,
     RemoveRoleFromUser,
+    ResendActivationLink,
 )
 from src.users.domain.events import (
     PasswordChanged,
 )
 from src.users.domain.model import User
+from src.users.service.user_auth_service import UserAuthService
 
 
 def handle_create_user(
@@ -86,6 +88,32 @@ def handle_activate_user(command: ActivateUser, uow: UnitOfWork):
         uow.commit()
 
 
+def handle_resend_activation_link(
+    command: ResendActivationLink,
+    uow: UnitOfWork,
+    user_auth_service: UserAuthService,
+    notificator: Notificator,
+    password_manager: PasswordHasher,
+):
+    with uow:
+        user = uow.user_repository.get(command.username)
+        if not user:
+            raise UserNotFound(command.username)
+        if not password_manager.verify_password(
+            password=command.password, password_hash=user.password_hash
+        ):
+            raise PasswordVerificationError
+        if user.is_active:
+            raise UserAlreadyActive(command.username)
+        # TODO: dry this. This is a duplication of logic in handle_user_created
+        activation_token = user_auth_service.generate_activation_token(
+            username=user.username
+        )
+        notificator.send_activation_link(
+            recipient=user.email, activation_token=activation_token
+        )
+
+
 def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
     with uow:
         user = uow.user_repository.get(command.username)
@@ -130,6 +158,7 @@ USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     ChangePassword: handle_change_password,
     ChangeUserEmail: handle_change_user_email,
     ActivateUser: handle_activate_user,
+    ResendActivationLink: handle_resend_activation_link,
     DeactivateUser: handle_deactivate_user,
     AddRoleToUser: handle_add_role_to_user,
     RemoveRoleFromUser: handle_remove_role_from_user,
