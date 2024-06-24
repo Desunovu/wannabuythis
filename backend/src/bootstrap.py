@@ -113,4 +113,6 @@ def build_handler_with_injected_dependencies(
     def injected_handler(message):
         return handler(message, **dependencies_to_inject)
 
+    injected_handler.__name__ = handler.__name__
+
     return injected_handler
