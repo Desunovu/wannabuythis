@@ -4,7 +4,8 @@ from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
 
-from src.users.domain.commands import CreateUser, ActivateUser
+from src.common.entrypoints.fastapi_limiter import limiter
+from src.users.domain.commands import CreateUser, ActivateUser, ResendActivationLink
 from src.users.entrypoints.fastapi_models import (
     LoginUserRequest,
     LoginUserResponse,
@@ -56,5 +57,14 @@ def activate_user(activation_token: str, request: Request):
         ]
         username = user_auth_service.get_username_from_token(activation_token)
         request.app.state.messagebus.handle(ActivateUser(username))
+    except Exception as e:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@auth_router.post("/activate/resend-activation-link", status_code=HTTP_200_OK)
+@limiter.limit("5/minute")
+def resend_activation_link(command: ResendActivationLink, request: Request):
+    try:
+        request.app.state.messagebus.handle(command)
     except Exception as e:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=str(e))
