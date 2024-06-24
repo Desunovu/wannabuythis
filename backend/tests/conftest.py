@@ -13,7 +13,7 @@ from src.common.adapters.dependencies import (
 )
 from src.common.service.exceptions import RoleNotFound, WishlistNotFound, UserNotFound
 from src.common.service.uow import UnitOfWork
-from src.integration.adapters.sqlalchemy_orm import mapper_registry, start_mappers
+from src.integration.adapters.sqlalchemy_orm import mapper_registry, start_sqlalchemy_mappers
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.roles.adapters.role_repository import RoleRepository
 from src.roles.domain import model as role_domain_model
@@ -270,7 +270,7 @@ def wishlist_new_name():
 
 @pytest.fixture
 def prepare_mappers():
-    start_mappers()
+    start_sqlalchemy_mappers()
     yield
     clear_mappers()
 

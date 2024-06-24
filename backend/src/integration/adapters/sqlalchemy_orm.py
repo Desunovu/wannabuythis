@@ -133,7 +133,7 @@ priorities = Table(
 )
 
 
-def start_mappers():
+def start_sqlalchemy_mappers():
     # Users context
     mapper_registry.map_imperatively(
         user_domain_model.User,
