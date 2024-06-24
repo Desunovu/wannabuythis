@@ -2,11 +2,15 @@ import abc
 import datetime
 import hashlib
 from smtplib import SMTP
+from typing import TYPE_CHECKING
 from uuid import uuid4, UUID
 
 import jwt
 
 from src import config
+
+if TYPE_CHECKING:
+    from src.users.domain.model import User
 
 
 class TokenManager(abc.ABC):
@@ -81,9 +85,11 @@ class DefaultUUIDGenerator(UUIDGenerator):
 
 class Notificator(abc.ABC):
     @abc.abstractmethod
-    def send_notification(self, recipient: str, subject: str, message: str) -> None: ...
+    def send_notification(
+        self, recipient: "User", subject: str, message: str
+    ) -> None: ...
 
-    def send_activation_link(self, recipient: str, activation_token: str):
+    def send_activation_link(self, recipient: "User", activation_token: str):
         link = f"{config.get_base_url()}/activate/{activation_token}"
         self.send_notification(
             recipient=recipient,
@@ -93,15 +99,17 @@ class Notificator(abc.ABC):
 
 
 class EmailNotificator(Notificator):
-    def send_notification(self, recipient: str, subject: str, message: str) -> None:
+    def send_notification(self, recipient: "User", subject: str, message: str) -> None:
         with SMTP(config.get_smtp_host()) as smtp:
             smtp.sendmail(
                 from_addr=config.get_smtp_sender(),
-                to_addrs=[recipient],
+                to_addrs=[recipient.email],
                 msg=f"Subject: {subject}\n\n{message}".encode(),
             )
 
 
 class FakeNotificator(Notificator):
-    def send_notification(self, recipient: str, subject: str, message: str) -> None:
-        print(f"Fake notificator: {recipient}, {subject}, {message}")
+    def send_notification(self, recipient: "User", subject: str, message: str) -> None:
+        print(
+            f"Fake notificator: {recipient.username} ({recipient.email}), {subject}, {message}"
+        )

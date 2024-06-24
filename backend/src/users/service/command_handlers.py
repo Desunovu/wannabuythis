@@ -151,7 +151,7 @@ def handle_resend_activation_link(
             username=user.username, exp_time=None
         )
         notificator.send_activation_link(
-            recipient=user.email, activation_token=activation_token
+            recipient=user, activation_token=activation_token
         )
 
 
