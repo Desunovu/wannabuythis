@@ -9,19 +9,19 @@ import jwt
 from src import config
 
 
-class AuthTokenManager(abc.ABC):
+class TokenManager(abc.ABC):
     @staticmethod
     @abc.abstractmethod
-    def generate_token(username: str) -> str: ...
+    def generate_auth_token(username: str) -> str: ...
 
     @staticmethod
     @abc.abstractmethod
     def get_username_from_token(token: str) -> str: ...
 
 
-class JWTManager(AuthTokenManager):
+class JWTManager(TokenManager):
     @staticmethod
-    def generate_token(username: str) -> str:
+    def generate_auth_token(username: str) -> str:
         token = jwt.encode(
             {
                 "username": username,
