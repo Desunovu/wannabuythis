@@ -3,7 +3,7 @@ import datetime
 import pytest
 from jwt import DecodeError
 
-from src.common.adapters.dependencies import TokenManager
+from src.common.dependencies.token_manager import TokenManager
 from src.common.service.exceptions import (
     UserExists,
     UserNotFound,

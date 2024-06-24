@@ -1,4 +1,4 @@
-from src.common.adapters.dependencies import UUIDGenerator
+from src.common.dependencies.uuid_generator import UUIDGenerator
 from src.common.domain.commands import Command
 from src.common.service.exceptions import (
     WishlistNotFound,

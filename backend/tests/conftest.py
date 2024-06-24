@@ -5,15 +5,16 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 
 from src import bootstrap
-from src.common.adapters.dependencies import (
-    HashlibPasswordHashUtil,
-    FakeNotificator,
-    JWTManager,
-    DefaultUUIDGenerator,
-)
+from src.common.dependencies.notificator import Notificator
+from src.common.dependencies.password_hash_util import HashlibPasswordHashUtil
+from src.common.dependencies.token_manager import JWTManager
+from src.common.dependencies.uuid_generator import DefaultUUIDGenerator
 from src.common.service.exceptions import RoleNotFound, WishlistNotFound, UserNotFound
 from src.common.service.uow import UnitOfWork
-from src.integration.adapters.sqlalchemy_orm import mapper_registry, start_sqlalchemy_mappers
+from src.integration.adapters.sqlalchemy_orm import (
+    mapper_registry,
+    start_sqlalchemy_mappers,
+)
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.roles.adapters.role_repository import RoleRepository
 from src.roles.domain import model as role_domain_model
@@ -213,6 +214,13 @@ class FakeUnitOfWork(UnitOfWork):
 
     def _rollback(self):
         pass
+
+
+class FakeNotificator(Notificator):
+    def send_notification(self, recipient: "User", subject: str, message: str) -> None:
+        print(
+            f"Fake notificator: {recipient.username} ({recipient.email}), {subject}, {message}"
+        )
 
 
 @pytest.fixture

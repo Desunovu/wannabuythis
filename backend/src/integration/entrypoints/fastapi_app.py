@@ -4,13 +4,11 @@ import uvicorn
 from fastapi import FastAPI
 
 from src import bootstrap, config
-from src.common.adapters.dependencies import (
-    FakeNotificator,
-    EmailNotificator,
-    HashlibPasswordHashUtil,
-    DefaultUUIDGenerator,
-    JWTManager,
-)
+from tests.conftest import FakeNotificator
+from src.common.dependencies.notificator import EmailNotificator
+from src.common.dependencies.uuid_generator import DefaultUUIDGenerator
+from src.common.dependencies.password_hash_util import HashlibPasswordHashUtil
+from src.common.dependencies.token_manager import JWTManager
 from src.common.entrypoints.fastapi_limiter import limiter
 from src.integration.adapters.sqlalchemy_orm import start_sqlalchemy_mappers
 from src.integration.entrypoints.fastapi_exception_handlers import (

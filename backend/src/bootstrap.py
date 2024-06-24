@@ -1,12 +1,10 @@
 import inspect
 from typing import Callable, Any
 
-from src.common.adapters.dependencies import (
-    PasswordHashUtil,
-    UUIDGenerator,
-    TokenManager,
-    Notificator,
-)
+from src.common.dependencies.notificator import Notificator
+from src.common.dependencies.password_hash_util import PasswordHashUtil
+from src.common.dependencies.token_manager import TokenManager
+from src.common.dependencies.uuid_generator import UUIDGenerator
 from src.common.domain.commands import Command
 from src.common.domain.events import DomainEvent
 from src.common.service.messagebus import Messagebus
