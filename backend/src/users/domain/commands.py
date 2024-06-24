@@ -16,6 +16,12 @@ class ActivateUser(Command):
 
 
 @dataclass
+class ResendActivationLink(Command):
+    username: str
+    password: str
+
+
+@dataclass
 class DeactivateUser(Command):
     username: str
 
