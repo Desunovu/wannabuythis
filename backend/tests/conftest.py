@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 
-from src.bootstrap import bootstrap
+from src import bootstrap
 from src.common.adapters.dependencies import (
     DefaultPasswordHasher,
     FakeNotificator,
@@ -201,7 +201,10 @@ class FakeUnitOfWork(UnitOfWork):
 
 @pytest.fixture
 def messagebus():
-    return bootstrap(uow=FakeUnitOfWork(), notificator=FakeNotificator())
+    dependencies = bootstrap.initialize_dependencies(
+        uow=FakeUnitOfWork(), notificator=FakeNotificator()
+    )
+    return bootstrap.initialize_messagebus(dependencies=dependencies)
 
 
 @pytest.fixture

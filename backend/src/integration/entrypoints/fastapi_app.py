@@ -7,28 +7,33 @@ from src import bootstrap, config
 from src.common.adapters.dependencies import FakeNotificator, EmailNotificator
 from src.common.entrypoints.fastapi_limiter import limiter
 from src.integration.adapters.sqlalchemy_orm import start_mappers
-from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.users.entrypoints.fastapi_auth_router import auth_router
+from src.users.entrypoints.fastapi_users_query_router import users_query_router
 
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
-    # Set up SQLAlchemy ORM
     start_mappers()
 
-    # Set up rate limiter
-    application.state.limiter = limiter
+    dependencies = setup_dependencies_for_environment()
+    messagebus = bootstrap.initialize_messagebus(dependencies=dependencies)
 
-    # Set up dependencies for app environment
+    # Save objects in app state
+    application.state.limiter = limiter
+    application.state.dependencies = dependencies
+    application.state.messagebus = messagebus
+
+    yield
+
+
+def setup_dependencies_for_environment():
+    """Set up dependencies for app environment"""
     notificator = EmailNotificator()
     if config.get_env() == "development":
         notificator = FakeNotificator()
 
-    # Set up messagebus
-    application.state.messagebus = bootstrap.bootstrap(
-        uow=SQLAlchemyUnitOfWork(), notificator=notificator
-    )
-    yield
+    dependencies = bootstrap.initialize_dependencies(notificator=notificator)
+    return dependencies
 
 
 app = FastAPI(lifespan=lifespan)
