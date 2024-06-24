@@ -1,8 +1,10 @@
+from typing import Any
+
 from src.common.domain.commands import Command
 from src.common.domain.events import DomainEvent
 from src.common.service.uow import UnitOfWork
 
-# At this point dependencies should be injected in handlers by bootstrap script (see src/bootstrap.py)
+# Dependencies should be injected in handlers by bootstrap script (see src/bootstrap.py)
 # So we don't need to pass any dependencies to handlers. Usage: handler_name(message)
 
 
@@ -21,23 +23,30 @@ class Messagebus:
         self.queue = []
 
     def handle(self, message: Command | DomainEvent):
+        """
+        Handles all messages in the queue.
+        This should be the only result, because there should be a single command in the messagebus queue
+        """
         self.queue = [message]
+        result = None
         while self.queue:
             message = self.queue.pop(0)
             if isinstance(message, Command):
-                self._handle_command(message)
+                result = self._handle_command(message)
             elif isinstance(message, DomainEvent):
                 self._handle_event(message)
             else:
                 raise Exception(f"Unknown message type in messagebus: {type(message)}")
+        return result
 
-    def _handle_command(self, command: Command):
+    def _handle_command(self, command: Command) -> Any:
         try:
             command_handler = self.command_handlers[type(command)]
-            command_handler(command)
+            result = command_handler(command)
             self.queue.extend(self.uow.collect_new_events())
-        except Exception:
-            raise
+            return result
+        except Exception as e:
+            raise e
 
     def _handle_event(self, event: DomainEvent):
         for event_handler in self.event_handlers[type(event)]:
