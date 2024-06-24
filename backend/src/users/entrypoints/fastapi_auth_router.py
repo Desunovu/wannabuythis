@@ -1,3 +1,5 @@
+import datetime
+
 from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
@@ -16,16 +18,19 @@ auth_router = APIRouter()
 @auth_router.post("/login", response_model=LoginUserResponse)
 def login(user_data: LoginUserRequest, request: Request):
     try:
-        token = generate_token(
+        user_auth_service: UserAuthService = request.app.state.messagebus.dependencies[
+            "user_auth_service"
+        ]
+        auth_token = user_auth_service.generate_auth_token(
             username=user_data.username,
             password=user_data.password,
-            password_manager=DefaultPasswordHasher(),
-            token_manager=JWTManager(),
-            uow=request.app.state.messagebus.uow,
+            exp_time=datetime.timedelta(
+                minutes=5
+            ),  # TODO add expiration time from config
         )
     except Exception as e:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=str(e))
-    return {"token": token}
+    return {"token": auth_token}
 
 
 @auth_router.post("/register", response_model=CreateUserResponse)
