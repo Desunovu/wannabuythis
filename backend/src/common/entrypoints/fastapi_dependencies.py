@@ -1,8 +1,9 @@
 from typing import Annotated, TYPE_CHECKING
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from starlette.requests import Request
+from starlette.status import HTTP_403_FORBIDDEN
 
 from src.common.adapters.dependencies import TokenManager
 from src.users.queries import user_queries
@@ -28,3 +29,16 @@ def get_current_user(
 
 
 CurrentUserDependency = Annotated["User", Depends(get_current_user)]
+
+
+def get_current_admin(
+    current_user=CurrentUserDependency,
+):
+    if "admin" not in current_user.roles:
+        raise HTTPException(
+            status_code=HTTP_403_FORBIDDEN, detail="Not enough permissions"
+        )
+    return current_user
+
+
+CurrentAdminDependency = Annotated["User", Depends(get_current_admin)]
