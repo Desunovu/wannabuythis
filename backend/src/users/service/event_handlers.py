@@ -1,5 +1,6 @@
 from src.common.adapters.dependencies import Notificator, TokenManager
 from src.common.domain.events import DomainEvent
+from src.common.service.uow import UnitOfWork
 from src.users.domain.events import (
     UserCreated,
     PasswordChanged,
@@ -13,16 +14,16 @@ from src.users.domain.events import (
 
 def handle_user_created(
     event: UserCreated,
+    uow: UnitOfWork,
     notificator: Notificator,
     token_manager: TokenManager,
 ):
+    user = uow.user_repository.get(event.username)
     # TODO set activation token expiration time from config
     activation_token = token_manager.generate_token(
         username=event.username, exp_time=None
     )
-    notificator.send_activation_link(
-        recipient=event.email, activation_token=activation_token
-    )
+    notificator.send_activation_link(recipient=user, activation_token=activation_token)
 
 
 USER_EVENT_HANDLERS: dict[type[DomainEvent], list[callable]] = {
