@@ -41,6 +41,10 @@ class UserAuthService:
 
         return token
 
+    def generate_activation_token(self, username: str) -> str:
+        token = self.token_manager.generate_token(username=username)
+        return token
+
     def get_username_from_token(self, token: str) -> str:
         username = self.token_manager.get_username_from_token(token)
         return username
