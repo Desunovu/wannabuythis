@@ -28,3 +28,11 @@ def generate_token(
     token = token_manager.generate_token(user.username)
 
     return token
+
+
+def get_username_from_token(
+        token: str,
+        token_manager: AuthTokenManager,
+) -> str:
+    username = token_manager.get_username_from_token(token)
+    return username
