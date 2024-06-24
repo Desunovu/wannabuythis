@@ -5,7 +5,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 
 from src.bootstrap import bootstrap
-from src.common.adapters.dependencies import DefaultPasswordHasher, FakeNotificator
+from src.common.adapters.dependencies import (
+    DefaultPasswordHasher,
+    FakeNotificator,
+    JWTManager,
+)
 from src.common.service.uow import UnitOfWork
 from src.integration.adapters.sqlalchemy_orm import mapper_registry, start_mappers
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
@@ -13,6 +17,7 @@ from src.roles.adapters.role_repository import RoleRepository
 from src.roles.domain import model as role_domain_model
 from src.users.adapters.user_repository import UserRepository
 from src.users.domain.model import User, Role, Permission
+from src.users.service.user_auth_service import UserAuthService
 from src.wishlists.adapters.wishlist_repository import WishlistRepository
 from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
 
@@ -192,6 +197,16 @@ class FakeUnitOfWork(UnitOfWork):
 
     def _rollback(self):
         pass
+
+
+# TODO inject dependencies in UserAuthService
+@pytest.fixture
+def user_auth_service(messagebus):
+    return UserAuthService(
+        password_manager=DefaultPasswordHasher(),
+        token_manager=JWTManager(),
+        uow=messagebus.uow,
+    )
 
 
 @pytest.fixture
