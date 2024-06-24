@@ -13,7 +13,7 @@ class SQLAlchemyRoleRepository(RoleRepository):
     def _get(self, name) -> Role:
         role = self.session.query(Role).filter_by(name=name).with_for_update().first()
         if not role:
-            raise RoleNotFound
+            raise RoleNotFound(role_name=name)
         return role
 
     def _add(self, role: Role):

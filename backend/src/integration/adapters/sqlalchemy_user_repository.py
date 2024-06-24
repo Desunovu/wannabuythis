@@ -18,7 +18,7 @@ class SQLAlchemyUserRepository(UserRepository):
             .first()
         )
         if not user:
-            raise UserNotFound
+            raise UserNotFound(username=username)
         return user
 
     def _add(self, user: User):
