@@ -1,5 +1,8 @@
 import uuid
 
+import pytest
+
+from src.common.service.exceptions import UserNotFound, WishlistNotFound, RoleNotFound
 from src.integration.adapters.sqlalchemy_role_repository import SQLAlchemyRoleRepository
 from src.integration.adapters.sqlalchemy_user_repository import SQLAlchemyUserRepository
 from src.integration.adapters.sqlalchemy_wishlist_repository import (
@@ -16,7 +19,8 @@ class TestSQLAlchemyUserRepository:
 
     def test_get_non_existing_user(self, sqlite_session):
         repository = SQLAlchemyUserRepository(sqlite_session)
-        assert repository.get("testuser") is None
+        with pytest.raises(UserNotFound):
+            user = repository.get("non-existing-user")
 
     def test_add_user(self, sqlite_session, user):
         repository = SQLAlchemyUserRepository(sqlite_session)
@@ -33,7 +37,8 @@ class TestSQLAlchemyWishlistRepository:
 
     def test_get_non_existing_wishlist(self, sqlite_session):
         repository = SQLAlchemyWishlistRepository(sqlite_session)
-        assert repository.get(uuid.uuid4()) is None
+        with pytest.raises(WishlistNotFound):
+            wishlist = repository.get(uuid.uuid4())
 
     def test_list_all_wishlists(self, sqlite_session, wishlist, populated_wishlist):
         sqlite_session.add_all([wishlist, populated_wishlist])
@@ -64,7 +69,8 @@ class TestSQLAlchemyRoleRepository:
 
     def test_get_non_existing_role(self, sqlite_session):
         repository = SQLAlchemyRoleRepository(sqlite_session)
-        assert repository.get("testrole") is None
+        with pytest.raises(RoleNotFound):
+            role = repository.get("testrole")
 
     def test_add_role(self, sqlite_session, default_role):
         repository = SQLAlchemyRoleRepository(sqlite_session)
