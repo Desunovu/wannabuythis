@@ -11,17 +11,17 @@ from src.users.domain.commands import (
     AddRoleToUser,
     RemoveRoleFromUser,
 )
-from src.users.entrypoints.fastapi_models import (
+from src.users.entrypoints.fastapi._pydantic_models import (
     ChangePasswordByAdminRequest,
     ChangeEmailByAdminRequest,
 )
 
-admin_user_command_router = APIRouter(
+users_admin_router = APIRouter(
     prefix="/admin/users", tags=["admin_user_commands"]
 )
 
 
-@admin_user_command_router.post("/activate", status_code=HTTP_200_OK)
+@users_admin_router.post("/activate", status_code=HTTP_200_OK)
 def activate_user(
     command: ActivateUser,
     _admin: CurrentAdminDependency,
@@ -30,7 +30,7 @@ def activate_user(
     request.app.state.messagebus.handle(command)
 
 
-@admin_user_command_router.post("/deactivate", status_code=HTTP_200_OK)
+@users_admin_router.post("/deactivate", status_code=HTTP_200_OK)
 def deactivate_user(
     command: DeactivateUser,
     _admin: CurrentAdminDependency,
@@ -39,7 +39,7 @@ def deactivate_user(
     request.app.state.messagebus.handle(command)
 
 
-@admin_user_command_router.post("/change-password", status_code=HTTP_200_OK)
+@users_admin_router.post("/change-password", status_code=HTTP_200_OK)
 def change_password(
     password_data: ChangePasswordByAdminRequest,
     _admin: CurrentAdminDependency,
@@ -54,7 +54,7 @@ def change_password(
     request.app.state.messagebus.handle(command)
 
 
-@admin_user_command_router.post("/change-email", status_code=HTTP_200_OK)
+@users_admin_router.post("/change-email", status_code=HTTP_200_OK)
 def change_email(
     email_data: ChangeEmailByAdminRequest,
     _admin: CurrentAdminDependency,
@@ -68,7 +68,7 @@ def change_email(
     request.app.state.messagebus.handle(command)
 
 
-@admin_user_command_router.post("/add-role", status_code=HTTP_200_OK)
+@users_admin_router.post("/add-role", status_code=HTTP_200_OK)
 def add_role(
     command: AddRoleToUser,
     _admin: CurrentAdminDependency,
@@ -77,7 +77,7 @@ def add_role(
     request.app.state.messagebus.handle(command)
 
 
-@admin_user_command_router.post("/remove-role", status_code=HTTP_200_OK)
+@users_admin_router.post("/remove-role", status_code=HTTP_200_OK)
 def remove_role(
     command: RemoveRoleFromUser,
     _admin: CurrentAdminDependency,
