@@ -11,6 +11,7 @@ from src.common.adapters.dependencies import (
     JWTManager,
     DefaultUUIDGenerator,
 )
+from src.common.service.exceptions import RoleNotFound, WishlistNotFound, UserNotFound
 from src.common.service.uow import UnitOfWork
 from src.integration.adapters.sqlalchemy_orm import mapper_registry, start_mappers
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
@@ -149,8 +150,12 @@ class FakeUserRepository(UserRepository):
         super().__init__()
         self._users = users
 
-    def _get(self, username: str) -> User | None:
-        return next((user for user in self._users if user.username == username), None)
+    def _get(self, username: str) -> User:
+        try:
+            user = next(user for user in self._users if user.username == username)
+        except StopIteration:
+            raise UserNotFound(username=username)
+        return user
 
     def _add(self, user: User):
         self._users.add(user)
@@ -161,8 +166,12 @@ class FakeWishlistRepository(WishlistRepository):
         super().__init__()
         self._wishlists = wishlists
 
-    def _get(self, uuid: UUID) -> Wishlist | None:
-        return next((wl for wl in self._wishlists if wl.uuid == uuid), None)
+    def _get(self, uuid: UUID) -> Wishlist:
+        try:
+            wishlist = next(wl for wl in self._wishlists if wl.uuid == uuid)
+        except StopIteration:
+            raise WishlistNotFound(uuid=uuid)
+        return wishlist
 
     def _list_all(self) -> list[Wishlist]:
         return list(self._wishlists)
@@ -179,8 +188,12 @@ class FakeRoleRepository(RoleRepository):
         super().__init__()
         self._roles = roles
 
-    def _get(self, name: str) -> Role | None:
-        return next((role for role in self._roles if role.name == name), None)
+    def _get(self, name: str) -> Role:
+        try:
+            role = next(role for role in self._roles if role.name == name)
+        except StopIteration:
+            raise RoleNotFound(role_name=name)
+        return role
 
     def _add(self, role: Role):
         self._roles.add(role)
