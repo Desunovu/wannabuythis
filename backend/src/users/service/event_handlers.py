@@ -9,10 +9,20 @@ from src.users.domain.events import (
     RoleAddedToUser,
     RoleRemovedFromUser,
 )
+from src.users.service.user_auth_service import UserAuthService
 
 
-def handle_user_created(event: UserCreated, notificator: Notificator):
-    notificator.send_notification(event.username, "Welcome", "Welcome to our site")
+def handle_user_created(
+        event: UserCreated,
+        user_auth_service: UserAuthService,
+        notificator: Notificator,
+):
+    activation_token = user_auth_service.generate_activation_token(
+        username=event.username
+    )
+    notificator.send_activation_link(
+        recipient=event.email, activation_token=activation_token
+    )
 
 
 USER_EVENT_HANDLERS: dict[type[DomainEvent], list[callable]] = {
