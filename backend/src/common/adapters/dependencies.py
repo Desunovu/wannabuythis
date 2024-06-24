@@ -1,6 +1,7 @@
 import abc
 import datetime
 import hashlib
+from smtplib import SMTP
 from uuid import uuid4, UUID
 
 import jwt
@@ -73,3 +74,18 @@ class DefaultUUIDGenerator(UUIDGenerator):
     @staticmethod
     def generate() -> UUID:
         return uuid4()
+
+
+class Notificator(abc.ABC):
+    @abc.abstractmethod
+    def send_notification(self, recipient: str, subject: str, message: str) -> None: ...
+
+
+class EmailNotificator(Notificator):
+    def send_notification(self, recipient: str, subject: str, message: str) -> None:
+        with SMTP(config.get_smtp_host()) as smtp:
+            smtp.sendmail(
+                from_addr=config.get_smtp_sender(),
+                to_addrs=[recipient],
+                msg=f"Subject: {subject}\n\n{message}".encode(),
+            )
