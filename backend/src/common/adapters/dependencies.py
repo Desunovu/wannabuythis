@@ -12,7 +12,7 @@ from src import config
 class TokenManager(abc.ABC):
     @staticmethod
     @abc.abstractmethod
-    def generate_auth_token(
+    def generate_token(
             username: str, exp: None | datetime.timedelta = None
     ) -> str: ...
 
@@ -23,7 +23,7 @@ class TokenManager(abc.ABC):
 
 class JWTManager(TokenManager):
     @staticmethod
-    def generate_auth_token(
+    def generate_token(
             username: str, exp: None | datetime.timedelta = None
     ) -> str:
         payload = {"username": username}
