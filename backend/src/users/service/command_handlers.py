@@ -28,7 +28,7 @@ from src.users.domain.events import (
     PasswordChanged,
 )
 from src.users.domain.model import User
-from src.users.service.user_handlers_utils import check_user_exists
+from src.users.service.handlers_utils import check_user_exists
 
 
 def handle_create_user(

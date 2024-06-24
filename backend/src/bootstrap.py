@@ -11,15 +11,16 @@ from src.common.domain.commands import Command
 from src.common.domain.events import DomainEvent
 from src.common.service.messagebus import Messagebus
 from src.common.service.uow import UnitOfWork
-from src.roles.service.role_handlers import ROLE_COMMAND_HANDLERS, ROLE_EVENT_HANDLERS
-from src.users.service.event_handlers import USER_EVENT_HANDLERS
-from src.users.service.user_handlers import (
+from src.roles.service.command_handlers import ROLE_COMMAND_HANDLERS
+from src.roles.service.event_handlers import ROLE_EVENT_HANDLERS
+from src.users.service.command_handlers import (
     USER_COMMAND_HANDLERS,
 )
-from src.wishlists.service.wishlist_handlers import (
+from src.users.service.event_handlers import USER_EVENT_HANDLERS
+from src.wishlists.service.command_handlers import (
     WISHLIST_COMMAND_HANDLERS,
-    WISHLIST_EVENT_HANDLERS,
 )
+from src.wishlists.service.event_handlers import WISHLIST_EVENT_HANDLERS
 
 COMMAND_HANDLERS = {
     **USER_COMMAND_HANDLERS,
