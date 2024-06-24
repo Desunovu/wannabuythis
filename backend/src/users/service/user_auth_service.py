@@ -17,9 +17,9 @@ def generate_token(
     with uow:
         user = uow.user_repository.get(username)
     if not user:
-        raise UserNotFound
+        raise UserNotFound(username=username)
     if not user.is_active:
-        raise UserNotActive
+        raise UserNotActive(username=username)
     if not password_manager.verify_password(
         password=password, password_hash=user.password_hash
     ):
