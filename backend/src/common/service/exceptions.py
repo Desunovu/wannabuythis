@@ -19,6 +19,11 @@ class Forbidden(Exception):
     pass
 
 
+class UserNotActive(Forbidden):
+    def __init__(self, username: str):
+        super().__init__(f"User '{username}' cannot sign in because of inactive status")
+
+
 class UserNotFound(NotFoundException):
     def __init__(self, username: str):
         super().__init__(f"User '{username}' not found")
@@ -34,7 +39,7 @@ class UserAlreadyActive(ConflictException):
         super().__init__(f"User '{username}' is already active")
 
 
-class UserNotActive(ConflictException):
+class UserAlreadyDeactivated(ConflictException):
     def __init__(self, username: str):
         super().__init__(f"User {username} is already deactivated")
 

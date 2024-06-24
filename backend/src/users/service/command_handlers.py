@@ -5,11 +5,12 @@ from src.common.service.exceptions import (
     UserExists,
     PasswordValidationError,
     PasswordVerificationError,
-    UserNotActive,
+    UserAlreadyDeactivated,
     UserAlreadyActive,
     RoleNotFound,
     UserDoesNotHaveRole,
     UserAlreadyHasRole,
+    UserNotActive,
 )
 from src.common.service.uow import UnitOfWork
 from src.users.domain.commands import (
@@ -161,7 +162,7 @@ def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
         if not user:
             raise UserNotFound(command.username)
         if not user.is_active:
-            raise UserNotActive(command.username)
+            raise UserAlreadyDeactivated(command.username)
         user.deactivate()
         uow.commit()
 
