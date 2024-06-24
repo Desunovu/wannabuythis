@@ -32,8 +32,8 @@ def bootstrap(
     uow: UnitOfWork = SQLAlchemyUnitOfWork,
     password_manager: PasswordHasher = DefaultPasswordHasher,
     uuid_generator: UUIDGenerator = DefaultUUIDGenerator,
-        auth_token_manager: TokenManager = JWTManager,
-        notificator: Notificator = EmailNotificator,
+    auth_token_manager: TokenManager = JWTManager,
+    notificator: Notificator = EmailNotificator,
 ) -> Messagebus:
     """
     Initializes the application's core components and returns a configured Messagebus instance.

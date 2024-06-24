@@ -13,9 +13,9 @@ from src.users.service.user_auth_service import UserAuthService
 
 
 def handle_user_created(
-        event: UserCreated,
-        user_auth_service: UserAuthService,
-        notificator: Notificator,
+    event: UserCreated,
+    user_auth_service: UserAuthService,
+    notificator: Notificator,
 ):
     activation_token = user_auth_service.generate_activation_token(
         username=event.username
