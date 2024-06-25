@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from sqlalchemy.orm import clear_mappers
 
 from src import bootstrap, config
 from src.common.dependencies.notificator import EmailNotificator
@@ -45,6 +46,7 @@ def create_app():
 async def lifespan(application: FastAPI):
     start_sqlalchemy_mappers()
     yield
+    clear_mappers()
 
 
 def setup_messagebus_dependencies():
