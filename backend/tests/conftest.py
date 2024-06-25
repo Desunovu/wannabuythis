@@ -1,7 +1,7 @@
 from uuid import UUID, uuid4
 
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, StaticPool
 from sqlalchemy.orm import sessionmaker, clear_mappers
 
 from src import bootstrap
@@ -289,7 +289,11 @@ def prepare_mappers():
 @pytest.fixture
 def sqlite_database_engine(prepare_mappers):
     # Create an in-memory SQLite database
-    engine = create_engine("sqlite:///:memory:")
+    engine = create_engine(
+        "sqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
     mapper_registry.metadata.create_all(engine)
     yield engine
     mapper_registry.metadata.drop_all(engine)
