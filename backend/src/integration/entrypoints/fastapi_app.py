@@ -34,6 +34,17 @@ def create_app():
     app.state.dependencies = dependencies
     app.state.messagebus = messagebus
 
+    # Include routers
+    routers = [
+        users_admin_router,
+        users_auth_router,
+        users_query_router,
+        users_command_router,
+    ]
+    for router in routers:
+        app.include_router(router)
+
+    # Register exception handlers
     for exception, exception_handler in exception_to_exception_handlers.items():
         app.add_exception_handler(
             exc_class_or_status_code=exception, handler=exception_handler
