@@ -24,10 +24,14 @@ from tests.conftest import FakeNotificator
 def create_app():
     app = FastAPI(lifespan=lifespan)
 
-    app.include_router(users_auth_router)
-    app.include_router(users_query_router)
-    app.include_router(users_command_router)
-    app.include_router(users_admin_router)
+    # Initialize dependencies and messagebus
+    dependencies = setup_messagebus_dependencies()
+    messagebus = bootstrap.initialize_messagebus(dependencies=dependencies)
+
+    # Save objects in app state
+    app.state.limiter = limiter
+    app.state.dependencies = dependencies
+    app.state.messagebus = messagebus
 
     for exception, exception_handler in exception_to_exception_handlers.items():
         app.add_exception_handler(
@@ -40,20 +44,11 @@ def create_app():
 @asynccontextmanager
 async def lifespan(application: FastAPI):
     start_sqlalchemy_mappers()
-
-    dependencies = setup_dependencies_for_environment()
-    messagebus = bootstrap.initialize_messagebus(dependencies=dependencies)
-
-    # Save objects in app state
-    application.state.limiter = limiter
-    application.state.dependencies = dependencies
-    application.state.messagebus = messagebus
-
     yield
 
 
-def setup_dependencies_for_environment():
-    """Set up dependencies for app environment"""
+def setup_messagebus_dependencies():
+    """Set up dependencies for messagebus based on app environment"""
 
     notificator = (
         FakeNotificator() if config.get_env() == "development" else EmailNotificator()
