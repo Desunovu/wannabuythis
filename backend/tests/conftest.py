@@ -101,10 +101,10 @@ def permission():
 
 
 @pytest.fixture
-def role_with_permissions(default_role, permission):
+def role_with_permissions(roles_default_role, permission):
     """Role aggregate with permissions"""
-    default_role.permissions.append(permission)
-    return default_role
+    roles_default_role.permissions.append(permission)
+    return roles_default_role
 
 
 @pytest.fixture
