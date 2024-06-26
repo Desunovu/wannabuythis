@@ -19,16 +19,17 @@ from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.roles.adapters.role_repository import RoleRepository
 from src.roles.domain import model as role_domain_model
 from src.users.adapters.user_repository import UserRepository
-from src.users.domain.model import User, Role
+from src.users.domain import model as user_domain_model
+from src.users.domain.model import User
 from src.wishlists.adapters.wishlist_repository import WishlistRepository
 from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
 
 
 @pytest.fixture
-def user(user_email, valid_password):
+def user(user_name, user_email, valid_password):
     """Default user with #valid_password"""
     user = User(
-        username="testuser",
+        username=user_name,
         email=user_email,
         password_hash=HashlibPasswordHashUtil.hash_password(valid_password),
     )
@@ -37,9 +38,15 @@ def user(user_email, valid_password):
 
 
 @pytest.fixture
-def admin_user(user, admin_role):
-    user.roles.append(admin_role)
-    return user
+def admin_user(admin_role, admin_email, valid_password):
+    """Admin user with admin role"""
+    admin = User(
+        username="admin",
+        email=admin_email,
+        password_hash=HashlibPasswordHashUtil.hash_password(valid_password),
+    )
+    admin.roles.append(admin_role)
+    return admin
 
 
 @pytest.fixture
@@ -57,9 +64,15 @@ def activated_user(user):
 
 
 @pytest.fixture
-def admin_role() -> Role:
+def admin_role() -> user_domain_model.Role:
     """Role entity from users bounded context"""
-    return Role(name="admin")
+    return user_domain_model.Role(name="admin")
+
+
+@pytest.fixture
+def roles_admin_role() -> role_domain_model.Role:
+    """Role aggregate from roles bounded context"""
+    return role_domain_model.Role(name="admin")
 
 
 @pytest.fixture
@@ -186,18 +199,18 @@ class FakeWishlistRepository(WishlistRepository):
 
 
 class FakeRoleRepository(RoleRepository):
-    def __init__(self, roles: set[Role]):
+    def __init__(self, roles: set[role_domain_model.Role]):
         super().__init__()
         self._roles = roles
 
-    def _get(self, name: str) -> Role:
+    def _get(self, name: str) -> role_domain_model.Role:
         try:
             role = next(role for role in self._roles if role.name == name)
         except StopIteration:
             raise RoleNotFound(role_name=name)
         return role
 
-    def _add(self, role: Role):
+    def _add(self, role: role_domain_model.Role):
         self._roles.add(role)
 
 
@@ -256,6 +269,12 @@ def invalid_password():
 
 
 @pytest.fixture
+def user_name():
+    """Default user name. Used in user fixture"""
+    return "testuser"
+
+
+@pytest.fixture
 def user_email():
     """Default user email. Used in user fixture"""
     return "testemail@example.com"
@@ -265,6 +284,12 @@ def user_email():
 def new_email():
     """User email used for email change test"""
     return "newtestemail@example.com"
+
+
+@pytest.fixture
+def admin_email():
+    """Admin user email. Used in admin_user fixture"""
+    return "admin@example.com"
 
 
 @pytest.fixture
