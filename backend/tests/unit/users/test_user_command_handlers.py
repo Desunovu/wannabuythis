@@ -300,7 +300,7 @@ class TestAddRoleToUser:
         messagebus.handle(
             AddRoleToUser(username=user.username, role_name=roles_admin_role.name)
         )
-        assert user.has_role(roles_admin_role.name)
+        assert roles_admin_role.name in [r.name for r in user.roles]
 
     def test_add_role_to_non_existing_user(self, messagebus, roles_admin_role):
         messagebus.uow.role_repository.add(roles_admin_role)
@@ -340,7 +340,7 @@ class TestRemoveRoleFromUser:
                 username=admin_user.username, role_name=roles_admin_role.name
             )
         )
-        assert not admin_user.has_role(roles_admin_role.name)
+        assert roles_admin_role.name not in [r.name for r in admin_user.roles]
 
     def test_remove_role_from_non_existing_user(self, messagebus, admin_role):
         messagebus.uow.role_repository.add(admin_role)
