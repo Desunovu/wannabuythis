@@ -172,8 +172,6 @@ def handle_add_role_to_user(command: AddRoleToUser, uow: UnitOfWork):
     with uow:
         role = uow.role_repository.get(command.role_name)
         user = uow.user_repository.get(command.username)
-        if user.has_role(role):
-            raise UserAlreadyHasRole(command.username, command.role_name)
         user.add_role(role)
         uow.commit()
 
@@ -182,8 +180,6 @@ def handle_remove_role_from_user(command: RemoveRoleFromUser, uow: UnitOfWork):
     with uow:
         role = uow.role_repository.get(command.role_name)
         user = uow.user_repository.get(command.username)
-        if not user.has_role(role):
-            raise UserDoesNotHaveRole(command.username, command.role_name)
         user.remove_role(role)
         uow.commit()
 
