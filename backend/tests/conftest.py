@@ -26,14 +26,21 @@ from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, Wish
 
 
 @pytest.fixture
-def user(user_name, user_email, valid_password):
+def user(user_email, valid_password):
     """Default user with #valid_password"""
     user = User(
-        username=user_name,
+        username="testuser",
         email=user_email,
         password_hash=HashlibPasswordHashUtil.hash_password(valid_password),
     )
     user.is_active = True
+    return user
+
+
+@pytest.fixture
+def user_with_default_role(user, default_role):
+    """User with default role"""
+    user.roles.append(default_role)
     return user
 
 
@@ -64,27 +71,33 @@ def activated_user(user):
 
 
 @pytest.fixture
+def default_role() -> user_domain_model.Role:
+    """Role entity from users bounded context"""
+    return user_domain_model.Role(name="default")
+
+
+@pytest.fixture
 def admin_role() -> user_domain_model.Role:
     """Role entity from users bounded context"""
     return user_domain_model.Role(name="admin")
 
 
 @pytest.fixture
-def roles_admin_role() -> role_domain_model.Role:
+def roles_default_role(default_role) -> role_domain_model.Role:
     """Role aggregate from roles bounded context"""
-    return role_domain_model.Role(name="admin")
+    return role_domain_model.Role(name=default_role.name)
+
+
+@pytest.fixture
+def roles_admin_role(admin_role) -> role_domain_model.Role:
+    """Role aggregate from roles bounded context"""
+    return role_domain_model.Role(name=admin_role.name)
 
 
 @pytest.fixture
 def permission():
     """Permission value object from roles bounded context"""
     return role_domain_model.Permission("CREATE_WISHLIST")
-
-
-@pytest.fixture
-def default_role():
-    """Role aggregate from roles bounded context"""
-    return role_domain_model.Role(name="default")
 
 
 @pytest.fixture
@@ -266,12 +279,6 @@ def valid_new_password():
 @pytest.fixture
 def invalid_password():
     return "123"
-
-
-@pytest.fixture
-def user_name():
-    """Default user name. Used in user fixture"""
-    return "testuser"
 
 
 @pytest.fixture
