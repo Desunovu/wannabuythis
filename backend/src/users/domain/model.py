@@ -72,9 +72,9 @@ class User(AggregateRoot):
         self.roles.append(role)
         self.add_event(RoleAddedToUser(self.username, role.name))
 
-    def remove_role(self, role: Role):
-        self.roles.remove(role)
-        self.add_event(RoleRemovedFromUser(self.username, role.name))
+    def remove_role(self, role_name: str):
+        self.roles = [r for r in self.roles if r.name != role_name]
+        self.add_event(RoleRemovedFromUser(username=self.username, role_name=role_name))
 
-    def has_role(self, role: Role) -> bool:
-        return role in self.roles
+    def has_role(self, role_name: str) -> bool:
+        return any(r.name == role_name for r in self.roles)
