@@ -170,26 +170,21 @@ def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
 
 def handle_add_role_to_user(command: AddRoleToUser, uow: UnitOfWork):
     with uow:
-        _role_from_role_repository = uow.role_repository.get(
-            command.role_name
-        )  # TODO maybe add get role method to user_repository?
+        role = uow.role_repository.get(command.role_name)
         user = uow.user_repository.get(command.username)
-        if user.has_role(command.role_name):
+        if user.has_role(role):
             raise UserAlreadyHasRole(command.username, command.role_name)
-        role = Role(name=command.role_name)
         user.add_role(role)
         uow.commit()
 
 
 def handle_remove_role_from_user(command: RemoveRoleFromUser, uow: UnitOfWork):
     with uow:
-        _role_from_role_repository = uow.role_repository.get(
-            command.role_name
-        )  # TODO maybe add get role method to user_repository?
+        role = uow.role_repository.get(command.role_name)
         user = uow.user_repository.get(command.username)
-        if not user.has_role(command.role_name):
+        if not user.has_role(role):
             raise UserDoesNotHaveRole(command.username, command.role_name)
-        user.remove_role(command.role_name)
+        user.remove_role(role)
         uow.commit()
 
 
