@@ -9,7 +9,6 @@ from src.common.service.exceptions import (
     PasswordVerificationError,
     UserAlreadyDeactivated,
     UserAlreadyActive,
-    RoleNotFound,
     UserDoesNotHaveRole,
     UserAlreadyHasRole,
     UserNotActive,
@@ -30,7 +29,7 @@ from src.users.domain.commands import (
 from src.users.domain.events import (
     PasswordChanged,
 )
-from src.users.domain.model import User
+from src.users.domain.model import User, Role
 from src.users.service.handlers_utils import check_user_exists
 
 
@@ -171,29 +170,26 @@ def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
 
 def handle_add_role_to_user(command: AddRoleToUser, uow: UnitOfWork):
     with uow:
-        role = uow.role_repository.get(command.role_name)
-        if not role:
-            raise RoleNotFound(command.role_name)
+        _role_from_role_repository = uow.role_repository.get(
+            command.role_name
+        )  # TODO maybe add get role method to user_repository?
         user = uow.user_repository.get(command.username)
-        if not user:
-            raise UserNotFound(command.username)
-        if user.has_role(role):
+        if user.has_role(command.role_name):
             raise UserAlreadyHasRole(command.username, command.role_name)
+        role = Role(name=command.role_name)
         user.add_role(role)
         uow.commit()
 
 
 def handle_remove_role_from_user(command: RemoveRoleFromUser, uow: UnitOfWork):
     with uow:
-        role = uow.role_repository.get(command.role_name)
-        if not role:
-            raise RoleNotFound(command.role_name)
+        _role_from_role_repository = uow.role_repository.get(
+            command.role_name
+        )  # TODO maybe add get role method to user_repository?
         user = uow.user_repository.get(command.username)
-        if not user:
-            raise UserNotFound(command.username)
-        if not user.has_role(role):
+        if not user.has_role(command.role_name):
             raise UserDoesNotHaveRole(command.username, command.role_name)
-        user.remove_role(role)
+        user.remove_role(command.role_name)
         uow.commit()
 
 
