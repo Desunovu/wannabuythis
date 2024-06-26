@@ -174,9 +174,10 @@ def archived_wishlist(wishlist):
 
 
 class FakeUserRepository(UserRepository):
-    def __init__(self, users: set[User]):
+    def __init__(self, users: set[User], roles: set[user_domain_model.Role]):
         super().__init__()
         self._users = users
+        self._roles = roles
 
     def _get(self, username: str) -> User:
         try:
@@ -187,6 +188,13 @@ class FakeUserRepository(UserRepository):
 
     def _add(self, user: User):
         self._users.add(user)
+
+    def get_role_by_name(self, role_name: str) -> user_domain_model.Role:
+        try:
+            role = next(role for role in self._roles if role.name == role_name)
+        except StopIteration:
+            raise RoleNotFound(role_name=role_name)
+        return role
 
 
 class FakeWishlistRepository(WishlistRepository):
@@ -230,7 +238,7 @@ class FakeRoleRepository(RoleRepository):
 class FakeUnitOfWork(UnitOfWork):
     def __init__(self):
         super().__init__()
-        self.user_repository = FakeUserRepository(set())
+        self.user_repository = FakeUserRepository(users=set(), roles=set())
         self.wishlist_repository = FakeWishlistRepository(set())
         self.role_repository = FakeRoleRepository(set())
         self.committed = False
