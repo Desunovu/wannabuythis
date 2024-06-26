@@ -9,8 +9,6 @@ from src.common.service.exceptions import (
     PasswordVerificationError,
     UserAlreadyDeactivated,
     UserAlreadyActive,
-    UserDoesNotHaveRole,
-    UserAlreadyHasRole,
     UserNotActive,
 )
 from src.common.service.uow import UnitOfWork
@@ -29,7 +27,7 @@ from src.users.domain.commands import (
 from src.users.domain.events import (
     PasswordChanged,
 )
-from src.users.domain.model import User, Role
+from src.users.domain.model import User
 from src.users.service.handlers_utils import check_user_exists
 
 
@@ -170,7 +168,7 @@ def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
 
 def handle_add_role_to_user(command: AddRoleToUser, uow: UnitOfWork):
     with uow:
-        role = uow.role_repository.get(command.role_name)
+        role = uow.user_repository.get_role_by_name(command.role_name)
         user = uow.user_repository.get(command.username)
         user.add_role(role)
         uow.commit()
@@ -178,7 +176,7 @@ def handle_add_role_to_user(command: AddRoleToUser, uow: UnitOfWork):
 
 def handle_remove_role_from_user(command: RemoveRoleFromUser, uow: UnitOfWork):
     with uow:
-        role = uow.role_repository.get(command.role_name)
+        role = uow.user_repository.get_role_by_name(command.role_name)
         user = uow.user_repository.get(command.username)
         user.remove_role(role)
         uow.commit()
