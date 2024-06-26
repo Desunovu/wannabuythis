@@ -34,10 +34,15 @@ CurrentUserDependency = Annotated["User", Depends(get_current_user)]
 def get_current_admin(
     current_user: CurrentUserDependency,
 ):
-    if "admin" not in current_user.roles:
+    admin_role = next(
+        (role for role in current_user.roles if role.name == "admin"),
+        None
+    )
+    if not admin_role:
         raise HTTPException(
             status_code=HTTP_403_FORBIDDEN, detail="Not enough permissions"
         )
+
     return current_user
 
 
