@@ -95,10 +95,18 @@ def client_with_deactivated_user(client, deactivated_user):
 
 
 @pytest.fixture
-def user_client(client, user):
-    """Test clent with signed in user."""
+def client_with_user(client, user):
+    """Test client. Contains user in db"""
 
     add_user_to_db(client, user)
-    add_authorization_header_to_client(client, user)
 
     return client
+
+
+@pytest.fixture
+def user_client(client_with_user, user):
+    """Test clent with signed in user."""
+
+    add_authorization_header_to_client(client_with_user, user)
+
+    return client_with_user

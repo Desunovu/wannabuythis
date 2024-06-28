@@ -87,4 +87,13 @@ class TestFastAPIUsersCommandRoutes:
 
 
 class TestFastAPIUsersQueryRoutes:
-    pass
+    def test_get_me(self, user_client, user):
+        url = "/users/me"
+        response = user_client.get(url)
+        assert response.status_code == 200
+        assert response.json()["username"] == user.username
+
+    def test_get_user(self, client_with_user, user):
+        url = f"/users/{user.username}"
+        response = client_with_user.get(url)
+        assert response.status_code == 200
