@@ -52,7 +52,34 @@ class TestFastAPIUsersAdminRoutes:
 
 
 class TestFastAPIUsersAuthRoutes:
-    pass
+    def test_register(self, client, valid_password):
+        url = "/register"
+        body = {"username": "username", "email": "email", "password": valid_password}
+        response = client.post(url, json=body)
+        assert response.status_code == 200
+
+    def test_activate_by_token(self, client_with_deactivated_user, deactivated_user):
+        token_manager = client_with_deactivated_user.app.state.dependencies[
+            "token_manager"
+        ]
+        token = token_manager.generate_token(username=deactivated_user.username)
+        url = f"/activate/{token}"
+        response = client_with_deactivated_user.get(url)
+        assert response.status_code == 200
+
+    def test_resend_activation_link(
+        self, client_with_deactivated_user, deactivated_user, valid_password
+    ):
+        url = "/activate/resend-activation-link"
+        body = {"username": deactivated_user.username, "password": valid_password}
+        response = client_with_deactivated_user.post(url, json=body)
+        assert response.status_code == 200
+
+    def test_login(self, user_client, user, valid_password):
+        url = "/login"
+        form_data = {"username": user.username, "password": valid_password}
+        response = user_client.post(url, data=form_data)
+        assert response.status_code == 200
 
 
 class TestFastAPIUsersCommandRoutes:
