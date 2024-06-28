@@ -5,6 +5,24 @@ from src.common.dependencies.token_manager import JWTManager
 from src.integration.entrypoints.fastapi_app import create_app
 
 
+def add_authorization_header_to_client(client, user):
+    token = JWTManager.generate_token(username=user.username)
+    client.headers = {"Authorization": f"Bearer {token}"}
+
+
+def add_user_to_db(client, user):
+    with client.app.state.messagebus.uow as uow:
+        uow.user_repository.add(user)
+        uow.commit()
+
+
+def add_user_and_role_to_db(client, user, role):
+    with client.app.state.messagebus.uow as uow:
+        uow.user_repository.add(user)
+        uow.role_repository.add(role)
+        uow.commit()
+
+
 @pytest.fixture
 def fastapi_app():
     return create_app()
@@ -25,12 +43,8 @@ def client(fastapi_app_with_test_database):
 def admin_client(client, admin_user):
     """Test clent with signed in admin."""
 
-    with client.app.state.messagebus.uow as uow:
-        uow.user_repository.add(admin_user)
-        uow.commit()
-
-    token = JWTManager.generate_token(username=admin_user.username)
-    client.headers = {"Authorization": f"Bearer {token}"}
+    add_user_to_db(client, admin_user)
+    add_authorization_header_to_client(client, admin_user)
 
     return client
 
@@ -39,9 +53,7 @@ def admin_client(client, admin_user):
 def admin_client_contains_deactivated_user(admin_client, deactivated_user):
     """Test clent with signed in admin. Contains deactivated user in db"""
 
-    with admin_client.app.state.messagebus.uow as uow:
-        uow.user_repository.add(deactivated_user)
-        uow.commit()
+    add_user_to_db(admin_client, deactivated_user)
 
     return admin_client
 
@@ -50,9 +62,7 @@ def admin_client_contains_deactivated_user(admin_client, deactivated_user):
 def admin_client_contains_activated_user(admin_client, activated_user):
     """Test clent with signed in admin. Contains activated user in db"""
 
-    with admin_client.app.state.messagebus.uow as uow:
-        uow.user_repository.add(activated_user)
-        uow.commit()
+    add_user_to_db(admin_client, activated_user)
 
     return admin_client
 
@@ -61,10 +71,7 @@ def admin_client_contains_activated_user(admin_client, activated_user):
 def admin_client_contains_user_and_default_role(admin_client, user, roles_default_role):
     """Test clent with signed in admin. Contains user and default role in db"""
 
-    with admin_client.app.state.messagebus.uow as uow:
-        uow.user_repository.add(user)
-        uow.role_repository.add(roles_default_role)
-        uow.commit()
+    add_user_and_role_to_db(admin_client, user, roles_default_role)
 
     return admin_client
 
@@ -73,8 +80,6 @@ def admin_client_contains_user_and_default_role(admin_client, user, roles_defaul
 def admin_client_contains_user_with_default_role(admin_client, user_with_default_role):
     """Test clent with signed in admin. Contains user with default role in db"""
 
-    with admin_client.app.state.messagebus.uow as uow:
-        uow.user_repository.add(user_with_default_role)
-        uow.commit()
+    add_user_to_db(admin_client, user_with_default_role)
 
     return admin_client
