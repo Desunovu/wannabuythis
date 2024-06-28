@@ -83,3 +83,22 @@ def admin_client_contains_user_with_default_role(admin_client, user_with_default
     add_user_to_db(admin_client, user_with_default_role)
 
     return admin_client
+
+
+@pytest.fixture
+def client_with_deactivated_user(client, deactivated_user):
+    """Test client. Contains deactivated user in db"""
+
+    add_user_to_db(client, deactivated_user)
+
+    return client
+
+
+@pytest.fixture
+def user_client(client, user):
+    """Test clent with signed in user."""
+
+    add_user_to_db(client, user)
+    add_authorization_header_to_client(client, user)
+
+    return client
