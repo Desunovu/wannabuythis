@@ -83,7 +83,23 @@ class TestFastAPIUsersAuthRoutes:
 
 
 class TestFastAPIUsersCommandRoutes:
-    pass
+    def test_change_password(
+        self, user_client, user, valid_password, valid_new_password
+    ):
+        url = "/users/change-password"
+        body = {
+            "username": user.username,
+            "old_password": valid_password,
+            "new_password": valid_new_password,
+        }
+        response = user_client.post(url, json=body)
+        assert response.status_code == 200
+
+    def test_change_email(self, user_client, user, new_email):
+        url = "/users/change-email"
+        body = {"username": user.username, "new_email": new_email}
+        response = user_client.post(url, json=body)
+        assert response.status_code == 200
 
 
 class TestFastAPIUsersQueryRoutes:
