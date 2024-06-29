@@ -1,5 +1,4 @@
 from src.common.domain.commands import Command
-from src.common.domain.events import DomainEvent
 from src.common.service.exceptions import (
     RoleAlreadyExists,
     RoleNotFound,
@@ -12,18 +11,13 @@ from src.roles.domain.commands import (
     RemovePermissionFromRole,
     CreateRole,
 )
-from src.roles.domain.events import (
-    RoleCreated,
-    PermissionAddedToRole,
-    PermissionRemovedFromRole,
-)
 from src.roles.domain.model import Role, Permission
+from src.roles.service.handlers_utils import check_role_exists
 
 
 def handle_create_role(command: CreateRole, uow: UnitOfWork):
     with uow:
-        role = uow.role_repository.get(command.name)
-        if role:
+        if check_role_exists(command.name, uow):
             raise RoleAlreadyExists(command.name)
         uow.role_repository.add(Role(command.name))
         uow.commit()
@@ -57,10 +51,4 @@ ROLE_COMMAND_HANDLERS: dict[type[Command], callable] = {
     CreateRole: handle_create_role,
     AddPermissionToRole: handle_add_permission_to_role,
     RemovePermissionFromRole: handle_remove_permission_from_role,
-}
-
-ROLE_EVENT_HANDLERS: dict[type[DomainEvent], list[callable]] = {
-    RoleCreated: [],
-    PermissionAddedToRole: [],
-    PermissionRemovedFromRole: [],
 }
