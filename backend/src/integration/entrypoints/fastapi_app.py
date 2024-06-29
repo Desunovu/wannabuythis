@@ -21,6 +21,13 @@ from src.users.entrypoints.fastapi.command_router import users_command_router
 from src.users.entrypoints.fastapi.query_router import users_query_router
 from tests.conftest import FakeNotificator
 
+ROUTERS = [
+    users_admin_router,
+    users_auth_router,
+    users_query_router,
+    users_command_router,
+]
+
 
 def create_app():
     app = FastAPI(lifespan=lifespan)
@@ -35,13 +42,7 @@ def create_app():
     app.state.messagebus = messagebus
 
     # Include routers
-    routers = [
-        users_admin_router,
-        users_auth_router,
-        users_query_router,
-        users_command_router,
-    ]
-    for router in routers:
+    for router in ROUTERS:
         app.include_router(router)
 
     # Register exception handlers
