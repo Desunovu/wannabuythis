@@ -9,7 +9,7 @@ from src.roles.domain.events import (
 )
 
 
-@dataclass
+@dataclass(frozen=True)
 class Permission(ValueObject):
     name: str
 
