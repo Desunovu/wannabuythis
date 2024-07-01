@@ -13,9 +13,6 @@ from src.roles.domain.events import (
 class Permission(ValueObject):
     name: str
 
-    def __hash__(self):
-        return hash(self.name)
-
 
 class Role(AggregateRoot):
     def __init__(self, name: str):
