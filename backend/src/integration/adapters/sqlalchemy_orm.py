@@ -1,16 +1,13 @@
-from typing import Optional
-
 from sqlalchemy import (
     Table,
     Column,
     Integer,
     String,
     ForeignKey,
-    TypeDecorator,
-    Dialect,
     Uuid,
     Boolean,
     event,
+    Enum,
 )
 from sqlalchemy.orm import registry, relationship
 
@@ -19,43 +16,6 @@ from src.users.domain import model as user_domain_model
 from src.wishlists.domain import model as wishlist_domain_model
 
 mapper_registry = registry()
-
-
-class MeasurementUnitType(TypeDecorator):
-    impl = String
-
-    def __repr__(self):
-        return self.impl.__repr__()
-
-    def process_bind_param(
-        self, measurement_unit: wishlist_domain_model.MeasurementUnit, dialect: Dialect
-    ) -> str:
-        return measurement_unit.name
-
-    def process_result_value(
-        self, value: Optional[str], dialect: Dialect
-    ) -> Optional[wishlist_domain_model.MeasurementUnit]:
-        if value is not None:
-            return wishlist_domain_model.MeasurementUnit(name=value)
-
-
-class PriorityType(TypeDecorator):
-    impl = Integer
-
-    def __repr__(self):
-        return self.impl.__repr__()
-
-    def process_bind_param(
-        self, priority: wishlist_domain_model.Priority, dialect: Dialect
-    ) -> int:
-        return priority.value
-
-    def process_result_value(
-        self, value: Optional[int], dialect: Dialect
-    ) -> Optional[wishlist_domain_model.Priority]:
-        if value is not None:
-            return wishlist_domain_model.Priority(value=value)
-
 
 users = Table(
     "users",
@@ -113,23 +73,9 @@ wishlist_items = Table(
     Column("wishlist_uuid", Uuid, ForeignKey("wishlists.uuid"), nullable=False),
     Column("name", String),
     Column("quantity", Integer),
-    Column("measurement_unit", MeasurementUnitType),
-    Column("priority", PriorityType),
+    Column("measurement_unit", Enum(wishlist_domain_model.MeasurementUnit)),
+    Column("priority", Enum(wishlist_domain_model.Priority)),
     Column("is_purchased", Boolean),
-)
-
-measurement_units = Table(
-    "measurement_units",
-    mapper_registry.metadata,
-    Column("id", Integer, primary_key=True),
-    Column("name", String, unique=True),
-)
-
-priorities = Table(
-    "priorities",
-    mapper_registry.metadata,
-    Column("id", Integer, primary_key=True),
-    Column("value", Integer, unique=True),
 )
 
 
@@ -166,10 +112,6 @@ def start_sqlalchemy_mappers():
         },
     )
     mapper_registry.map_imperatively(wishlist_domain_model.WishlistItem, wishlist_items)
-    mapper_registry.map_imperatively(
-        wishlist_domain_model.MeasurementUnit, measurement_units
-    )
-    mapper_registry.map_imperatively(wishlist_domain_model.Priority, priorities)
 
     # Roles context
     mapper_registry.map_imperatively(

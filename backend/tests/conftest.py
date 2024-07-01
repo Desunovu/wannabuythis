@@ -109,7 +109,7 @@ def role_with_permissions(roles_default_role, permission):
 
 @pytest.fixture
 def measurement_unit():
-    return MeasurementUnit(name="kg.")
+    return MeasurementUnit.KILOGRAM
 
 
 @pytest.fixture

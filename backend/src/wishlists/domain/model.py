@@ -1,9 +1,8 @@
-from dataclasses import dataclass
+import enum
 from uuid import UUID
 
 from src.common.domain.aggregates import AggregateRoot
 from src.common.domain.entities import Entity
-from src.common.domain.value_objects import ValueObject
 from src.common.service.exceptions import WishlistItemNotFound
 from src.wishlists.domain.events import (
     WishlistNameChanged,
@@ -16,14 +15,16 @@ from src.wishlists.domain.events import (
 )
 
 
-@dataclass
-class MeasurementUnit(ValueObject):
-    name: str
+class MeasurementUnit(enum.Enum):
+    PIECE = "piece"
+    METER = "meter"
+    KILOGRAM = "kg."
 
 
-@dataclass
-class Priority(ValueObject):
-    value: int
+class Priority(enum.Enum):
+    LOW = 1
+    MEDIUM = 2
+    HIGH = 3
 
 
 class WishlistItem(Entity):
