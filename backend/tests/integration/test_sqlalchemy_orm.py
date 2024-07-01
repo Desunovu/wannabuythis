@@ -1,8 +1,11 @@
 import inspect
 
+from src.common.domain.aggregates import AggregateRoot
+from src.common.domain.entities import Entity
+from src.common.domain.value_objects import ValueObject
+from src.roles.domain import model as role_model_module
 from src.users.domain import model as user_model_module
 from src.wishlists.domain import model as wishlist_model_module
-from src.roles.domain import model as role_model_module
 
 
 def get_mapper_columns_and_relationships(domain_class) -> list[str]:
@@ -32,12 +35,14 @@ def check_fields_mapping(domain_class):
 
 
 def discover_classes(module):
-    """Discover all classes in the given module"""
+    """Discover all domain classes in the given module"""
     members = inspect.getmembers(module)
     classes = [
         member[1]
         for member in members
-        if inspect.isclass(member[1]) and member[1].__module__ == module.__name__
+        if inspect.isclass(member[1])
+        and member[1].__module__ == module.__name__
+        and issubclass(member[1], (AggregateRoot, Entity, ValueObject))
     ]
     return classes
 
