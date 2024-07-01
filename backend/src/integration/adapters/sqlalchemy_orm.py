@@ -185,8 +185,7 @@ def start_sqlalchemy_mappers():
     )
     mapper_registry.map_imperatively(role_domain_model.Permission, permissions)
 
-    # add 'missing after loading' events field to all aggregates
-    # TODO: find a way not to use this trick in imperative mapping
+    # Add events field to loaded aggregates
     aggregates = [
         user_domain_model.User,
         wishlist_domain_model.Wishlist,
