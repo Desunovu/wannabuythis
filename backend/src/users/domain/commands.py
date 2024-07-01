@@ -4,42 +4,42 @@ from dataclasses import dataclass
 from src.common.domain.commands import Command
 
 
-@dataclass
+@dataclass(frozen=True)
 class CreateUser(Command):
     username: str
     email: str
     password: str
 
 
-@dataclass
+@dataclass(frozen=True)
 class GenerateAuthToken(Command):
     username: str
     password: str
     exp_time: None | datetime.timedelta
 
 
-@dataclass
+@dataclass(frozen=True)
 class ActivateUser(Command):
     username: str
 
 
-@dataclass
+@dataclass(frozen=True)
 class ActivateUserWithToken(Command):
     token: str
 
 
-@dataclass
+@dataclass(frozen=True)
 class ResendActivationLink(Command):
     username: str
     password: str
 
 
-@dataclass
+@dataclass(frozen=True)
 class DeactivateUser(Command):
     username: str
 
 
-@dataclass
+@dataclass(frozen=True)
 class ChangePassword(Command):
     username: str
     new_password: str
@@ -47,19 +47,19 @@ class ChangePassword(Command):
     called_by_admin: bool = False
 
 
-@dataclass
+@dataclass(frozen=True)
 class ChangeEmail(Command):
     username: str
     new_email: str
 
 
-@dataclass
+@dataclass(frozen=True)
 class AddRoleToUser(Command):
     username: str
     role_name: str
 
 
-@dataclass
+@dataclass(frozen=True)
 class RemoveRoleFromUser(Command):
     username: str
     role_name: str
