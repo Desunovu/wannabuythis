@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from src.common.domain.aggregates import AggregateRoot
 from src.common.domain.entities import Entity
@@ -20,10 +20,14 @@ class Permission(ValueObject):
     name: str
 
 
+@dataclass(kw_only=True, unsafe_hash=True)
 class Role(Entity):
-    def __init__(self, name: str):
-        self.name = name
-        self.permissions = []
+    name: str
+    permissions: list[Permission] = field(
+        default_factory=list,
+        compare=False,
+        hash=False,
+    )
 
 
 class User(AggregateRoot):
