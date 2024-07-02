@@ -1,4 +1,5 @@
 import enum
+from dataclasses import dataclass, field
 from uuid import UUID
 
 from src.common.domain.aggregates import AggregateRoot
@@ -27,24 +28,15 @@ class Priority(enum.Enum):
     HIGH = 3
 
 
+@dataclass(kw_only=True)
 class WishlistItem(Entity):
-    def __init__(
-        self,
-        uuid: UUID,
-        wishlist_uuid: UUID,
-        name: str,
-        quantity: int,
-        measurement_unit: MeasurementUnit,
-        priority: Priority,
-    ):
-        super().__init__()
-        self.uuid = uuid
-        self.wishlist_uuid = wishlist_uuid
-        self.name = name
-        self.quantity = quantity
-        self.measurement_unit = measurement_unit
-        self.priority = priority
-        self.is_purchased = False
+    uuid: UUID
+    wishlist_uuid: UUID
+    name: str
+    quantity: int
+    measurement_unit: MeasurementUnit
+    priority: Priority
+    is_purchased: bool = field(default=False)
 
 
 class Wishlist(AggregateRoot):
