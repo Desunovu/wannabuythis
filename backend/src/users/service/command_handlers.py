@@ -42,7 +42,9 @@ def handle_create_user(
         if not User.validate_password(command.password):
             raise PasswordValidationError()
         password_hash = password_hash_util.hash_password(command.password)
-        user = User(command.username, command.email, password_hash)
+        user = User(
+            username=command.username, email=command.email, password_hash=password_hash
+        )
         uow.user_repository.add(user)
         uow.commit()
 

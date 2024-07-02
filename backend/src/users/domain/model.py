@@ -30,14 +30,15 @@ class Role(Entity):
     )
 
 
+@dataclass(kw_only=True, unsafe_hash=True)
 class User(AggregateRoot):
-    def __init__(self, username: str, email: str, password_hash: str):
-        super().__init__()
-        self.username = username
-        self.email = email
-        self.password_hash = password_hash
-        self.is_active = False
-        self.roles: list[Role] = []
+    username: str
+    email: str
+    password_hash: str
+    is_active: bool = field(default=False)
+    roles: list[Role] = field(default_factory=list, compare=False)
+
+    def __post_init__(self):
         self.add_event(UserCreated(username=self.username, email=self.email))
 
     @staticmethod

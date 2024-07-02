@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from src.common.domain.aggregates import AggregateRoot
 from src.common.domain.value_objects import ValueObject
@@ -14,11 +14,12 @@ class Permission(ValueObject):
     name: str
 
 
+@dataclass(kw_only=True, unsafe_hash=True)
 class Role(AggregateRoot):
-    def __init__(self, name: str):
-        super().__init__()
-        self.name = name
-        self.permissions = []
+    name: str
+    permissions: list = field(default_factory=list, compare=False)
+
+    def __post_init__(self):
         self.add_event(RoleCreated(self.name))
 
     def has_permission(self, permission_name: str) -> bool:
