@@ -13,6 +13,7 @@ from src.wishlists.domain.events import (
     WishlistItemMarkedAsNotPurchased,
     WishlistUnarchived,
     WishlistArchived,
+    WishlistCreated,
 )
 
 
@@ -39,16 +40,16 @@ class WishlistItem(Entity):
     is_purchased: bool = field(default=False)
 
 
+@dataclass(kw_only=True, unsafe_hash=True)
 class Wishlist(AggregateRoot):
-    def __init__(
-        self, uuid: UUID, owner_username: str, name: str, items: list[WishlistItem]
-    ):
-        super().__init__()
-        self.uuid = uuid
-        self.owner_username = owner_username
-        self.name = name
-        self.items = items
-        self.is_archived = False
+    uuid: UUID
+    owner_username: str
+    name: str
+    items: list[WishlistItem] = field(default_factory=list, compare=False)
+    is_archived: bool = field(default=False)
+
+    def __post_init__(self):
+        self.add_event(WishlistCreated(uuid=self.uuid, name=self.name))
 
     def change_name(self, name: str):
         self.name = name

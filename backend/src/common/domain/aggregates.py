@@ -1,9 +1,11 @@
+from dataclasses import dataclass, field
+
 from src.common.domain.events import DomainEvent
 
 
+@dataclass(kw_only=True)
 class AggregateRoot:
-    def __init__(self):
-        self.events = []
+    events: list[DomainEvent] = field(default_factory=list, compare=False)
 
     def add_event(self, event: DomainEvent):
         self.events.append(event)

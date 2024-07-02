@@ -19,7 +19,7 @@ def handle_create_role(command: CreateRole, uow: UnitOfWork):
     with uow:
         if check_role_exists(command.name, uow):
             raise RoleAlreadyExists(command.name)
-        uow.role_repository.add(Role(command.name))
+        uow.role_repository.add(Role(name=command.name))
         uow.commit()
 
 
