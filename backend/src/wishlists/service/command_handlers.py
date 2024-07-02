@@ -18,7 +18,6 @@ from src.wishlists.domain.commands import (
 )
 from src.wishlists.domain.events import (
     WishlistNameChanged,
-    WishlistCreated,
 )
 from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
 
@@ -37,7 +36,6 @@ def handle_create_wishlist(
             items=[],
         )
         uow.wishlist_repository.add(wishlist)
-        wishlist.add_event(WishlistCreated(wishlist.uuid, wishlist.name))
         uow.commit()
 
 
