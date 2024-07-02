@@ -23,6 +23,12 @@ def add_user_and_role_to_db(client, user, role):
         uow.commit()
 
 
+def add_wishlist_to_db(client, wishlist):
+    with client.app.state.messagebus.uow as uow:
+        uow.wishlist_repository.add(wishlist)
+        uow.commit()
+
+
 @pytest.fixture
 def fastapi_app():
     return create_app()
@@ -110,3 +116,21 @@ def user_client(client_with_user, user):
     add_authorization_header_to_client(client_with_user, user)
 
     return client_with_user
+
+
+@pytest.fixture
+def client_with_populated_wishlist(client_with_user, populated_wishlist):
+    """Test client. Contains user and user's populated wishlist in db"""
+
+    add_wishlist_to_db(client_with_user, populated_wishlist)
+
+    return client_with_user
+
+
+@pytest.fixture
+def user_with_populated_wishlist_client(user_client, populated_wishlist):
+    """Test client with signed in user. Contains user's populated wishlist in db"""
+
+    add_wishlist_to_db(user_client, populated_wishlist)
+
+    return user_client

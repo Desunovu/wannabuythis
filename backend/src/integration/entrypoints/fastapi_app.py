@@ -19,6 +19,7 @@ from src.users.entrypoints.fastapi.admin_router import users_admin_router
 from src.users.entrypoints.fastapi.auth_router import users_auth_router
 from src.users.entrypoints.fastapi.command_router import users_command_router
 from src.users.entrypoints.fastapi.query_router import users_query_router
+from src.wishlists.entrypoints.fastapi.query_router import wishlists_query_router
 from tests.conftest import FakeNotificator
 
 ROUTERS = [
@@ -26,6 +27,7 @@ ROUTERS = [
     users_auth_router,
     users_query_router,
     users_command_router,
+    wishlists_query_router,
 ]
 
 
