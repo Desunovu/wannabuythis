@@ -3,7 +3,6 @@ import inspect
 from src.common.domain.aggregates import AggregateRoot
 from src.common.domain.entities import Entity
 from src.common.domain.value_objects import ValueObject
-from src.roles.domain import model as role_model_module
 from src.users.domain import model as user_model_module
 from src.wishlists.domain import model as wishlist_model_module
 
@@ -61,8 +60,3 @@ class TestUserContextClassMapping:
 class TestWishlistContextClassMapping:
     def test_wishlist_context_mapping(self, prepare_mappers):
         check_module_classes_mapping(wishlist_model_module)
-
-
-class TestRoleContextClassMapping:
-    def test_role_context_mapping(self, prepare_mappers):
-        check_module_classes_mapping(role_model_module)

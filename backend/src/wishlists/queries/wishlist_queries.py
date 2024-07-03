@@ -24,4 +24,8 @@ def get_wishlists_owned_by(session: Session, username: str) -> list[Wishlist]:
 def get_archived_wishlists_owned_by(session: Session, username: str) -> list[Wishlist]:
     """SQLAlchemy query to get all archived wishlists owned by a user."""
 
-    return session.query(Wishlist).filter_by(owner_username=username, is_archived=True).all()
+    return (
+        session.query(Wishlist)
+        .filter_by(owner_username=username, is_archived=True)
+        .all()
+    )

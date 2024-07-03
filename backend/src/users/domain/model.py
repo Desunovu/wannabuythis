@@ -1,33 +1,13 @@
 from dataclasses import dataclass, field
 
 from src.common.domain.aggregates import AggregateRoot
-from src.common.domain.entities import Entity
-from src.common.domain.value_objects import ValueObject
-from src.common.service.exceptions import UserAlreadyHasRole, UserDoesNotHaveRole
 from src.users.domain.events import (
     PasswordChanged,
     UserDeactivated,
     EmailChanged,
-    RoleAddedToUser,
-    RoleRemovedFromUser,
     UserActivated,
     UserCreated,
 )
-
-
-@dataclass(frozen=True)
-class Permission(ValueObject):
-    name: str
-
-
-@dataclass(kw_only=True, unsafe_hash=True)
-class Role(Entity):
-    name: str
-    permissions: list[Permission] = field(
-        default_factory=list,
-        compare=False,
-        hash=False,
-    )
 
 
 @dataclass(kw_only=True, unsafe_hash=True)
@@ -36,7 +16,7 @@ class User(AggregateRoot):
     email: str
     password_hash: str
     is_active: bool = field(default=False)
-    roles: list[Role] = field(default_factory=list, compare=False)
+    is_superuser: bool = field(default=False)
 
     def __post_init__(self):
         self.add_event(UserCreated(username=self.username, email=self.email))
@@ -70,18 +50,3 @@ class User(AggregateRoot):
     def deactivate(self):
         self.is_active = False
         self.add_event(UserDeactivated(self.username))
-
-    def add_role(self, role: Role):
-        if self.__has_role(role):
-            raise UserAlreadyHasRole(self.username, role.name)
-        self.roles.append(role)
-        self.add_event(RoleAddedToUser(self.username, role.name))
-
-    def remove_role(self, role: Role):
-        if not self.__has_role(role):
-            raise UserDoesNotHaveRole(self.username, role.name)
-        self.roles.remove(role)
-        self.add_event(RoleRemovedFromUser(username=self.username, role_name=role.name))
-
-    def __has_role(self, role: Role) -> bool:
-        return role in self.roles

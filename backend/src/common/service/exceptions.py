@@ -44,21 +44,6 @@ class UserAlreadyDeactivated(ConflictException):
         super().__init__(f"User {username} is already deactivated")
 
 
-class UserAlreadyHasRole(ConflictException):
-    def __init__(self, username: str, role_name: str):
-        super().__init__(f"User {username} already has role {role_name}")
-
-
-class UserDoesNotHaveRole(ConflictException):
-    def __init__(self, username: str, role_name: str):
-        super().__init__(f"User {username} does not have role {role_name}")
-
-
-class RoleNotFound(NotFoundException):
-    def __init__(self, role_name: str):
-        super().__init__(f"Role '{role_name}' not found")
-
-
 class PasswordValidationError(ValidationException):
     def __init__(self, error_message: str = "Password validation failed"):
         super().__init__(error_message)
@@ -87,22 +72,3 @@ class WishlistAlreadyArchived(ConflictException):
 class WishlistNotArchived(ConflictException):
     def __init__(self, uuid: UUID):
         super().__init__(f"Wishlist '{uuid}' is not archived")
-
-
-class RoleAlreadyExists(ConflictException):
-    def __init__(self, role_name: str):
-        super().__init__(f"Role '{role_name}' already exists")
-
-
-class RoleAlreadyHasPermission(ConflictException):
-    def __init__(self, role_name: str, permission_name: str):
-        super().__init__(
-            f"Role '{role_name}' already has permission '{permission_name}'"
-        )
-
-
-class RoleDoesNotHavePermission(Exception):
-    def __init__(self, role_name: str, permission_name: str):
-        super().__init__(
-            f"Role '{role_name}' does not have permission '{permission_name}'"
-        )

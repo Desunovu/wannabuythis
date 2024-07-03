@@ -8,8 +8,6 @@ from src.users.domain.events import (
     EmailChanged,
     UserActivated,
     UserDeactivated,
-    RoleAddedToUser,
-    RoleRemovedFromUser,
 )
 
 
@@ -33,6 +31,4 @@ USER_EVENT_HANDLERS: dict[type[DomainEvent], list[callable]] = {
     EmailChanged: [],
     UserActivated: [],
     UserDeactivated: [],
-    RoleAddedToUser: [],
-    RoleRemovedFromUser: [],
 }

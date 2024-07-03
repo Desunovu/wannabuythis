@@ -3,7 +3,6 @@ from sqlalchemy.orm import sessionmaker
 
 from src import config
 from src.common.service.uow import UnitOfWork
-from src.integration.adapters.sqlalchemy_role_repository import SQLAlchemyRoleRepository
 from src.integration.adapters.sqlalchemy_user_repository import SQLAlchemyUserRepository
 from src.integration.adapters.sqlalchemy_wishlist_repository import (
     SQLAlchemyWishlistRepository,
@@ -23,7 +22,6 @@ class SQLAlchemyUnitOfWork(UnitOfWork):
         self.session = self.session_factory()
         self.user_repository = SQLAlchemyUserRepository(self.session)
         self.wishlist_repository = SQLAlchemyWishlistRepository(self.session)
-        self.role_repository = SQLAlchemyRoleRepository(self.session)
         return super().__enter__()
 
     def _commit(self):

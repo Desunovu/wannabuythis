@@ -10,8 +10,6 @@ from src.common.domain.events import DomainEvent
 from src.common.logger import get_logger
 from src.common.service.messagebus import Messagebus
 from src.common.service.uow import UnitOfWork
-from src.roles.service.command_handlers import ROLE_COMMAND_HANDLERS
-from src.roles.service.event_handlers import ROLE_EVENT_HANDLERS
 from src.users.service.command_handlers import (
     USER_COMMAND_HANDLERS,
 )
@@ -24,12 +22,10 @@ from src.wishlists.service.event_handlers import WISHLIST_EVENT_HANDLERS
 COMMAND_HANDLERS = {
     **USER_COMMAND_HANDLERS,
     **WISHLIST_COMMAND_HANDLERS,
-    **ROLE_COMMAND_HANDLERS,
 }
 EVENT_HANDLERS = {
     **USER_EVENT_HANDLERS,
     **WISHLIST_EVENT_HANDLERS,
-    **ROLE_EVENT_HANDLERS,
 }
 
 
