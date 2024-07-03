@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 
-from src.common.service.exceptions import UserNotFound, RoleNotFound
+from src.common.service.exceptions import UserNotFound
 from src.users.adapters.user_repository import UserRepository
-from src.users.domain.model import User, Role
+from src.users.domain.model import User
 
 
 class SQLAlchemyUserRepository(UserRepository):
@@ -23,9 +23,3 @@ class SQLAlchemyUserRepository(UserRepository):
 
     def _add(self, user: User):
         self.session.add(user)
-
-    def get_role_by_name(self, role_name: str) -> Role:
-        role = self.session.query(Role).filter_by(name=role_name).first()
-        if not role:
-            raise RoleNotFound(role_name)
-        return role

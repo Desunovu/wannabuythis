@@ -18,8 +18,6 @@ from src.users.domain.commands import (
     DeactivateUser,
     ActivateUser,
     ChangeEmail,
-    AddRoleToUser,
-    RemoveRoleFromUser,
     ResendActivationLink,
     GenerateAuthToken,
     ActivateUserWithToken,
@@ -168,22 +166,6 @@ def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
         uow.commit()
 
 
-def handle_add_role_to_user(command: AddRoleToUser, uow: UnitOfWork):
-    with uow:
-        role = uow.user_repository.get_role_by_name(command.role_name)
-        user = uow.user_repository.get(command.username)
-        user.add_role(role)
-        uow.commit()
-
-
-def handle_remove_role_from_user(command: RemoveRoleFromUser, uow: UnitOfWork):
-    with uow:
-        role = uow.user_repository.get_role_by_name(command.role_name)
-        user = uow.user_repository.get(command.username)
-        user.remove_role(role)
-        uow.commit()
-
-
 USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     CreateUser: handle_create_user,
     GenerateAuthToken: handle_generate_auth_token,
@@ -193,6 +175,4 @@ USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     ActivateUser: handle_activate_user,
     ResendActivationLink: handle_resend_activation_link,
     DeactivateUser: handle_deactivate_user,
-    AddRoleToUser: handle_add_role_to_user,
-    RemoveRoleFromUser: handle_remove_role_from_user,
 }

@@ -51,15 +51,3 @@ class ChangePassword(Command):
 class ChangeEmail(Command):
     username: str
     new_email: str
-
-
-@dataclass(frozen=True)
-class AddRoleToUser(Command):
-    username: str
-    role_name: str
-
-
-@dataclass(frozen=True)
-class RemoveRoleFromUser(Command):
-    username: str
-    role_name: str

@@ -8,17 +8,13 @@ from src.users.domain.commands import (
     DeactivateUser,
     ChangePassword,
     ChangeEmail,
-    AddRoleToUser,
-    RemoveRoleFromUser,
 )
 from src.users.entrypoints.fastapi._pydantic_models import (
     ChangePasswordByAdminRequest,
     ChangeEmailByAdminRequest,
 )
 
-users_admin_router = APIRouter(
-    prefix="/admin/users", tags=["admin_user_commands"]
-)
+users_admin_router = APIRouter(prefix="/admin/users", tags=["admin_user_commands"])
 
 
 @users_admin_router.post("/activate", status_code=HTTP_200_OK)
@@ -65,22 +61,4 @@ def change_email(
         new_email=email_data.new_email,
     )
 
-    request.app.state.messagebus.handle(command)
-
-
-@users_admin_router.post("/add-role", status_code=HTTP_200_OK)
-def add_role(
-    command: AddRoleToUser,
-    _admin: CurrentAdminDependency,
-    request: Request,
-):
-    request.app.state.messagebus.handle(command)
-
-
-@users_admin_router.post("/remove-role", status_code=HTTP_200_OK)
-def remove_role(
-    command: RemoveRoleFromUser,
-    _admin: CurrentAdminDependency,
-    request: Request,
-):
     request.app.state.messagebus.handle(command)

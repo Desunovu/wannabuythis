@@ -3,14 +3,12 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.users.adapters.user_repository import UserRepository
-    from src.roles.adapters.role_repository import RoleRepository
     from src.wishlists.adapters.wishlist_repository import WishlistRepository
 
 
 class UnitOfWork(abc.ABC):
     user_repository: "UserRepository"
     wishlist_repository: "WishlistRepository"
-    role_repository: "RoleRepository"
 
     def __init__(self):
         self.committed = None  # used only in tests

@@ -31,14 +31,10 @@ def get_current_user(
 CurrentUserDependency = Annotated["User", Depends(get_current_user)]
 
 
-def get_current_admin(
+def get_superuser(
     current_user: CurrentUserDependency,
 ):
-    admin_role = next(
-        (role for role in current_user.roles if role.name == "admin"),
-        None
-    )
-    if not admin_role:
+    if not current_user.is_superuser:
         raise HTTPException(
             status_code=HTTP_403_FORBIDDEN, detail="Not enough permissions"
         )
@@ -46,4 +42,4 @@ def get_current_admin(
     return current_user
 
 
-CurrentAdminDependency = Annotated["User", Depends(get_current_admin)]
+CurrentAdminDependency = Annotated["User", Depends(get_superuser)]

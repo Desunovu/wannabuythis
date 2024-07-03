@@ -2,8 +2,6 @@ ADMIN_ACTIVATE_URL = "/admin/users/activate"
 ADMIN_DEACTIVATE_URL = "/admin/users/deactivate"
 ADMIN_CHANGE_PASSWORD_URL = "/admin/users/change-password"
 ADMIN_CHANGE_EMAIL_URL = "/admin/users/change-email"
-ADMIN_ADD_ROLE_URL = "/admin/users/add-role"
-ADMIN_REMOVE_ROLE_URL = "/admin/users/remove-role"
 CHANGE_EMAIL_URL = "/users/change-email"
 CHANGE_PASSWORD_URL = "/users/change-password"
 REGISTER_URL = "/register"
@@ -48,27 +46,6 @@ class TestFastAPIUsersAdminRoutes:
         body = {"username": activated_user.username, "new_email": new_email}
         response = admin_client_contains_activated_user.post(
             url=ADMIN_CHANGE_EMAIL_URL, json=body
-        )
-        assert response.status_code == 200
-
-    def test_add_role(
-        self, admin_client_contains_user_and_default_role, user, roles_default_role
-    ):
-        body = {"username": user.username, "role_name": roles_default_role.name}
-        response = admin_client_contains_user_and_default_role.post(
-            url=ADMIN_ADD_ROLE_URL, json=body
-        )
-        assert response.status_code == 200
-
-    def test_remove_role(
-        self,
-        admin_client_contains_user_with_default_role,
-        user,
-        roles_default_role,
-    ):
-        body = {"username": user.username, "role_name": roles_default_role.name}
-        response = admin_client_contains_user_with_default_role.post(
-            url=ADMIN_REMOVE_ROLE_URL, json=body
         )
         assert response.status_code == 200
 

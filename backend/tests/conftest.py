@@ -9,15 +9,13 @@ from src.common.dependencies.notificator import Notificator
 from src.common.dependencies.password_hash_util import HashlibPasswordHashUtil
 from src.common.dependencies.token_manager import JWTManager
 from src.common.dependencies.uuid_generator import DefaultUUIDGenerator
-from src.common.service.exceptions import RoleNotFound, WishlistNotFound, UserNotFound
+from src.common.service.exceptions import WishlistNotFound, UserNotFound
 from src.common.service.uow import UnitOfWork
 from src.integration.adapters.sqlalchemy_orm import (
     mapper_registry,
     start_sqlalchemy_mappers,
 )
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
-from src.roles.adapters.role_repository import RoleRepository
-from src.roles.domain import model as role_domain_model
 from src.users.adapters.user_repository import UserRepository
 from src.users.domain import model as user_domain_model
 from src.users.domain.model import User
@@ -27,32 +25,26 @@ from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, Wish
 
 @pytest.fixture
 def user(user_email, valid_password):
-    """Default user with #valid_password"""
+    """Default active user with #valid_password"""
     user = User(
         username="testuser",
         email=user_email,
         password_hash=HashlibPasswordHashUtil.hash_password(valid_password),
+        is_active=True,
     )
-    user.is_active = True
     return user
 
 
 @pytest.fixture
-def user_with_default_role(user, default_role):
-    """User with default role"""
-    user.roles.append(default_role)
-    return user
-
-
-@pytest.fixture
-def admin_user(admin_role, admin_email, valid_password):
-    """Admin user with admin role"""
+def admin_user(admin_email, valid_password):
+    """Admin user"""
     admin = User(
         username="admin",
         email=admin_email,
         password_hash=HashlibPasswordHashUtil.hash_password(valid_password),
+        is_active=True,
+        is_superuser=True,
     )
-    admin.roles.append(admin_role)
     return admin
 
 
@@ -68,43 +60,6 @@ def activated_user(user):
     """User with is_active=True"""
     user.is_active = True
     return user
-
-
-@pytest.fixture
-def default_role() -> user_domain_model.Role:
-    """Role entity from users bounded context"""
-    return user_domain_model.Role(name="default")
-
-
-@pytest.fixture
-def admin_role() -> user_domain_model.Role:
-    """Role entity from users bounded context"""
-    return user_domain_model.Role(name="admin")
-
-
-@pytest.fixture
-def roles_default_role(default_role) -> role_domain_model.Role:
-    """Role aggregate from roles bounded context"""
-    return role_domain_model.Role(name=default_role.name)
-
-
-@pytest.fixture
-def roles_admin_role(admin_role) -> role_domain_model.Role:
-    """Role aggregate from roles bounded context"""
-    return role_domain_model.Role(name=admin_role.name)
-
-
-@pytest.fixture
-def permission():
-    """Permission value object from roles bounded context"""
-    return role_domain_model.Permission("CREATE_WISHLIST")
-
-
-@pytest.fixture
-def role_with_permissions(roles_default_role, permission):
-    """Role aggregate with permissions"""
-    roles_default_role.permissions.append(permission)
-    return roles_default_role
 
 
 @pytest.fixture
@@ -174,10 +129,9 @@ def archived_wishlist(wishlist):
 
 
 class FakeUserRepository(UserRepository):
-    def __init__(self, users: set[User], roles: set[user_domain_model.Role]):
+    def __init__(self, users: set[User]):
         super().__init__()
         self._users = users
-        self._roles = roles
 
     def _get(self, username: str) -> User:
         try:
@@ -188,13 +142,6 @@ class FakeUserRepository(UserRepository):
 
     def _add(self, user: User):
         self._users.add(user)
-
-    def get_role_by_name(self, role_name: str) -> user_domain_model.Role:
-        try:
-            role = next(role for role in self._roles if role.name == role_name)
-        except StopIteration:
-            raise RoleNotFound(role_name=role_name)
-        return role
 
 
 class FakeWishlistRepository(WishlistRepository):
@@ -219,28 +166,11 @@ class FakeWishlistRepository(WishlistRepository):
         self._wishlists.add(wishlist)
 
 
-class FakeRoleRepository(RoleRepository):
-    def __init__(self, roles: set[role_domain_model.Role]):
-        super().__init__()
-        self._roles = roles
-
-    def _get(self, name: str) -> role_domain_model.Role:
-        try:
-            role = next(role for role in self._roles if role.name == name)
-        except StopIteration:
-            raise RoleNotFound(role_name=name)
-        return role
-
-    def _add(self, role: role_domain_model.Role):
-        self._roles.add(role)
-
-
 class FakeUnitOfWork(UnitOfWork):
     def __init__(self):
         super().__init__()
-        self.user_repository = FakeUserRepository(users=set(), roles=set())
+        self.user_repository = FakeUserRepository(users=set())
         self.wishlist_repository = FakeWishlistRepository(set())
-        self.role_repository = FakeRoleRepository(set())
         self.committed = False
 
     def _commit(self):

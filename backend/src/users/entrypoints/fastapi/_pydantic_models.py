@@ -14,7 +14,7 @@ class UserResponse(BaseModel):
     username: str
     email: str
     is_active: bool
-    roles: list
+    is_active: bool
 
 
 class ChangePasswordByUserRequest(BaseModel):

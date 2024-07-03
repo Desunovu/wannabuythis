@@ -11,9 +11,6 @@ from src.common.service.exceptions import (
     PasswordValidationError,
     UserAlreadyActive,
     UserAlreadyDeactivated,
-    UserAlreadyHasRole,
-    RoleNotFound,
-    UserDoesNotHaveRole,
     UserNotActive,
 )
 from src.users.domain.commands import (
@@ -22,13 +19,10 @@ from src.users.domain.commands import (
     ChangeEmail,
     ActivateUser,
     DeactivateUser,
-    AddRoleToUser,
-    RemoveRoleFromUser,
     ResendActivationLink,
     GenerateAuthToken,
     ActivateUserWithToken,
 )
-from tests.conftest import default_role
 
 
 class TestCreateUser:
@@ -292,88 +286,3 @@ class TestDeactivateUser:
         messagebus.uow.user_repository.add(deactivated_user)
         with pytest.raises(UserAlreadyDeactivated):
             messagebus.handle(DeactivateUser(username=deactivated_user.username))
-
-
-class TestAddRoleToUser:
-    def test_add_role_to_user(self, messagebus, user, default_role):
-        messagebus.uow.user_repository.add(user)
-        messagebus.uow.user_repository._roles.add(default_role)
-
-        command = AddRoleToUser(username=user.username, role_name=default_role.name)
-        messagebus.handle(command)
-
-        assert default_role.name in [r.name for r in user.roles]
-
-    def test_add_role_to_non_existing_user(self, messagebus, default_role):
-        messagebus.uow.user_repository._roles.add(default_role)
-
-        command = AddRoleToUser(username="non-existing", role_name=default_role.name)
-        with pytest.raises(UserNotFound):
-            messagebus.handle(command)
-
-    def test_add_role_to_user_already_has_role(
-        self, messagebus, user_with_default_role, default_role
-    ):
-        messagebus.uow.user_repository.add(user_with_default_role)
-        messagebus.uow.user_repository._roles.add(default_role)
-
-        command = AddRoleToUser(
-            username=user_with_default_role.username, role_name=default_role.name
-        )
-        with pytest.raises(UserAlreadyHasRole):
-            messagebus.handle(command)
-
-    def test_add_role_to_user_non_existing_role(self, messagebus, user):
-        messagebus.uow.user_repository.add(user)
-
-        command = AddRoleToUser(username=user.username, role_name="non-existing")
-        with pytest.raises(RoleNotFound):
-            messagebus.handle(command)
-
-
-class TestRemoveRoleFromUser:
-    def test_remove_role_from_user(
-        self, messagebus, user_with_default_role, default_role
-    ):
-        messagebus.uow.user_repository.add(user_with_default_role)
-        messagebus.uow.user_repository._roles.add(default_role)
-
-        command = RemoveRoleFromUser(
-            username=user_with_default_role.username, role_name=default_role.name
-        )
-        messagebus.handle(command)
-
-        assert default_role not in user_with_default_role.roles
-
-    def test_remove_role_from_non_existing_user(self, messagebus, default_role):
-        messagebus.uow.user_repository._roles.add(default_role)
-
-        command = RemoveRoleFromUser(
-            username="non-existing", role_name=default_role.name
-        )
-        with pytest.raises(UserNotFound):
-            messagebus.handle(command)
-
-    def test_remove_role_from_user_does_not_have_role(
-        self, messagebus, user, default_role
-    ):
-        messagebus.uow.user_repository.add(user)
-        messagebus.uow.user_repository._roles.add(default_role)
-
-        command = RemoveRoleFromUser(
-            username=user.username, role_name=default_role.name
-        )
-        with pytest.raises(UserDoesNotHaveRole):
-            messagebus.handle(command)
-
-    def test_remove_role_from_user_non_existing_role(
-        self, messagebus, user_with_default_role
-    ):
-        messagebus.uow.user_repository.add(user_with_default_role)
-
-        command = RemoveRoleFromUser(
-            username=user_with_default_role.username, role_name="non-existing"
-        )
-
-        with pytest.raises(RoleNotFound):
-            messagebus.handle(command)
