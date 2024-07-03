@@ -32,7 +32,7 @@ wishlists = Table(
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True),
     Column("uuid", Uuid, unique=True),
-    Column("owner_username", String, ForeignKey("users.username"), nullable=False),
+    Column("owner_username", String, ForeignKey("users.username", ondelete="CASCADE"), nullable=False),
     Column("name", String),
     Column("is_archived", Boolean),
 )
@@ -42,7 +42,7 @@ wishlist_items = Table(
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True),
     Column("uuid", Uuid, unique=True),
-    Column("wishlist_uuid", Uuid, ForeignKey("wishlists.uuid"), nullable=False),
+    Column("wishlist_uuid", Uuid, ForeignKey("wishlists.uuid", ondelete="CASCADE"), nullable=False),
     Column("name", String),
     Column("quantity", Integer),
     Column("measurement_unit", Enum(wishlist_domain_model.MeasurementUnit)),
