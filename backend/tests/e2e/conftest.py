@@ -109,3 +109,12 @@ def user_with_populated_wishlist_client(user_client, populated_wishlist):
     add_wishlist_to_db(user_client, populated_wishlist)
 
     return user_client
+
+
+@pytest.fixture
+def user_with_archived_wishlist_client(user_client, archived_wishlist):
+    """Test client with signed in user. Contains user's archived wishlist in db"""
+
+    add_wishlist_to_db(user_client, archived_wishlist)
+
+    return user_client
