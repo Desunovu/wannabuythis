@@ -74,6 +74,7 @@ def start_sqlalchemy_mappers():
                 wishlist_domain_model.WishlistItem,
                 order_by=wishlist_items.c.id,
                 lazy="dynamic",
+                cascade="all, delete-orphan",
             )
         },
     )
