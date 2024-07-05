@@ -7,9 +7,9 @@ from src.wishlists.domain.model import Wishlist
 
 
 def get_wishlist_by_uuid(session: Session, uuid: UUID) -> Wishlist:
-    """SQLAlchemy query to get a non-archived wishlist by its UUID."""
+    """SQLAlchemy query to get a wishlist by its UUID."""
 
-    wishlist = session.query(Wishlist).filter_by(uuid=uuid, is_archived=False).first()
+    wishlist = session.query(Wishlist).filter_by(uuid=uuid).first()
     if not wishlist:
         raise WishlistNotFound(uuid=uuid)
     return wishlist
