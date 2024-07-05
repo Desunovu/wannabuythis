@@ -17,13 +17,13 @@ from src.wishlists.domain.events import (
 )
 
 
-class MeasurementUnit(enum.Enum):
+class MeasurementUnit(str, enum.Enum):
     PIECE = "piece"
     METER = "meter"
     KILOGRAM = "kg."
 
 
-class Priority(enum.Enum):
+class Priority(int, enum.Enum):
     LOW = 1
     MEDIUM = 2
     HIGH = 3
