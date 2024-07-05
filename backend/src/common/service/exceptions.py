@@ -24,6 +24,11 @@ class UserNotActive(Forbidden):
         super().__init__(f"User '{username}' cannot sign in because of inactive status")
 
 
+class UserNotAuthorized(Forbidden):
+    def __init__(self, username: str):
+        super().__init__(f"User '{username}' does not have permission to perform this action")
+
+
 class UserNotFound(NotFoundException):
     def __init__(self, username: str):
         super().__init__(f"User '{username}' not found")
