@@ -38,3 +38,27 @@ class WishlistResponse(BaseModel):
             ],
             is_archived=wishlist.is_archived,
         )
+
+
+class CreateWishlistRequest(BaseModel):
+    wishlist_name: str
+
+
+class ChangeWishlistNameRequest(BaseModel):
+    new_name: str
+
+
+class AddWishlistItemRequest(BaseModel):
+    name: str
+    quantity: int
+    measurement_unit: MeasurementUnit
+    priority: Priority
+
+
+class RemoveWishlistItemRequest(BaseModel):
+    item_uuid: UUID
+
+
+class SetWishlistItemStatusRequest(BaseModel):
+    item_uuid: UUID
+    is_purchased: bool
