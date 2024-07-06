@@ -1,5 +1,6 @@
 import enum
 from dataclasses import dataclass, field
+from datetime import datetime, UTC
 from uuid import UUID
 
 from src.common.domain.aggregates import AggregateRoot
@@ -47,6 +48,7 @@ class Wishlist(AggregateRoot):
     name: str
     items: list[WishlistItem] = field(default_factory=list, compare=False)
     is_archived: bool = field(default=False)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def __post_init__(self):
         self.add_event(WishlistCreated(uuid=self.uuid, name=self.name))
