@@ -26,6 +26,7 @@ class WishlistResponse(BaseModel):
     name: str
     items: list[WishlistItemResponse]
     is_archived: bool
+    created_at: str
 
     @classmethod
     def from_dataclass(cls, wishlist):
@@ -37,6 +38,7 @@ class WishlistResponse(BaseModel):
                 WishlistItemResponse.from_dataclass(item) for item in wishlist.items
             ],
             is_archived=wishlist.is_archived,
+            created_at=wishlist.created_at.isoformat(),
         )
 
 

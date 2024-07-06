@@ -8,6 +8,7 @@ from sqlalchemy import (
     Boolean,
     event,
     Enum,
+    DateTime,
 )
 from sqlalchemy.orm import registry, relationship
 
@@ -40,6 +41,7 @@ wishlists = Table(
     ),
     Column("name", String),
     Column("is_archived", Boolean),
+    Column("created_at", DateTime),
 )
 
 wishlist_items = Table(
