@@ -19,7 +19,7 @@ def get_wishlists_owned_by(session: Session, username: str) -> list[Wishlist]:
     """SQLAlchemy query to get all wishlists owned by a user."""
     return (
         session.query(Wishlist)
-        .filter_by(owner_username=username)
+        .filter_by(owner_username=username, is_archived=False)
         .order_by(Wishlist.created_at.desc())
         .all()
     )
