@@ -72,7 +72,7 @@ def setup_messagebus_dependencies():
         FakeNotificator() if config.get_env() == "development" else EmailNotificator()
     )
 
-    dependencies = bootstrap.initialize_dependencies(
+    dependencies = bootstrap.create_dependencies_dict(
         uow=SQLAlchemyUnitOfWork(),
         password_hash_util=HashlibPasswordHashUtil(),
         uuid_generator=DefaultUUIDGenerator(),

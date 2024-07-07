@@ -188,7 +188,7 @@ class FakeNotificator(Notificator):
 
 @pytest.fixture
 def messagebus():
-    dependencies = bootstrap.initialize_dependencies(
+    dependencies = bootstrap.create_dependencies_dict(
         uow=FakeUnitOfWork(),
         password_hash_util=HashlibPasswordHashUtil(),
         uuid_generator=DefaultUUIDGenerator(),
