@@ -17,7 +17,6 @@ from src.integration.adapters.sqlalchemy_orm import (
 )
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.users.adapters.user_repository import UserRepository
-from src.users.domain import model as user_domain_model
 from src.users.domain.model import User
 from src.wishlists.adapters.wishlist_repository import WishlistRepository
 from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
@@ -196,10 +195,7 @@ def messagebus():
         token_manager=JWTManager(),
         notificator=FakeNotificator(),
     )
-    return bootstrap.initialize_messagebus(
-        dependencies=dependencies,
-        start_logging=False,
-    )
+    return bootstrap.initialize_messagebus(dependencies=dependencies)
 
 
 @pytest.fixture
