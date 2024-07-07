@@ -46,4 +46,4 @@ jobs:
     - name: Install the project deps
       run: poetry install
     - name: Test with pytest
-      run: poetry run pytest -v
+      run: poetry run pytest -v --log-disable=messagebus
