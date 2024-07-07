@@ -16,8 +16,11 @@ pyjwt = "^2.8.0"
 slowapi = "^0.1.9"
 
 [tool.poetry.group.dev.dependencies]
-black = "^24.4.2"
 setuptools = "^69.5.1"
+ruff = "^0.5.1"
+
+[tool.ruff]
+line-length = 88
 
 [build-system]
 requires = ["poetry-core"]
