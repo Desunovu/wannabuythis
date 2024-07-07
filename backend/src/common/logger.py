@@ -3,10 +3,7 @@ import datetime
 import os.path
 
 
-def get_logger(name, start_logging=True):
-    if not start_logging:
-        return logging.getLogger(name)
-
+def setup_logging(name) -> None:
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
 
@@ -18,7 +15,7 @@ def get_logger(name, start_logging=True):
         pass
 
     # create file handler which logs even debug messages
-    now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    now = datetime.datetime.now().strftime("%Y-%m-%d")
     log_path = os.path.join(log_dir, f"{now}.log")
     fh = logging.FileHandler(log_path)
     fh.setLevel(logging.DEBUG)
@@ -37,5 +34,3 @@ def get_logger(name, start_logging=True):
     # add the handlers to the logger
     logger.addHandler(fh)
     logger.addHandler(ch)
-
-    return logger

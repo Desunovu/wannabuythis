@@ -7,7 +7,7 @@ from src.common.dependencies.token_manager import TokenManager
 from src.common.dependencies.uuid_generator import UUIDGenerator
 from src.common.domain.commands import Command
 from src.common.domain.events import DomainEvent
-from src.common.logger import get_logger
+from src.common.logger import setup_logging
 from src.common.service.messagebus import Messagebus
 from src.common.service.uow import UnitOfWork
 from src.users.service.command_handlers import (
@@ -30,12 +30,11 @@ EVENT_HANDLERS = {
 
 
 def initialize_messagebus(
-    dependencies: None | dict[str, object] = None,
-    start_logging: bool = True,
+    dependencies: None | dict[str, object] = None
 ) -> Messagebus:
     """Prepares handlers with injected dependencies and returns a configured Messagebus instance."""
 
-    logger = get_logger("messagebus", start_logging=start_logging)
+    setup_logging("messagebus")
 
     if dependencies is None:
         dependencies = initialize_dependencies()
@@ -51,7 +50,6 @@ def initialize_messagebus(
         command_handlers=injected_command_handlers,
         event_handlers=injected_event_handlers,
         dependencies=dependencies,
-        logger=logger,
     )
 
 
