@@ -53,7 +53,6 @@ def handle_generate_auth_token(
     password_hash_util: PasswordHashUtil,
     token_manager: TokenManager,
 ):
-
     with uow:
         user = uow.user_repository.get(command.username)
     if not user:

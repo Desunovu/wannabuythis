@@ -26,7 +26,9 @@ class UserNotActive(Forbidden):
 
 class UserNotAuthorized(Forbidden):
     def __init__(self, username: str):
-        super().__init__(f"User '{username}' does not have permission to perform this action")
+        super().__init__(
+            f"User '{username}' does not have permission to perform this action"
+        )
 
 
 class UserNotFound(NotFoundException):
