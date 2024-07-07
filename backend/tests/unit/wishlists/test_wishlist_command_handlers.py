@@ -18,7 +18,6 @@ from src.wishlists.domain.commands import (
     ArchiveWishlist,
     UnarchiveWishlist,
 )
-from tests.conftest import populated_wishlist
 
 
 class TestCreateWishlist:
