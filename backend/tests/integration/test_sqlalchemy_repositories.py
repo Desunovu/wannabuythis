@@ -19,7 +19,7 @@ class TestSQLAlchemyUserRepository:
     def test_get_non_existing_user(self, sqlite_session):
         repository = SQLAlchemyUserRepository(sqlite_session)
         with pytest.raises(UserNotFound):
-            user = repository.get("non-existing-user")
+            repository.get("non-existing-user")
 
     def test_add_user(self, sqlite_session, user):
         repository = SQLAlchemyUserRepository(sqlite_session)
@@ -37,7 +37,7 @@ class TestSQLAlchemyWishlistRepository:
     def test_get_non_existing_wishlist(self, sqlite_session):
         repository = SQLAlchemyWishlistRepository(sqlite_session)
         with pytest.raises(WishlistNotFound):
-            wishlist = repository.get(uuid.uuid4())
+            repository.get(uuid.uuid4())
 
     def test_list_all_wishlists(self, sqlite_session, wishlist, populated_wishlist):
         sqlite_session.add_all([wishlist, populated_wishlist])
