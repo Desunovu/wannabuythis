@@ -29,15 +29,10 @@ EVENT_HANDLERS = {
 }
 
 
-def initialize_messagebus(
-    dependencies: None | dict[str, object] = None
-) -> Messagebus:
+def initialize_messagebus(dependencies: dict[str, Any]) -> Messagebus:
     """Prepares handlers with injected dependencies and returns a configured Messagebus instance."""
 
     setup_logging("messagebus")
-
-    if dependencies is None:
-        dependencies = initialize_dependencies()
 
     injected_command_handlers, injected_event_handlers = inject_dependencies(
         command_handlers=COMMAND_HANDLERS,
@@ -53,7 +48,7 @@ def initialize_messagebus(
     )
 
 
-def initialize_dependencies(
+def create_dependencies_dict(
     uow: UnitOfWork,
     password_hash_util: PasswordHashUtil,
     uuid_generator: UUIDGenerator,
