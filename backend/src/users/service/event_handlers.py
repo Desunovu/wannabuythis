@@ -18,7 +18,8 @@ def handle_user_created(
     notificator: Notificator,
     token_manager: TokenManager,
 ):
-    user = uow.user_repository.get(event.username)
+    with uow:
+        user = uow.user_repository.get(event.username)
     send_notification_with_activation_link(
         notificator=notificator, token_manager=token_manager, user=user
     )
