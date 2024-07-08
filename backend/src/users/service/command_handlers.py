@@ -58,16 +58,14 @@ def handle_generate_auth_token(
     with uow:
         user = uow.user_repository.get(command.username)
     if not user.is_active:
-        raise UserNotActive(username=command.username)
+        raise UserNotActive(command.username)
     if not password_hash_util.verify_password(
         password=command.password, password_hash=user.password_hash
     ):
         raise PasswordVerificationError
-
     token = token_manager.generate_token(
         username=user.username, token_lifetime=command.token_lifetime
     )
-
     return token
 
 
