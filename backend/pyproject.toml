@@ -18,6 +18,7 @@ slowapi = "^0.1.9"
 [tool.poetry.group.dev.dependencies]
 setuptools = "^69.5.1"
 ruff = "^0.5.1"
+isort = "^5.13.2"
 
 [tool.ruff]
 line-length = 88
