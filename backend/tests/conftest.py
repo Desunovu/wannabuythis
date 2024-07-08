@@ -1,25 +1,21 @@
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 from sqlalchemy import create_engine, StaticPool
 from sqlalchemy.orm import sessionmaker, clear_mappers
 
 from src import bootstrap
-from src.common.dependencies.notificator import Notificator
 from src.common.dependencies.password_hash_util import HashlibPasswordHashUtil
 from src.common.dependencies.token_manager import JWTManager
 from src.common.dependencies.uuid_generator import DefaultUUIDGenerator
-from src.common.service.exceptions import WishlistNotFound, UserNotFound
-from src.common.service.uow import UnitOfWork
 from src.integration.adapters.sqlalchemy_orm import (
     mapper_registry,
     start_sqlalchemy_mappers,
 )
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
-from src.users.adapters.user_repository import UserRepository
 from src.users.domain.model import User
-from src.wishlists.adapters.wishlist_repository import WishlistRepository
 from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
+from tests.fakes import FakeUnitOfWork, FakeNotificator
 
 
 @pytest.fixture
@@ -125,65 +121,6 @@ def archived_wishlist(wishlist):
     """Archived wishlist"""
     wishlist.is_archived = True
     return wishlist
-
-
-class FakeUserRepository(UserRepository):
-    def __init__(self, users: set[User]):
-        super().__init__()
-        self._users = users
-
-    def _get(self, username: str) -> User:
-        try:
-            user = next(user for user in self._users if user.username == username)
-        except StopIteration:
-            raise UserNotFound(username=username)
-        return user
-
-    def _add(self, user: User):
-        self._users.add(user)
-
-
-class FakeWishlistRepository(WishlistRepository):
-    def __init__(self, wishlists: set[Wishlist]):
-        super().__init__()
-        self._wishlists = wishlists
-
-    def _get(self, uuid: UUID) -> Wishlist:
-        try:
-            wishlist = next(wl for wl in self._wishlists if wl.uuid == uuid)
-        except StopIteration:
-            raise WishlistNotFound(uuid=uuid)
-        return wishlist
-
-    def _list_all(self) -> list[Wishlist]:
-        return list(self._wishlists)
-
-    def _list_owned_by(self, username: str) -> list[Wishlist]:
-        return list(wl for wl in self._wishlists if wl.owner_username == username)
-
-    def _add(self, wishlist: Wishlist):
-        self._wishlists.add(wishlist)
-
-
-class FakeUnitOfWork(UnitOfWork):
-    def __init__(self):
-        super().__init__()
-        self.user_repository = FakeUserRepository(users=set())
-        self.wishlist_repository = FakeWishlistRepository(set())
-        self.committed = False
-
-    def _commit(self):
-        self.committed = True
-
-    def _rollback(self):
-        pass
-
-
-class FakeNotificator(Notificator):
-    def send_notification(self, recipient: "User", subject: str, message: str) -> None:
-        print(
-            f"Fake notificator: {recipient.username} ({recipient.email}), {subject}, {message}"
-        )
 
 
 @pytest.fixture
