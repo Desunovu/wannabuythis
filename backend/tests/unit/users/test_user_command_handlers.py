@@ -1,7 +1,6 @@
 import datetime
 
 import pytest
-from jwt import DecodeError
 
 from src.common.dependencies.token_manager import TokenManager
 from src.common.service.exceptions import (
@@ -12,6 +11,7 @@ from src.common.service.exceptions import (
     UserAlreadyActive,
     UserAlreadyDeactivated,
     UserNotActive,
+    TokenException,
 )
 from src.users.domain.commands import (
     CreateUser,
@@ -214,7 +214,7 @@ class TestActivateUserWithToken:
     def test_activate_user_with_token_wrong_token(self, messagebus, deactivated_user):
         messagebus.uow.user_repository.add(deactivated_user)
         token = "wrong-token"
-        with pytest.raises(DecodeError):
+        with pytest.raises(TokenException):
             messagebus.handle(ActivateUserWithToken(token=token))
 
     def test_activate_user_with_token_already_active_user(

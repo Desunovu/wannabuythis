@@ -12,6 +12,7 @@ from src.common.service.exceptions import (
     ConflictException,
     VerificationException,
     Forbidden,
+    TokenException,
 )
 
 
@@ -29,6 +30,10 @@ def handle_verification_error(request: Request, exception: VerificationException
 
 def handle_forbidden(request: Request, exception: Forbidden):
     raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail=exception.args[0])
+
+
+def handle_token_error(request: Request, exception: TokenException):
+    raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=exception.args[0])
 
 
 exception_to_exception_handlers = {

@@ -19,6 +19,11 @@ class Forbidden(Exception):
     pass
 
 
+class TokenException(Exception):
+    def __init__(self, message: str):
+        super().__init__(message)
+
+
 class UserNotActive(Forbidden):
     def __init__(self, username: str):
         super().__init__(f"User '{username}' cannot sign in because of inactive status")

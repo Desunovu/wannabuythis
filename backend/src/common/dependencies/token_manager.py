@@ -4,6 +4,7 @@ import datetime
 import jwt
 
 from src import config
+from src.common.service.exceptions import TokenException
 
 
 class TokenManager(abc.ABC):
@@ -35,10 +36,21 @@ class JWTManager(TokenManager):
 
     @classmethod
     def get_username_from_token(cls, token: str) -> str:
-        token_payload = cls.decode_token(token)
+        token_payload = cls.__decode_token(token)
         return token_payload["username"]
 
     @staticmethod
-    def decode_token(token: str) -> dict:
-        token_payload = jwt.decode(token, config.get_secret_key(), algorithms=["HS256"])
+    def __decode_token(token: str) -> dict:
+        try:
+            token_payload = jwt.decode(
+                token,
+                config.get_secret_key(),
+                algorithms=["HS256"],
+            )
+        except jwt.exceptions.ExpiredSignatureError as e:
+            raise TokenException(f"Token has expired: {token}") from e
+        except jwt.exceptions.InvalidTokenError as e:
+            raise TokenException(f"Invalid token: {token}") from e
+        except Exception as e:
+            raise TokenException(f"Unexpected error when decoding: {token}") from e
         return token_payload
