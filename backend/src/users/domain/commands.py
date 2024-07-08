@@ -15,7 +15,7 @@ class CreateUser(Command):
 class GenerateAuthToken(Command):
     username: str
     password: str
-    exp_time: None | datetime.timedelta
+    token_lifetime: None | datetime.timedelta
 
 
 @dataclass(frozen=True)

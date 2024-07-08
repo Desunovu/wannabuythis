@@ -11,7 +11,7 @@ class TokenManager(abc.ABC):
     @staticmethod
     @abc.abstractmethod
     def generate_token(
-        username: str, exp_time: None | datetime.timedelta = None
+        username: str, token_lifetime: None | datetime.timedelta = None
     ) -> str: ...
 
     @staticmethod
@@ -22,11 +22,11 @@ class TokenManager(abc.ABC):
 class JWTManager(TokenManager):
     @staticmethod
     def generate_token(
-        username: str, exp_time: None | datetime.timedelta = None
+        username: str, token_lifetime: None | datetime.timedelta = None
     ) -> str:
         payload = {"username": username}
-        if exp_time:
-            payload["exp"] = datetime.datetime.now(datetime.UTC) + exp_time
+        if token_lifetime:
+            payload["exp"] = datetime.datetime.now(datetime.UTC) + token_lifetime
         token = jwt.encode(
             payload=payload,
             key=config.get_secret_key(),
