@@ -643,6 +643,17 @@ files = [
 ]
 
 [[package]]
+name = "pathspec"
+version = "0.12.1"
+description = "Utility library for gitignore style pattern matching of file paths."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pathspec-0.12.1-py3-none-any.whl", hash = "sha256:a0d503e138a4c123b27490a4f7beda6a01c6f288df0e4a8b79c7eb0dc7b4cc08"},
+    {file = "pathspec-0.12.1.tar.gz", hash = "sha256:a482d51503a1ab33b1c67a6c3813a26953dbdc71c31dacaef9a838c4e29f5712"},
+]
+
+[[package]]
 name = "pluggy"
 version = "1.5.0"
 description = "plugin and hook calling mechanisms for python"
@@ -1175,6 +1186,20 @@ pymysql = ["pymysql"]
 sqlcipher = ["sqlcipher3_binary"]
 
 [[package]]
+name = "ssort"
+version = "0.13.0"
+description = "The python statement sorter"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "ssort-0.13.0-py3-none-any.whl", hash = "sha256:bb33a64403c3769aec9f5d63f086e4355b6fc1dc62b91e1af6117781fb0b6810"},
+    {file = "ssort-0.13.0.tar.gz", hash = "sha256:a7b35e7725fa93bc6bd82839eb70083cf31bd58545357534288d988a4af8ec4d"},
+]
+
+[package.dependencies]
+pathspec = ">=0.9.0"
+
+[[package]]
 name = "starlette"
 version = "0.37.2"
 description = "The little ASGI library that shines."
@@ -1625,4 +1650,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "2cc4ca2c16c2151c586c44c093ba7461dee8be53b2011dcaad2a1e710dd76492"
+content-hash = "60fb42c02edb6cf9dda7b8d87182355d18eff0d4391ecbfbcf97448a8e4138ed"
