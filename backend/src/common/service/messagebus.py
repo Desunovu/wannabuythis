@@ -25,23 +25,6 @@ class Messagebus:
         self.dependencies = dependencies
         self.queue = []
 
-    def handle(self, message: Command | DomainEvent):
-        """
-        Handles all messages in the queue.
-        This should be the only result, because there should be a single command in the messagebus queue
-        """
-        self.queue = [message]
-        result = None
-        while self.queue:
-            message = self.queue.pop(0)
-            if isinstance(message, Command):
-                result = self._handle_command(message)
-            elif isinstance(message, DomainEvent):
-                self._handle_event(message)
-            else:
-                raise Exception(f"Unknown message type in messagebus: {type(message)}")
-        return result
-
     def _handle_command(self, command: Command) -> Any:
         try:
             command_handler = self.command_handlers[type(command)]
@@ -68,3 +51,20 @@ class Messagebus:
                     f"Failed to handle event {event} by {event_handler.__name__}. Exception: {e}"
                 )
                 continue
+
+    def handle(self, message: Command | DomainEvent):
+        """
+        Handles all messages in the queue.
+        This should be the only result, because there should be a single command in the messagebus queue
+        """
+        self.queue = [message]
+        result = None
+        while self.queue:
+            message = self.queue.pop(0)
+            if isinstance(message, Command):
+                result = self._handle_command(message)
+            elif isinstance(message, DomainEvent):
+                self._handle_event(message)
+            else:
+                raise Exception(f"Unknown message type in messagebus: {type(message)}")
+        return result

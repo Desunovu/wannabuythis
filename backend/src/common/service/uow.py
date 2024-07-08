@@ -13,11 +13,8 @@ class UnitOfWork(abc.ABC):
     def __init__(self):
         self.committed = None  # used only in tests
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        self._rollback()
+    @abc.abstractmethod
+    def _commit(self): ...
 
     def commit(self):
         self._commit()
@@ -29,7 +26,10 @@ class UnitOfWork(abc.ABC):
                     yield aggregate.events.pop(0)
 
     @abc.abstractmethod
-    def _commit(self): ...
-
-    @abc.abstractmethod
     def _rollback(self): ...
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self._rollback()

@@ -33,6 +33,30 @@ ROUTERS = [
 ]
 
 
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    start_sqlalchemy_mappers()
+    yield
+    clear_mappers()
+
+
+def setup_messagebus_dependencies():
+    """Set up dependencies for messagebus based on app environment"""
+
+    notificator = (
+        FakeNotificator() if config.get_env() == "development" else EmailNotificator()
+    )
+
+    dependencies = bootstrap.create_dependencies_dict(
+        uow=SQLAlchemyUnitOfWork(),
+        password_hash_util=HashlibPasswordHashUtil(),
+        uuid_generator=DefaultUUIDGenerator(),
+        token_manager=JWTManager(),
+        notificator=notificator,
+    )
+    return dependencies
+
+
 def create_app():
     app = FastAPI(lifespan=lifespan)
 
@@ -56,30 +80,6 @@ def create_app():
         )
 
     return app
-
-
-@asynccontextmanager
-async def lifespan(application: FastAPI):
-    start_sqlalchemy_mappers()
-    yield
-    clear_mappers()
-
-
-def setup_messagebus_dependencies():
-    """Set up dependencies for messagebus based on app environment"""
-
-    notificator = (
-        FakeNotificator() if config.get_env() == "development" else EmailNotificator()
-    )
-
-    dependencies = bootstrap.create_dependencies_dict(
-        uow=SQLAlchemyUnitOfWork(),
-        password_hash_util=HashlibPasswordHashUtil(),
-        uuid_generator=DefaultUUIDGenerator(),
-        token_manager=JWTManager(),
-        notificator=notificator,
-    )
-    return dependencies
 
 
 app = create_app()

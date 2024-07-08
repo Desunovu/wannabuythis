@@ -25,6 +25,47 @@ EVENT_HANDLERS = {
 }
 
 
+def build_handler_with_injected_dependencies(
+    handler: Callable, dependencies: dict
+) -> Callable:
+    """
+    Builds a new handler function with injected dependencies based on the original handler's required parameters.
+    """
+    params = inspect.signature(handler).parameters
+    dependencies_to_inject = {
+        name: dependencies[name] for name in params if name in dependencies
+    }
+
+    def injected_handler(message):
+        return handler(message, **dependencies_to_inject)
+
+    injected_handler.__name__ = handler.__name__
+
+    return injected_handler
+
+
+def inject_dependencies(
+    command_handlers: dict[type[Command], Callable],
+    event_handlers: dict[type[DomainEvent], list[Callable]],
+    dependencies,
+):
+    """
+    Inject dependencies into command and event handlers. Returns a tuple containing the injected command handlers and injected event handlers.
+    """
+    injected_command_handlers = {
+        command_type: build_handler_with_injected_dependencies(handler, dependencies)
+        for command_type, handler in command_handlers.items()
+    }
+    injected_event_handlers = {
+        event_type: [
+            build_handler_with_injected_dependencies(handler, dependencies)
+            for handler in handlers
+        ]
+        for event_type, handlers in event_handlers.items()
+    }
+    return injected_command_handlers, injected_event_handlers
+
+
 def initialize_messagebus(dependencies: dict[str, Any]) -> Messagebus:
     """Prepares handlers with injected dependencies and returns a configured Messagebus instance."""
 
@@ -60,44 +101,3 @@ def create_dependencies_dict(
         "token_manager": token_manager,
         "notificator": notificator,
     }
-
-
-def inject_dependencies(
-    command_handlers: dict[type[Command], Callable],
-    event_handlers: dict[type[DomainEvent], list[Callable]],
-    dependencies,
-):
-    """
-    Inject dependencies into command and event handlers. Returns a tuple containing the injected command handlers and injected event handlers.
-    """
-    injected_command_handlers = {
-        command_type: build_handler_with_injected_dependencies(handler, dependencies)
-        for command_type, handler in command_handlers.items()
-    }
-    injected_event_handlers = {
-        event_type: [
-            build_handler_with_injected_dependencies(handler, dependencies)
-            for handler in handlers
-        ]
-        for event_type, handlers in event_handlers.items()
-    }
-    return injected_command_handlers, injected_event_handlers
-
-
-def build_handler_with_injected_dependencies(
-    handler: Callable, dependencies: dict
-) -> Callable:
-    """
-    Builds a new handler function with injected dependencies based on the original handler's required parameters.
-    """
-    params = inspect.signature(handler).parameters
-    dependencies_to_inject = {
-        name: dependencies[name] for name in params if name in dependencies
-    }
-
-    def injected_handler(message):
-        return handler(message, **dependencies_to_inject)
-
-    injected_handler.__name__ = handler.__name__
-
-    return injected_handler
