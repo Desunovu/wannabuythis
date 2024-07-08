@@ -5,7 +5,7 @@ from src.users.domain.model import User
 
 
 def get_user_by_username(session: Session, username: str) -> User:
-    user = session.query(User).filter(User.username == username).first()
-    if not user:
+    user = session.get(User, username)
+    if user is None:
         raise UserNotFound(username)
     return user
