@@ -4,7 +4,6 @@ from src.common.dependencies.password_hash_util import PasswordHashUtil
 from src.common.dependencies.token_manager import TokenManager
 from src.common.domain.commands import Command
 from src.common.service.exceptions import (
-    UserNotFound,
     UserExists,
     PasswordValidationError,
     PasswordVerificationError,
@@ -56,8 +55,6 @@ def handle_generate_auth_token(
 ):
     with uow:
         user = uow.user_repository.get(command.username)
-    if not user:
-        raise UserNotFound(username=command.username)
     if not user.is_active:
         raise UserNotActive(username=command.username)
     if not password_hash_util.verify_password(
@@ -79,8 +76,6 @@ def handle_change_password(
 ):
     with uow:
         user = uow.user_repository.get(command.username)
-        if not user:
-            raise UserNotFound(command.username)
         if not User.validate_password(command.new_password):
             raise PasswordValidationError()
         if not command.called_by_admin:
@@ -97,8 +92,6 @@ def handle_change_password(
 def handle_change_user_email(command: ChangeEmail, uow: UnitOfWork):
     with uow:
         user = uow.user_repository.get(command.username)
-        if not user:
-            raise UserNotFound(command.username)
         user.change_email(command.new_email)
         uow.commit()
 
@@ -106,8 +99,6 @@ def handle_change_user_email(command: ChangeEmail, uow: UnitOfWork):
 def handle_activate_user(command: ActivateUser, uow: UnitOfWork):
     with uow:
         user = uow.user_repository.get(command.username)
-        if not user:
-            raise UserNotFound(command.username)
         if user.is_active:
             raise UserAlreadyActive(command.username)
         user.activate()
@@ -120,8 +111,6 @@ def handle_activate_user_with_token(
     username = token_manager.get_username_from_token(command.token)
     with uow:
         user = uow.user_repository.get(username)
-        if not user:
-            raise UserNotFound(username)
         if user.is_active:
             raise UserAlreadyActive(username)
         user.activate()
@@ -137,8 +126,6 @@ def handle_resend_activation_link(
 ):
     with uow:
         user = uow.user_repository.get(command.username)
-        if not user:
-            raise UserNotFound(command.username)
         if not password_hash_util.verify_password(
             password=command.password, password_hash=user.password_hash
         ):
@@ -158,8 +145,6 @@ def handle_resend_activation_link(
 def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
     with uow:
         user = uow.user_repository.get(command.username)
-        if not user:
-            raise UserNotFound(command.username)
         if not user.is_active:
             raise UserAlreadyDeactivated(command.username)
         user.deactivate()
