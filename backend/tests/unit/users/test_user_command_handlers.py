@@ -4,24 +4,24 @@ import pytest
 
 from src.common.dependencies.token_manager import TokenManager
 from src.common.service.exceptions import (
-    UserExists,
-    UserNotFound,
-    PasswordVerificationError,
     PasswordValidationError,
+    PasswordVerificationError,
+    TokenException,
     UserAlreadyActive,
     UserAlreadyDeactivated,
+    UserExists,
     UserNotActive,
-    TokenException,
+    UserNotFound,
 )
 from src.users.domain.commands import (
-    CreateUser,
-    ChangePassword,
-    ChangeEmail,
     ActivateUser,
-    DeactivateUser,
-    ResendActivationLink,
-    GenerateAuthToken,
     ActivateUserWithToken,
+    ChangeEmail,
+    ChangePassword,
+    CreateUser,
+    DeactivateUser,
+    GenerateAuthToken,
+    ResendActivationLink,
 )
 
 

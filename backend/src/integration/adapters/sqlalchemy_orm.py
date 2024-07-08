@@ -1,14 +1,14 @@
 from sqlalchemy import (
-    Table,
+    Boolean,
     Column,
+    DateTime,
+    Enum,
+    ForeignKey,
     Integer,
     String,
-    ForeignKey,
+    Table,
     Uuid,
-    Boolean,
     event,
-    Enum,
-    DateTime,
 )
 from sqlalchemy.orm import registry, relationship
 

@@ -3,10 +3,10 @@ from src.common.dependencies.token_manager import TokenManager
 from src.common.domain.events import DomainEvent
 from src.common.service.uow import UnitOfWork
 from src.users.domain.events import (
-    UserCreated,
-    PasswordChanged,
     EmailChanged,
+    PasswordChanged,
     UserActivated,
+    UserCreated,
     UserDeactivated,
 )
 from src.users.service.handlers_utils import send_notification_with_activation_link

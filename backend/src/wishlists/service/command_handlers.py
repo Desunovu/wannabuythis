@@ -1,24 +1,22 @@
 from src.common.dependencies.uuid_generator import UUIDGenerator
 from src.common.domain.commands import Command
 from src.common.service.exceptions import (
-    WishlistItemNotFound,
     WishlistAlreadyArchived,
+    WishlistItemNotFound,
     WishlistNotArchived,
 )
 from src.common.service.uow import UnitOfWork
 from src.wishlists.domain.commands import (
-    CreateWishlist,
-    ChangeWishlistName,
     AddWishlistItem,
+    ArchiveWishlist,
+    ChangeWishlistName,
+    CreateWishlist,
     RemoveWishlistItem,
     SetWishlistItemStatus,
-    ArchiveWishlist,
     UnarchiveWishlist,
 )
-from src.wishlists.domain.events import (
-    WishlistNameChanged,
-)
-from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
+from src.wishlists.domain.events import WishlistNameChanged
+from src.wishlists.domain.model import MeasurementUnit, Priority, Wishlist, WishlistItem
 
 
 def handle_create_wishlist(

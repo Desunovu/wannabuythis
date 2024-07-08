@@ -1,12 +1,12 @@
 from src.common.domain.events import DomainEvent
 from src.wishlists.domain.events import (
-    WishlistCreated,
-    WishlistNameChanged,
-    WishlistItemAdded,
-    WishlistItemRemoved,
-    WishlistItemMarkedAsPurchased,
-    WishlistItemMarkedAsNotPurchased,
     WishlistArchived,
+    WishlistCreated,
+    WishlistItemAdded,
+    WishlistItemMarkedAsNotPurchased,
+    WishlistItemMarkedAsPurchased,
+    WishlistItemRemoved,
+    WishlistNameChanged,
     WishlistUnarchived,
 )
 

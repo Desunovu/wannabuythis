@@ -1,5 +1,5 @@
 import abc
-from typing import Generic, TypeVar, Optional
+from typing import Generic, Optional, TypeVar
 
 from src.common.domain.aggregates import AggregateRoot
 

@@ -8,14 +8,14 @@ from starlette.status import HTTP_200_OK
 from src import config
 from src.common.entrypoints.fastapi_limiter import limiter
 from src.users.domain.commands import (
-    CreateUser,
-    ResendActivationLink,
-    GenerateAuthToken,
     ActivateUserWithToken,
+    CreateUser,
+    GenerateAuthToken,
+    ResendActivationLink,
 )
 from src.users.entrypoints.fastapi._pydantic_models import (
-    LoginUserResponse,
     CreateUserResponse,
+    LoginUserResponse,
 )
 
 users_auth_router = APIRouter(tags=["auth"])

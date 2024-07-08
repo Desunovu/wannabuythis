@@ -5,13 +5,13 @@ from starlette.status import HTTP_200_OK
 from src.common.entrypoints.fastapi_dependencies import CurrentAdminDependency
 from src.users.domain.commands import (
     ActivateUser,
-    DeactivateUser,
-    ChangePassword,
     ChangeEmail,
+    ChangePassword,
+    DeactivateUser,
 )
 from src.users.entrypoints.fastapi._pydantic_models import (
-    ChangePasswordByAdminRequest,
     ChangeEmailByAdminRequest,
+    ChangePasswordByAdminRequest,
 )
 
 users_admin_router = APIRouter(prefix="/admin/users", tags=["admin_user_commands"])

@@ -2,13 +2,11 @@ from fastapi import APIRouter
 from starlette.requests import Request
 from starlette.status import HTTP_200_OK
 
-from src.common.entrypoints.fastapi_dependencies import (
-    CurrentUserDependency,
-)
-from src.users.domain.commands import ChangePassword, ChangeEmail
+from src.common.entrypoints.fastapi_dependencies import CurrentUserDependency
+from src.users.domain.commands import ChangeEmail, ChangePassword
 from src.users.entrypoints.fastapi._pydantic_models import (
-    ChangePasswordByUserRequest,
     ChangeEmailByUserRequest,
+    ChangePasswordByUserRequest,
 )
 
 users_command_router = APIRouter(prefix="/users", tags=["user_commands"])
