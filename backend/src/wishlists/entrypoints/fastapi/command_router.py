@@ -9,18 +9,18 @@ from src.common.entrypoints.fastapi_dependencies import (
     WishlistOwnerDependency,
 )
 from src.wishlists.domain.commands import (
-    CreateWishlist,
-    ChangeWishlistName,
-    ArchiveWishlist,
-    UnarchiveWishlist,
     AddWishlistItem,
+    ArchiveWishlist,
+    ChangeWishlistName,
+    CreateWishlist,
     RemoveWishlistItem,
     SetWishlistItemStatus,
+    UnarchiveWishlist,
 )
 from src.wishlists.entrypoints.fastapi._pydantic_models import (
-    CreateWishlistRequest,
-    ChangeWishlistNameRequest,
     AddWishlistItemRequest,
+    ChangeWishlistNameRequest,
+    CreateWishlistRequest,
     RemoveWishlistItemRequest,
     SetWishlistItemStatusRequest,
 )

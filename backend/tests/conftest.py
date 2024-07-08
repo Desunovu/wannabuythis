@@ -1,8 +1,8 @@
 from uuid import uuid4
 
 import pytest
-from sqlalchemy import create_engine, StaticPool
-from sqlalchemy.orm import sessionmaker, clear_mappers
+from sqlalchemy import StaticPool, create_engine
+from sqlalchemy.orm import clear_mappers, sessionmaker
 
 from src import bootstrap
 from src.common.dependencies.password_hash_util import HashlibPasswordHashUtil
@@ -14,8 +14,8 @@ from src.integration.adapters.sqlalchemy_orm import (
 )
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.users.domain.model import User
-from src.wishlists.domain.model import Wishlist, MeasurementUnit, Priority, WishlistItem
-from tests.fakes import FakeUnitOfWork, FakeNotificator
+from src.wishlists.domain.model import MeasurementUnit, Priority, Wishlist, WishlistItem
+from tests.fakes import FakeNotificator, FakeUnitOfWork
 
 
 @pytest.fixture

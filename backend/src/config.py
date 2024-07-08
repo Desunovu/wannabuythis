@@ -1,5 +1,5 @@
-import os
 import datetime
+import os
 
 
 def get_postgres_uri() -> str:

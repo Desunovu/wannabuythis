@@ -1,18 +1,18 @@
 from fastapi import HTTPException
 from starlette.requests import Request
 from starlette.status import (
-    HTTP_404_NOT_FOUND,
-    HTTP_409_CONFLICT,
     HTTP_401_UNAUTHORIZED,
     HTTP_403_FORBIDDEN,
+    HTTP_404_NOT_FOUND,
+    HTTP_409_CONFLICT,
 )
 
 from src.common.service.exceptions import (
-    NotFoundException,
     ConflictException,
-    VerificationException,
     Forbidden,
+    NotFoundException,
     TokenException,
+    VerificationException,
 )
 
 

@@ -3,27 +3,25 @@ from src.common.dependencies.password_hash_util import PasswordHashUtil
 from src.common.dependencies.token_manager import TokenManager
 from src.common.domain.commands import Command
 from src.common.service.exceptions import (
-    UserExists,
     PasswordValidationError,
     PasswordVerificationError,
-    UserAlreadyDeactivated,
     UserAlreadyActive,
+    UserAlreadyDeactivated,
+    UserExists,
     UserNotActive,
 )
 from src.common.service.uow import UnitOfWork
 from src.users.domain.commands import (
-    CreateUser,
-    ChangePassword,
-    DeactivateUser,
     ActivateUser,
-    ChangeEmail,
-    ResendActivationLink,
-    GenerateAuthToken,
     ActivateUserWithToken,
+    ChangeEmail,
+    ChangePassword,
+    CreateUser,
+    DeactivateUser,
+    GenerateAuthToken,
+    ResendActivationLink,
 )
-from src.users.domain.events import (
-    PasswordChanged,
-)
+from src.users.domain.events import PasswordChanged
 from src.users.domain.model import User
 from src.users.service.handlers_utils import (
     check_user_exists,

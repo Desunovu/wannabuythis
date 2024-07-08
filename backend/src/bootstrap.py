@@ -1,5 +1,5 @@
 import inspect
-from typing import Callable, Any
+from typing import Any, Callable
 
 from src.common.dependencies.notificator import Notificator
 from src.common.dependencies.password_hash_util import PasswordHashUtil
@@ -10,13 +10,9 @@ from src.common.domain.events import DomainEvent
 from src.common.logger import setup_logging
 from src.common.service.messagebus import Messagebus
 from src.common.service.uow import UnitOfWork
-from src.users.service.command_handlers import (
-    USER_COMMAND_HANDLERS,
-)
+from src.users.service.command_handlers import USER_COMMAND_HANDLERS
 from src.users.service.event_handlers import USER_EVENT_HANDLERS
-from src.wishlists.service.command_handlers import (
-    WISHLIST_COMMAND_HANDLERS,
-)
+from src.wishlists.service.command_handlers import WISHLIST_COMMAND_HANDLERS
 from src.wishlists.service.event_handlers import WISHLIST_EVENT_HANDLERS
 
 COMMAND_HANDLERS = {

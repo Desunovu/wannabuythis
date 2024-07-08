@@ -4,9 +4,7 @@ from fastapi import APIRouter
 from starlette.requests import Request
 
 from src.common.entrypoints.fastapi_dependencies import CurrentUserDependency
-from src.wishlists.entrypoints.fastapi._pydantic_models import (
-    WishlistResponse,
-)
+from src.wishlists.entrypoints.fastapi._pydantic_models import WishlistResponse
 from src.wishlists.queries import wishlist_queries
 
 wishlists_query_router = APIRouter(prefix="/wishlists", tags=["wishlist_queries"])

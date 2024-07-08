@@ -1,20 +1,20 @@
 import enum
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from uuid import UUID
 
 from src.common.domain.aggregates import AggregateRoot
 from src.common.domain.entities import Entity
 from src.common.service.exceptions import WishlistItemNotFound
 from src.wishlists.domain.events import (
-    WishlistNameChanged,
-    WishlistItemAdded,
-    WishlistItemRemoved,
-    WishlistItemMarkedAsPurchased,
-    WishlistItemMarkedAsNotPurchased,
-    WishlistUnarchived,
     WishlistArchived,
     WishlistCreated,
+    WishlistItemAdded,
+    WishlistItemMarkedAsNotPurchased,
+    WishlistItemMarkedAsPurchased,
+    WishlistItemRemoved,
+    WishlistNameChanged,
+    WishlistUnarchived,
 )
 
 

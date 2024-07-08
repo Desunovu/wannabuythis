@@ -2,11 +2,11 @@ from dataclasses import dataclass, field
 
 from src.common.domain.aggregates import AggregateRoot
 from src.users.domain.events import (
-    PasswordChanged,
-    UserDeactivated,
     EmailChanged,
+    PasswordChanged,
     UserActivated,
     UserCreated,
+    UserDeactivated,
 )
 
 
