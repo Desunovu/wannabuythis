@@ -1,3 +1,4 @@
+from src import config
 from src.common.dependencies.notificator import Notificator
 from src.common.dependencies.token_manager import TokenManager
 from src.common.domain.events import DomainEvent
@@ -18,9 +19,9 @@ def handle_user_created(
     token_manager: TokenManager,
 ):
     user = uow.user_repository.get(event.username)
-    # TODO set activation token expiration time from config
+    token_lifetime = config.get_activation_token_lifetime()
     activation_token = token_manager.generate_token(
-        username=event.username, exp_time=None
+        username=event.username, token_lifetime=token_lifetime
     )
     notificator.send_activation_link(recipient=user, activation_token=activation_token)
 

@@ -1,3 +1,4 @@
+from src import config
 from src.common.dependencies.notificator import Notificator
 from src.common.dependencies.password_hash_util import PasswordHashUtil
 from src.common.dependencies.token_manager import TokenManager
@@ -65,7 +66,7 @@ def handle_generate_auth_token(
         raise PasswordVerificationError
 
     token = token_manager.generate_token(
-        username=user.username, exp_time=command.exp_time
+        username=user.username, token_lifetime=command.token_lifetime
     )
 
     return token
@@ -144,10 +145,10 @@ def handle_resend_activation_link(
             raise PasswordVerificationError
         if user.is_active:
             raise UserAlreadyActive(command.username)
-        # TODO set activation token expiration time from config
+        token_lifetime = config.get_activation_token_lifetime()
         # TODO maybe dry this code, because it's similar to the handle_user_created
         activation_token = token_manager.generate_token(
-            username=user.username, exp_time=None
+            username=user.username, token_lifetime=token_lifetime
         )
         notificator.send_activation_link(
             recipient=user, activation_token=activation_token

@@ -1,4 +1,3 @@
-import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -6,6 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from starlette.requests import Request
 from starlette.status import HTTP_200_OK
 
+from src import config
 from src.common.entrypoints.fastapi_limiter import limiter
 from src.users.domain.commands import (
     CreateUser,
@@ -23,10 +23,11 @@ users_auth_router = APIRouter(tags=["auth"])
 
 @users_auth_router.post("/login", response_model=LoginUserResponse)
 def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], request: Request):
+    token_lifetime = config.get_auth_token_lifetime()
     command = GenerateAuthToken(
         username=form_data.username,
         password=form_data.password,
-        exp_time=datetime.timedelta(minutes=5),  # TODO add expiration time from config
+        token_lifetime=token_lifetime,
     )
     auth_token = request.app.state.messagebus.handle(command)
     return {"access_token": auth_token, "token_type": "bearer"}

@@ -67,7 +67,7 @@ class TestGenerateAuthToken:
             GenerateAuthToken(
                 username=user.username,
                 password=valid_password,
-                exp_time=datetime.timedelta(minutes=1),
+                token_lifetime=datetime.timedelta(minutes=1),
             )
         )
         assert token
@@ -78,7 +78,7 @@ class TestGenerateAuthToken:
                 GenerateAuthToken(
                     username="non-existing-user",
                     password="password",
-                    exp_time=datetime.timedelta(minutes=1),
+                    token_lifetime=datetime.timedelta(minutes=1),
                 )
             )
 
@@ -91,7 +91,7 @@ class TestGenerateAuthToken:
                 GenerateAuthToken(
                     username=deactivated_user.username,
                     password=valid_password,
-                    exp_time=datetime.timedelta(minutes=1),
+                    token_lifetime=datetime.timedelta(minutes=1),
                 )
             )
 
@@ -102,7 +102,7 @@ class TestGenerateAuthToken:
                 GenerateAuthToken(
                     username=user.username,
                     password="wrong-password",
-                    exp_time=datetime.timedelta(minutes=1),
+                    token_lifetime=datetime.timedelta(minutes=1),
                 )
             )
 
@@ -206,7 +206,7 @@ class TestActivateUserWithToken:
         token_manager: TokenManager = messagebus.dependencies["token_manager"]
         token = token_manager.generate_token(
             username=deactivated_user.username,
-            exp_time=datetime.timedelta(minutes=1),
+            token_lifetime=datetime.timedelta(minutes=1),
         )
         messagebus.handle(ActivateUserWithToken(token=token))
         assert deactivated_user.is_active
@@ -224,7 +224,7 @@ class TestActivateUserWithToken:
         token_manager: TokenManager = messagebus.dependencies["token_manager"]
         token = token_manager.generate_token(
             username=activated_user.username,
-            exp_time=datetime.timedelta(minutes=1),
+            token_lifetime=datetime.timedelta(minutes=1),
         )
         with pytest.raises(UserAlreadyActive):
             messagebus.handle(ActivateUserWithToken(token=token))

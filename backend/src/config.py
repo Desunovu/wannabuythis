@@ -1,4 +1,5 @@
 import os
+import datetime
 
 
 def get_postgres_uri() -> str:
@@ -29,3 +30,13 @@ def get_env() -> str:
 
 def get_base_url() -> str:
     return os.environ.get("BASE_URL", "http://localhost:8000")
+
+
+def get_auth_token_lifetime() -> datetime.timedelta:
+    token_lifetime_in_hours = os.environ.get("TOKEN_LIFETIME_IN_HOURS", "24")
+    return datetime.timedelta(hours=int(token_lifetime_in_hours))
+
+
+def get_activation_token_lifetime() -> datetime.timedelta:
+    token_lifetime_in_hours = os.environ.get("ACTIVATION_TOKEN_LIFETIME_IN_HOURS", "24")
+    return datetime.timedelta(hours=int(token_lifetime_in_hours))
