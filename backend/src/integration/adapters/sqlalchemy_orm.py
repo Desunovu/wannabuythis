@@ -20,8 +20,7 @@ mapper_registry = registry()
 users = Table(
     "users",
     mapper_registry.metadata,
-    Column("id", Integer, primary_key=True),
-    Column("username", String, unique=True),
+    Column("username", String, primary_key=True),
     Column("email", String, unique=True),
     Column("password_hash", String),
     Column("is_active", Boolean),
@@ -31,8 +30,7 @@ users = Table(
 wishlists = Table(
     "wishlists",
     mapper_registry.metadata,
-    Column("id", Integer, primary_key=True),
-    Column("uuid", Uuid, unique=True),
+    Column("uuid", Uuid, primary_key=True),
     Column(
         "owner_username",
         String,
@@ -47,8 +45,7 @@ wishlists = Table(
 wishlist_items = Table(
     "wishlist_items",
     mapper_registry.metadata,
-    Column("id", Integer, primary_key=True),
-    Column("uuid", Uuid, unique=True),
+    Column("uuid", Uuid, primary_key=True),
     Column(
         "wishlist_uuid",
         Uuid,
@@ -74,7 +71,7 @@ def start_sqlalchemy_mappers():
         properties={
             "items": relationship(
                 wishlist_domain_model.WishlistItem,
-                order_by=wishlist_items.c.id,
+                order_by=wishlist_items.c.uuid,
                 lazy="dynamic",
                 cascade="all, delete-orphan",
             )
