@@ -60,6 +60,12 @@ wishlist_items = Table(
 )
 
 
+def add_events_field_listener(aggregate):
+    @event.listens_for(aggregate, "load")
+    def add_events_field(target, context):
+        target.events = []
+
+
 def start_sqlalchemy_mappers():
     # Users context
     mapper_registry.map_imperatively(user_domain_model.User, users)
@@ -86,9 +92,3 @@ def start_sqlalchemy_mappers():
     ]
     for aggregate in aggregates:
         add_events_field_listener(aggregate)
-
-
-def add_events_field_listener(aggregate):
-    @event.listens_for(aggregate, "load")
-    def add_events_field(target, context):
-        target.events = []

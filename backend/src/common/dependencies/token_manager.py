@@ -34,11 +34,6 @@ class JWTManager(TokenManager):
         )
         return token
 
-    @classmethod
-    def get_username_from_token(cls, token: str) -> str:
-        token_payload = cls.__decode_token(token)
-        return token_payload["username"]
-
     @staticmethod
     def __decode_token(token: str) -> dict:
         try:
@@ -54,3 +49,8 @@ class JWTManager(TokenManager):
         except Exception as e:
             raise TokenException(f"Unexpected error when decoding: {token}") from e
         return token_payload
+
+    @classmethod
+    def get_username_from_token(cls, token: str) -> str:
+        token_payload = cls.__decode_token(token)
+        return token_payload["username"]
