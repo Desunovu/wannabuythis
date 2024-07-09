@@ -15,7 +15,6 @@ from src.wishlists.domain.commands import (
     SetWishlistItemStatus,
     UnarchiveWishlist,
 )
-from src.wishlists.domain.events import WishlistNameChanged
 from src.wishlists.domain.model import MeasurementUnit, Priority, Wishlist, WishlistItem
 
 
@@ -40,7 +39,6 @@ def handle_change_wishlist_name(command: ChangeWishlistName, uow: UnitOfWork):
     with uow:
         wishlist = uow.wishlist_repository.get(command.uuid)
         wishlist.change_name(command.new_name)
-        wishlist.add_event(WishlistNameChanged(wishlist.uuid, wishlist.name))
         uow.commit()
 
 

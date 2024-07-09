@@ -7,5 +7,5 @@ from src.common.domain.events import DomainEvent
 class AggregateRoot:
     events: list[DomainEvent] = field(default_factory=list, compare=False)
 
-    def add_event(self, event: DomainEvent):
+    def _add_event(self, event: DomainEvent):
         self.events.append(event)
