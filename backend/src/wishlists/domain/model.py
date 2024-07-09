@@ -78,22 +78,21 @@ class Wishlist(AggregateRoot):
             )
         )
 
-    def find_item(self, item_uuid: UUID):
-        return next((item for item in self.items if item.uuid == item_uuid), None)
+    def __find_item(self, item_uuid: UUID):
+        try:
+            return next(item for item in self.items if item.uuid == item_uuid)
+        except StopIteration:
+            raise WishlistItemNotFound(item_uuid)
 
     def remove_item(self, item_uuid: UUID):
-        item = self.find_item(item_uuid)
-        if item is None:
-            raise WishlistItemNotFound(item_uuid)
+        item = self.__find_item(item_uuid)
         self.items.remove(item)
         self.add_event(
             WishlistItemRemoved(item_uuid=item_uuid, wishlist_uuid=self.uuid)
         )
 
     def set_item_status(self, item_uuid: UUID, is_purchased: bool):
-        item = self.find_item(item_uuid)
-        if item is None:
-            raise WishlistItemNotFound(item_uuid)
+        item = self.__find_item(item_uuid)
         item.is_purchased = is_purchased
         event = (
             WishlistItemMarkedAsPurchased(item_uuid=item_uuid, wishlist_uuid=self.uuid)
