@@ -19,7 +19,7 @@ class User(AggregateRoot):
     is_superuser: bool = field(default=False)
 
     def __post_init__(self):
-        self.add_event(UserCreated(username=self.username, email=self.email))
+        self._add_event(UserCreated(username=self.username, email=self.email))
 
     @staticmethod
     def validate_password(new_password: str) -> bool:
@@ -37,16 +37,16 @@ class User(AggregateRoot):
     def change_password_hash(self, password_hash: str):
         """Setter for password hash"""
         self.password_hash = password_hash
-        self.add_event(PasswordChanged(self.username))
+        self._add_event(PasswordChanged(self.username))
 
     def change_email(self, email: str):
         self.email = email
-        self.add_event(EmailChanged(self.username))
+        self._add_event(EmailChanged(self.username))
 
     def activate(self):
         self.is_active = True
-        self.add_event(UserActivated(self.username))
+        self._add_event(UserActivated(self.username))
 
     def deactivate(self):
         self.is_active = False
-        self.add_event(UserDeactivated(self.username))
+        self._add_event(UserDeactivated(self.username))

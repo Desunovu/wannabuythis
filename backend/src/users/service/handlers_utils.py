@@ -1,7 +1,6 @@
 from src import config
 from src.common.service.exceptions import PasswordValidationError, UserNotFound
 from src.common.service.uow import UnitOfWork
-from src.users.domain.events import PasswordChanged
 from src.users.domain.model import User
 
 
@@ -26,4 +25,3 @@ def change_user_password(user, new_password, password_hash_util):
         raise PasswordValidationError
     new_password_hash = password_hash_util.hash_password(new_password)
     user.change_password_hash(new_password_hash)
-    user.add_event(PasswordChanged(user.username))

@@ -51,23 +51,23 @@ class Wishlist(AggregateRoot):
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def __post_init__(self):
-        self.add_event(WishlistCreated(uuid=self.uuid, name=self.name))
+        self._add_event(WishlistCreated(uuid=self.uuid, name=self.name))
 
     def change_name(self, name: str):
         self.name = name
-        self.add_event(WishlistNameChanged(self.uuid, self.name))
+        self._add_event(WishlistNameChanged(self.uuid, self.name))
 
     def archive(self):
         self.is_archived = True
-        self.add_event(WishlistArchived(self.uuid))
+        self._add_event(WishlistArchived(self.uuid))
 
     def unarchive(self):
         self.is_archived = False
-        self.add_event(WishlistUnarchived(self.uuid))
+        self._add_event(WishlistUnarchived(self.uuid))
 
     def add_item(self, item: WishlistItem):
         self.items.append(item)
-        self.add_event(
+        self._add_event(
             WishlistItemAdded(
                 item_uuid=item.uuid,
                 wishlist_uuid=self.uuid,
@@ -87,7 +87,7 @@ class Wishlist(AggregateRoot):
     def remove_item(self, item_uuid: UUID):
         item = self.__find_item(item_uuid)
         self.items.remove(item)
-        self.add_event(
+        self._add_event(
             WishlistItemRemoved(item_uuid=item_uuid, wishlist_uuid=self.uuid)
         )
 
@@ -101,4 +101,4 @@ class Wishlist(AggregateRoot):
                 item_uuid=item_uuid, wishlist_uuid=self.uuid
             )
         )
-        self.add_event(event)
+        self._add_event(event)
