@@ -17,7 +17,8 @@ from src.users.domain.commands import (
     ActivateUser,
     ActivateUserWithToken,
     ChangeEmail,
-    ChangePassword,
+    ChangePasswordWithOldPassword,
+    ChangePasswordWithoutOldPassword,
     CreateUser,
     DeactivateUser,
     GenerateAuthToken,
@@ -111,13 +112,13 @@ class TestChangePassword:
     def test_change_password_by_admin(self, messagebus, user, valid_new_password):
         messagebus.uow.user_repository.add(user)
         old_password_hash = user.password_hash
-        messagebus.handle(
-            ChangePassword(
-                username=user.username,
-                new_password=valid_new_password,
-                called_by_admin=True,
-            )
+        command = ChangePasswordWithoutOldPassword(
+            username=user.username,
+            new_password=valid_new_password,
         )
+
+        messagebus.handle(command)
+
         assert user.password_hash != old_password_hash
 
     def test_change_password_by_user(
@@ -125,48 +126,63 @@ class TestChangePassword:
     ):
         messagebus.uow.user_repository.add(user)
         old_password_hash = user.password_hash
-        messagebus.handle(
-            ChangePassword(
-                username=user.username,
-                new_password=valid_new_password,
-                old_password=valid_password,
-            )
+        command = ChangePasswordWithOldPassword(
+            username=user.username,
+            new_password=valid_new_password,
+            old_password=valid_password,
         )
+
+        messagebus.handle(command)
+
         assert user.password_hash != old_password_hash
 
-    def test_change_password_non_existing_user(self, messagebus, valid_new_password):
-        with pytest.raises(UserNotFound):
-            messagebus.handle(
-                ChangePassword(
-                    username="non-existing-user",
-                    new_password=valid_new_password,
-                    called_by_admin=True,
-                )
-            )
+    def test_change_password_non_existing_user(
+        self, messagebus, valid_password, valid_new_password
+    ):
+        command_for_admin = ChangePasswordWithoutOldPassword(
+            username="non-existing-user",
+            new_password=valid_new_password,
+        )
+        command_for_user = ChangePasswordWithOldPassword(
+            username="non-existing-user",
+            new_password=valid_new_password,
+            old_password=valid_password,
+        )
+        
+        for command in [command_for_admin, command_for_user]:
+            with pytest.raises(UserNotFound):
+                messagebus.handle(command)
 
     def test_change_password_wrong_old_password(
         self, messagebus, user, invalid_password, valid_new_password
     ):
         messagebus.uow.user_repository.add(user)
+        command = ChangePasswordWithOldPassword(
+            username=user.username,
+            new_password=valid_new_password,
+            old_password=invalid_password,
+        )
+        
         with pytest.raises(PasswordVerificationError):
-            messagebus.handle(
-                ChangePassword(
-                    username=user.username,
-                    new_password=valid_new_password,
-                    old_password=invalid_password,
-                )
-            )
+            messagebus.handle(command)
 
-    def test_change_password_invalid_password(self, messagebus, user, invalid_password):
+    def test_change_password_invalid_password(
+        self, messagebus, user, invalid_password, valid_password
+    ):
         messagebus.uow.user_repository.add(user)
-        with pytest.raises(PasswordValidationError):
-            messagebus.handle(
-                ChangePassword(
-                    username=user.username,
-                    new_password=invalid_password,
-                    called_by_admin=True,
-                )
-            )
+        command_for_admin = ChangePasswordWithoutOldPassword(
+            username=user.username,
+            new_password=invalid_password,
+        )
+        command_for_user = ChangePasswordWithOldPassword(
+            username=user.username,
+            new_password=invalid_password,
+            old_password=valid_password,
+        )
+        
+        for command in [command_for_admin, command_for_user]:
+            with pytest.raises(PasswordValidationError):
+                messagebus.handle(command)
 
 
 class TestChangeEmail:

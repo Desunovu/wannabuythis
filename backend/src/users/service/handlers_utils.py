@@ -1,6 +1,8 @@
 from src import config
-from src.common.service.exceptions import UserNotFound
+from src.common.service.exceptions import PasswordValidationError, UserNotFound
 from src.common.service.uow import UnitOfWork
+from src.users.domain.events import PasswordChanged
+from src.users.domain.model import User
 
 
 def check_user_exists(username: str, uow: UnitOfWork) -> bool:
@@ -17,3 +19,11 @@ def send_notification_with_activation_link(notificator, token_manager, user):
         username=user.username, token_lifetime=token_lifetime
     )
     notificator.send_activation_link(recipient=user, activation_token=activation_token)
+
+
+def change_user_password(user, new_password, password_hash_util):
+    if not User.validate_password(new_password):
+        raise PasswordValidationError
+    new_password_hash = password_hash_util.hash_password(new_password)
+    user.change_password_hash(new_password_hash)
+    user.add_event(PasswordChanged(user.username))

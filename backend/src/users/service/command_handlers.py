@@ -15,15 +15,16 @@ from src.users.domain.commands import (
     ActivateUser,
     ActivateUserWithToken,
     ChangeEmail,
-    ChangePassword,
+    ChangePasswordWithOldPassword,
+    ChangePasswordWithoutOldPassword,
     CreateUser,
     DeactivateUser,
     GenerateAuthToken,
     ResendActivationLink,
 )
-from src.users.domain.events import PasswordChanged
 from src.users.domain.model import User
 from src.users.service.handlers_utils import (
+    change_user_password,
     check_user_exists,
     send_notification_with_activation_link,
 )
@@ -67,23 +68,35 @@ def handle_generate_auth_token(
     return token
 
 
-def handle_change_password(
-    command: ChangePassword,
+def handle_change_password_without_old_password(
+    command: ChangePasswordWithoutOldPassword, uow: UnitOfWork, password_hash_util
+):
+    with uow:
+        user = uow.user_repository.get(command.username)
+        change_user_password(
+            user=user,
+            new_password=command.new_password,
+            password_hash_util=password_hash_util,
+        )
+        uow.commit()
+
+
+def handle_change_password_with_old_password(
+    command: ChangePasswordWithOldPassword,
     uow: UnitOfWork,
     password_hash_util: PasswordHashUtil,
 ):
     with uow:
         user = uow.user_repository.get(command.username)
-        if not User.validate_password(command.new_password):
-            raise PasswordValidationError()
-        if not command.called_by_admin:
-            if not password_hash_util.verify_password(
-                password=command.old_password, password_hash=user.password_hash
-            ):
-                raise PasswordVerificationError()
-        new_password_hash = password_hash_util.hash_password(command.new_password)
-        user.change_password_hash(new_password_hash)
-        user.add_event(PasswordChanged(user.username))
+        if not password_hash_util.verify_password(
+            password=command.old_password, password_hash=user.password_hash
+        ):
+            raise PasswordVerificationError
+        change_user_password(
+            user=user,
+            new_password=command.new_password,
+            password_hash_util=password_hash_util,
+        )
         uow.commit()
 
 
@@ -148,7 +161,8 @@ USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     CreateUser: handle_create_user,
     GenerateAuthToken: handle_generate_auth_token,
     ActivateUserWithToken: handle_activate_user_with_token,
-    ChangePassword: handle_change_password,
+    ChangePasswordWithoutOldPassword: handle_change_password_without_old_password,
+    ChangePasswordWithOldPassword: handle_change_password_with_old_password,
     ChangeEmail: handle_change_user_email,
     ActivateUser: handle_activate_user,
     ResendActivationLink: handle_resend_activation_link,
