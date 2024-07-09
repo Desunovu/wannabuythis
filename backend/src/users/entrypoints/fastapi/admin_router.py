@@ -6,7 +6,7 @@ from src.common.entrypoints.fastapi_dependencies import CurrentAdminDependency
 from src.users.domain.commands import (
     ActivateUser,
     ChangeEmail,
-    ChangePassword,
+    ChangePasswordWithoutOldPassword,
     DeactivateUser,
 )
 from src.users.entrypoints.fastapi._pydantic_models import (
@@ -41,10 +41,9 @@ def change_password(
     _admin: CurrentAdminDependency,
     request: Request,
 ):
-    command = ChangePassword(
+    command = ChangePasswordWithoutOldPassword(
         username=password_data.username,
         new_password=password_data.new_password,
-        called_by_admin=True,
     )
 
     request.app.state.messagebus.handle(command)

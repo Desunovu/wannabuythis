@@ -3,7 +3,7 @@ from starlette.requests import Request
 from starlette.status import HTTP_200_OK
 
 from src.common.entrypoints.fastapi_dependencies import CurrentUserDependency
-from src.users.domain.commands import ChangeEmail, ChangePassword
+from src.users.domain.commands import ChangeEmail, ChangePasswordWithOldPassword
 from src.users.entrypoints.fastapi._pydantic_models import (
     ChangeEmailByUserRequest,
     ChangePasswordByUserRequest,
@@ -18,7 +18,7 @@ def change_password(
     current_user: CurrentUserDependency,
     request: Request,
 ):
-    command = ChangePassword(
+    command = ChangePasswordWithOldPassword(
         username=current_user.username,
         new_password=password_data.new_password,
         old_password=password_data.old_password,

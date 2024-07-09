@@ -40,11 +40,16 @@ class DeactivateUser(Command):
 
 
 @dataclass(frozen=True)
-class ChangePassword(Command):
+class ChangePasswordWithOldPassword(Command):
     username: str
     new_password: str
-    old_password: str = ""
-    called_by_admin: bool = False
+    old_password: str
+
+
+@dataclass(frozen=True)
+class ChangePasswordWithoutOldPassword(Command):
+    username: str
+    new_password: str
 
 
 @dataclass(frozen=True)
