@@ -9,7 +9,8 @@ ARCHIVE_WISHLIST_PATH = "/wishlists/archive/"
 UNARCHIVE_WISHLIST_PATH = "/wishlists/unarchive/"
 ADD_WISHLIST_ITEM_PATH = "/wishlists/add-item/"
 REMOVE_WISHLIST_ITEM_PATH = "/wishlists/remove-item/"
-SET_WISHLIST_ITEM_STATUS_PATH = "/wishlists/set-item-status/"
+MARK_WISHLIST_ITEM_AS_PURCHASED = "/wishlists/mark-item-as-purchased/"
+MARK_WISHLIST_ITEM_AS_NOT_PURCHASED = "/wishlists/mark-item-as-not-purchased/"
 
 
 class TestFastAPIWishlistsCommandRoutes:
@@ -61,15 +62,25 @@ class TestFastAPIWishlistsCommandRoutes:
         response = user_with_populated_wishlist_client.post(url=url, json=body)
         assert response.status_code == 200
 
-    def test_set_wishlist_item_purchased_status(
+    def test_mark_wishlist_item_as_purchased(
         self, user_with_populated_wishlist_client, populated_wishlist, apple_item
     ):
-        url = f"{SET_WISHLIST_ITEM_STATUS_PATH}{populated_wishlist.uuid}"
-        body = {
-            "item_uuid": apple_item.uuid.hex,
-            "is_purchased": "true",
-        }
+        url = f"{MARK_WISHLIST_ITEM_AS_PURCHASED}{populated_wishlist.uuid}"
+        body = {"item_uuid": apple_item.uuid.hex}
         response = user_with_populated_wishlist_client.post(url=url, json=body)
+        assert response.status_code == 200
+
+    def test_mark_wishlist_item_as_not_purchased(
+        self,
+        user_with_populated_wishlist_with_purchased_items_client,
+        populated_wishlist_with_purchased_items,
+        apple_item,
+    ):
+        url = f"{MARK_WISHLIST_ITEM_AS_NOT_PURCHASED}{populated_wishlist_with_purchased_items.uuid}"
+        body = {"item_uuid": apple_item.uuid.hex}
+        response = user_with_populated_wishlist_with_purchased_items_client.post(
+            url=url, json=body
+        )
         assert response.status_code == 200
 
 

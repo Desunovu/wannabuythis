@@ -84,3 +84,13 @@ class WishlistAlreadyArchived(ConflictException):
 class WishlistNotArchived(ConflictException):
     def __init__(self, uuid: UUID):
         super().__init__(f"Wishlist '{uuid}' is not archived")
+
+
+class WishlistItemAlreadyPurchased(ConflictException):
+    def __init__(self, uuid: UUID):
+        super().__init__(f"Wishlist item '{uuid}' already purchased")
+
+
+class WishlistItemNotPurchased(ConflictException):
+    def __init__(self, uuid: UUID):
+        super().__init__(f"Wishlist item '{uuid}' is not purchased")

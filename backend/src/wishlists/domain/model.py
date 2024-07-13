@@ -5,7 +5,11 @@ from uuid import UUID
 
 from src.common.domain.aggregates import AggregateRoot
 from src.common.domain.entities import Entity
-from src.common.service.exceptions import WishlistItemNotFound
+from src.common.service.exceptions import (
+    WishlistItemAlreadyPurchased,
+    WishlistItemNotFound,
+    WishlistItemNotPurchased,
+)
 from src.wishlists.domain.events import (
     WishlistArchived,
     WishlistCreated,
@@ -91,14 +95,22 @@ class Wishlist(AggregateRoot):
             WishlistItemRemoved(item_uuid=item_uuid, wishlist_uuid=self.uuid)
         )
 
-    def set_item_status(self, item_uuid: UUID, is_purchased: bool):
+    def mark_item_as_purchased(self, item_uuid: UUID):
         item = self.__find_item(item_uuid)
-        item.is_purchased = is_purchased
-        event = (
+        if item.is_purchased:
+            raise WishlistItemAlreadyPurchased(item.uuid)
+        item.is_purchased = True
+        self._add_event(
             WishlistItemMarkedAsPurchased(item_uuid=item_uuid, wishlist_uuid=self.uuid)
-            if is_purchased
-            else WishlistItemMarkedAsNotPurchased(
+        )
+
+    def mark_item_as_not_purchased(self, item_uuid: UUID):
+        item = self.__find_item(item_uuid)
+        if not item.is_purchased:
+            raise WishlistItemNotPurchased(item.uuid)
+        item.is_purchased = False
+        self._add_event(
+            WishlistItemMarkedAsNotPurchased(
                 item_uuid=item_uuid, wishlist_uuid=self.uuid
             )
         )
-        self._add_event(event)

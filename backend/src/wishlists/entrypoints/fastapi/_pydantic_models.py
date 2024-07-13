@@ -63,4 +63,3 @@ class RemoveWishlistItemRequest(BaseModel):
 
 class SetWishlistItemStatusRequest(BaseModel):
     item_uuid: UUID
-    is_purchased: bool

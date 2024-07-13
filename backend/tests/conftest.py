@@ -117,6 +117,25 @@ def populated_wishlist(user, banana_item, apple_item, wishlist_name):
 
 
 @pytest.fixture
+def populated_wishlist_with_purchased_items(
+    user, banana_item, apple_item, wishlist_name
+):
+    """Wishlist containing two purchased wishlist items"""
+    populated_wishlist = Wishlist(
+        uuid=uuid4(),
+        owner_username=user.username,
+        name=wishlist_name,
+        items=[],
+    )
+    banana_item.wishlist_uuid = populated_wishlist.uuid
+    apple_item.wishlist_uuid = populated_wishlist.uuid
+    banana_item.is_purchased = True
+    apple_item.is_purchased = True
+    populated_wishlist.items = [banana_item, apple_item]
+    return populated_wishlist
+
+
+@pytest.fixture
 def archived_wishlist(wishlist):
     """Archived wishlist"""
     wishlist.is_archived = True
