@@ -42,7 +42,12 @@ class RemoveWishlistItem(Command):
 
 
 @dataclass(frozen=True)
-class SetWishlistItemStatus(Command):
+class MarkWishlistItemAsPurchased(Command):
     wishlist_uuid: UUID
     item_uuid: UUID
-    is_purchased: bool
+
+
+@dataclass(frozen=True)
+class MarkWishlistItemAsNotPurchased(Command):
+    wishlist_uuid: UUID
+    item_uuid: UUID

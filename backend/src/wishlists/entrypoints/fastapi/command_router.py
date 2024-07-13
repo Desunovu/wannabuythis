@@ -13,8 +13,9 @@ from src.wishlists.domain.commands import (
     ArchiveWishlist,
     ChangeWishlistName,
     CreateWishlist,
+    MarkWishlistItemAsNotPurchased,
+    MarkWishlistItemAsPurchased,
     RemoveWishlistItem,
-    SetWishlistItemStatus,
     UnarchiveWishlist,
 )
 from src.wishlists.entrypoints.fastapi._pydantic_models import (
@@ -96,16 +97,29 @@ def remove_wishlist_item(
     request.app.state.messagebus.handle(command)
 
 
-@wishlists_command_router.post("/set-item-status/{wishlist_uuid}")
+@wishlists_command_router.post("/mark-item-as-purchased/{wishlist_uuid}")
 def set_wishlist_item_status(
     wishlist_uuid: UUID,
     item_data: SetWishlistItemStatusRequest,
     _wishlist_owner: WishlistOwnerDependency,
     request: Request,
 ):
-    command = SetWishlistItemStatus(
+    command = MarkWishlistItemAsPurchased(
         wishlist_uuid=wishlist_uuid,
         item_uuid=item_data.item_uuid,
-        is_purchased=item_data.is_purchased,
+    )
+    request.app.state.messagebus.handle(command)
+
+
+@wishlists_command_router.post("/mark-item-as-not-purchased/{wishlist_uuid}")
+def set_wishlist_item_status(
+    wishlist_uuid: UUID,
+    item_data: SetWishlistItemStatusRequest,
+    _wishlist_owner: WishlistOwnerDependency,
+    request: Request,
+):
+    command = MarkWishlistItemAsNotPurchased(
+        wishlist_uuid=wishlist_uuid,
+        item_uuid=item_data.item_uuid,
     )
     request.app.state.messagebus.handle(command)

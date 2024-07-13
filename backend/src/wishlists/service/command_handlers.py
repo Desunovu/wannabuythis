@@ -11,8 +11,9 @@ from src.wishlists.domain.commands import (
     ArchiveWishlist,
     ChangeWishlistName,
     CreateWishlist,
+    MarkWishlistItemAsNotPurchased,
+    MarkWishlistItemAsPurchased,
     RemoveWishlistItem,
-    SetWishlistItemStatus,
     UnarchiveWishlist,
 )
 from src.wishlists.domain.model import MeasurementUnit, Priority, Wishlist, WishlistItem
@@ -70,12 +71,25 @@ def handle_remove_wishlist_item(command: RemoveWishlistItem, uow: UnitOfWork):
         uow.commit()
 
 
-def handle_set_wishlist_item_status(command: SetWishlistItemStatus, uow: UnitOfWork):
+def handle_mark_wishlist_item_as_purchased(
+    command: MarkWishlistItemAsPurchased, uow: UnitOfWork
+):
     with uow:
         wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
         if command.item_uuid not in [item.uuid for item in wishlist.items]:
             raise WishlistItemNotFound(command.wishlist_uuid)
-        wishlist.set_item_status(command.item_uuid, command.is_purchased)
+        wishlist.mark_item_as_purchased(item_uuid=command.item_uuid)
+        uow.commit()
+
+
+def handle_mark_wishlist_item_as_not_purchased(
+    command: MarkWishlistItemAsNotPurchased, uow: UnitOfWork
+):
+    with uow:
+        wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
+        if command.item_uuid not in [item.uuid for item in wishlist.items]:
+            raise WishlistItemNotFound(command.wishlist_uuid)
+        wishlist.mark_item_as_not_purchased(item_uuid=command.item_uuid)
         uow.commit()
 
 
@@ -102,7 +116,8 @@ WISHLIST_COMMAND_HANDLERS: dict[type[Command], callable] = {
     ChangeWishlistName: handle_change_wishlist_name,
     AddWishlistItem: handle_add_wishlist_item,
     RemoveWishlistItem: handle_remove_wishlist_item,
-    SetWishlistItemStatus: handle_set_wishlist_item_status,
+    MarkWishlistItemAsPurchased: handle_mark_wishlist_item_as_purchased,
+    MarkWishlistItemAsNotPurchased: handle_mark_wishlist_item_as_not_purchased,
     ArchiveWishlist: handle_archive_wishlist,
     UnarchiveWishlist: handle_unarchive_wishlist,
 }
