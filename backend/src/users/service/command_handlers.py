@@ -3,9 +3,11 @@ from src.common.dependencies.password_hash_util import PasswordHashUtil
 from src.common.dependencies.token_manager import TokenManager
 from src.common.domain.commands import Command
 from src.common.service.exceptions import (
+    CannotGenerateAuthToken,
+    CannotResendActivationToken,
     PasswordValidationError,
     PasswordVerificationError,
-    UserExists,
+    UserAlreadyExists,
 )
 from src.common.service.uow import UnitOfWork
 from src.users.domain.commands import (
@@ -34,7 +36,7 @@ def handle_create_user(
 ):
     with uow:
         if check_user_exists(username=command.username, uow=uow):
-            raise UserExists(command.username)
+            raise UserAlreadyExists(command.username)
         if not User.validate_password(command.password):
             raise PasswordValidationError()
         password_hash = password_hash_util.hash_password(command.password)
@@ -54,7 +56,7 @@ def handle_generate_auth_token(
     with uow:
         user = uow.user_repository.get(command.username)
     if not user.is_active:
-        raise UserNotActive(command.username)
+        raise CannotGenerateAuthToken(command.username)
     if not password_hash_util.verify_password(
         password=command.password, password_hash=user.password_hash
     ):
@@ -130,15 +132,15 @@ def handle_resend_activation_link(
 ):
     with uow:
         user = uow.user_repository.get(command.username)
-        if not password_hash_util.verify_password(
-            password=command.password, password_hash=user.password_hash
-        ):
-            raise PasswordVerificationError
-        if user.is_active:
-            raise UserAlreadyActive(command.username)
-        send_notification_with_activation_link(
-            notificator=notificator, token_manager=token_manager, user=user
-        )
+    if not password_hash_util.verify_password(
+        password=command.password, password_hash=user.password_hash
+    ):
+        raise PasswordVerificationError
+    if user.is_active:
+        raise CannotResendActivationToken(command.username)
+    send_notification_with_activation_link(
+        notificator=notificator, token_manager=token_manager, user=user
+    )
 
 
 def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
