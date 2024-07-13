@@ -6,9 +6,11 @@ from uuid import UUID
 from src.common.domain.aggregates import AggregateRoot
 from src.common.domain.entities import Entity
 from src.common.service.exceptions import (
+    WishlistAlreadyArchived,
     WishlistItemAlreadyPurchased,
     WishlistItemNotFound,
     WishlistItemNotPurchased,
+    WishlistNotArchived,
 )
 from src.wishlists.domain.events import (
     WishlistArchived,
@@ -62,10 +64,14 @@ class Wishlist(AggregateRoot):
         self._add_event(WishlistNameChanged(self.uuid, self.name))
 
     def archive(self):
+        if self.is_archived:
+            raise WishlistAlreadyArchived(self.uuid)
         self.is_archived = True
         self._add_event(WishlistArchived(self.uuid))
 
     def unarchive(self):
+        if not self.is_archived:
+            raise WishlistNotArchived(self.uuid)
         self.is_archived = False
         self._add_event(WishlistUnarchived(self.uuid))
 
