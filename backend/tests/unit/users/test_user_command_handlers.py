@@ -148,7 +148,7 @@ class TestChangePassword:
             new_password=valid_new_password,
             old_password=valid_password,
         )
-        
+
         for command in [command_for_admin, command_for_user]:
             with pytest.raises(UserNotFound):
                 messagebus.handle(command)
@@ -162,7 +162,7 @@ class TestChangePassword:
             new_password=valid_new_password,
             old_password=invalid_password,
         )
-        
+
         with pytest.raises(PasswordVerificationError):
             messagebus.handle(command)
 
@@ -179,7 +179,7 @@ class TestChangePassword:
             new_password=invalid_password,
             old_password=valid_password,
         )
-        
+
         for command in [command_for_admin, command_for_user]:
             with pytest.raises(PasswordValidationError):
                 messagebus.handle(command)
