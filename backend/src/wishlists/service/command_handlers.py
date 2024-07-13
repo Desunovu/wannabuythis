@@ -1,10 +1,5 @@
 from src.common.dependencies.uuid_generator import UUIDGenerator
 from src.common.domain.commands import Command
-from src.common.service.exceptions import (
-    WishlistAlreadyArchived,
-    WishlistItemNotFound,
-    WishlistNotArchived,
-)
 from src.common.service.uow import UnitOfWork
 from src.wishlists.domain.commands import (
     AddWishlistItem,
@@ -65,8 +60,6 @@ def handle_add_wishlist_item(
 def handle_remove_wishlist_item(command: RemoveWishlistItem, uow: UnitOfWork):
     with uow:
         wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
-        if command.item_uuid not in [item.uuid for item in wishlist.items]:
-            raise WishlistItemNotFound(command.item_uuid)
         wishlist.remove_item(command.item_uuid)
         uow.commit()
 
@@ -76,8 +69,6 @@ def handle_mark_wishlist_item_as_purchased(
 ):
     with uow:
         wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
-        if command.item_uuid not in [item.uuid for item in wishlist.items]:
-            raise WishlistItemNotFound(command.wishlist_uuid)
         wishlist.mark_item_as_purchased(item_uuid=command.item_uuid)
         uow.commit()
 
@@ -87,8 +78,6 @@ def handle_mark_wishlist_item_as_not_purchased(
 ):
     with uow:
         wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
-        if command.item_uuid not in [item.uuid for item in wishlist.items]:
-            raise WishlistItemNotFound(command.wishlist_uuid)
         wishlist.mark_item_as_not_purchased(item_uuid=command.item_uuid)
         uow.commit()
 
@@ -96,8 +85,6 @@ def handle_mark_wishlist_item_as_not_purchased(
 def handle_archive_wishlist(command: ArchiveWishlist, uow: UnitOfWork):
     with uow:
         wishlist = uow.wishlist_repository.get(command.uuid)
-        if wishlist.is_archived:
-            raise WishlistAlreadyArchived(command.uuid)
         wishlist.archive()
         uow.commit()
 
@@ -105,8 +92,6 @@ def handle_archive_wishlist(command: ArchiveWishlist, uow: UnitOfWork):
 def handle_unarchive_wishlist(command: UnarchiveWishlist, uow: UnitOfWork):
     with uow:
         wishlist = uow.wishlist_repository.get(command.uuid)
-        if not wishlist.is_archived:
-            raise WishlistNotArchived(command.uuid)
         wishlist.unarchive()
         uow.commit()
 
