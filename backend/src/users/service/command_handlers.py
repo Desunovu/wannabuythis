@@ -5,10 +5,7 @@ from src.common.domain.commands import Command
 from src.common.service.exceptions import (
     PasswordValidationError,
     PasswordVerificationError,
-    UserAlreadyActive,
-    UserAlreadyDeactivated,
     UserExists,
-    UserNotActive,
 )
 from src.common.service.uow import UnitOfWork
 from src.users.domain.commands import (
@@ -110,8 +107,6 @@ def handle_change_user_email(command: ChangeEmail, uow: UnitOfWork):
 def handle_activate_user(command: ActivateUser, uow: UnitOfWork):
     with uow:
         user = uow.user_repository.get(command.username)
-        if user.is_active:
-            raise UserAlreadyActive(command.username)
         user.activate()
         uow.commit()
 
@@ -122,8 +117,6 @@ def handle_activate_user_with_token(
     username = token_manager.get_username_from_token(command.token)
     with uow:
         user = uow.user_repository.get(username)
-        if user.is_active:
-            raise UserAlreadyActive(username)
         user.activate()
         uow.commit()
 
@@ -151,8 +144,6 @@ def handle_resend_activation_link(
 def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
     with uow:
         user = uow.user_repository.get(command.username)
-        if not user.is_active:
-            raise UserAlreadyDeactivated(command.username)
         user.deactivate()
         uow.commit()
 

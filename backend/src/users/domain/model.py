@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 
 from src.common.domain.aggregates import AggregateRoot
+from src.common.service.exceptions import UserAlreadyActive, UserAlreadyDeactivated
 from src.users.domain.events import (
     EmailChanged,
     PasswordChanged,
@@ -44,9 +45,13 @@ class User(AggregateRoot):
         self._add_event(EmailChanged(self.username))
 
     def activate(self):
+        if self.is_active:
+            raise UserAlreadyActive(self.username)
         self.is_active = True
         self._add_event(UserActivated(self.username))
 
     def deactivate(self):
+        if not self.is_active:
+            raise UserAlreadyDeactivated(self.username)
         self.is_active = False
         self._add_event(UserDeactivated(self.username))
