@@ -24,9 +24,14 @@ class TokenException(Exception):
         super().__init__(message)
 
 
-class UserNotActive(Forbidden):
+class CannotGenerateAuthToken(Forbidden):
     def __init__(self, username: str):
-        super().__init__(f"User '{username}' cannot sign in because of inactive status")
+        super().__init__(f"Cannot generate token for inactive user ({username})")
+
+
+class CannotResendActivationToken(Forbidden):
+    def __init__(self, username: str):
+        super().__init__(f"Cannot resend activation token for user ({username})")
 
 
 class UserNotAuthorized(Forbidden):
@@ -41,7 +46,7 @@ class UserNotFound(NotFoundException):
         super().__init__(f"User '{username}' not found")
 
 
-class UserExists(ConflictException):
+class UserAlreadyExists(ConflictException):
     def __init__(self, username: str):
         super().__init__(f"User '{username}' already exists")
 

@@ -4,13 +4,14 @@ import pytest
 
 from src.common.dependencies.token_manager import TokenManager
 from src.common.service.exceptions import (
+    CannotGenerateAuthToken,
+    CannotResendActivationToken,
     PasswordValidationError,
     PasswordVerificationError,
     TokenException,
     UserAlreadyActive,
     UserAlreadyDeactivated,
-    UserExists,
-    UserNotActive,
+    UserAlreadyExists,
     UserNotFound,
 )
 from src.users.domain.commands import (
@@ -49,7 +50,7 @@ class TestCreateUser:
 
     def test_create_user_with_existing_username(self, messagebus, user, valid_password):
         messagebus.uow.user_repository.add(user)
-        with pytest.raises(UserExists):
+        with pytest.raises(UserAlreadyExists):
             messagebus.handle(
                 CreateUser(
                     username=user.username,
@@ -86,7 +87,7 @@ class TestGenerateAuthToken:
     def test_generate_auth_token_inactive_user(
         self, messagebus, deactivated_user, valid_password
     ):
-        with pytest.raises(UserNotActive):
+        with pytest.raises(CannotGenerateAuthToken):
             messagebus.uow.user_repository.add(deactivated_user)
             messagebus.handle(
                 GenerateAuthToken(
@@ -280,7 +281,7 @@ class TestResendActivationLink:
         self, messagebus, activated_user, valid_password
     ):
         messagebus.uow.user_repository.add(activated_user)
-        with pytest.raises(UserAlreadyActive):
+        with pytest.raises(CannotResendActivationToken):
             messagebus.handle(
                 ResendActivationLink(
                     username=activated_user.username, password=valid_password
