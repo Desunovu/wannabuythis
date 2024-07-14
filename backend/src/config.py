@@ -40,3 +40,9 @@ def get_auth_token_lifetime() -> datetime.timedelta:
 def get_activation_token_lifetime() -> datetime.timedelta:
     token_lifetime_in_hours = os.environ.get("ACTIVATION_TOKEN_LIFETIME_IN_HOURS", "24")
     return datetime.timedelta(hours=int(token_lifetime_in_hours))
+
+
+# Redis config
+REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
+REDIS_PORT = os.environ.get("REDIS_PORT", 6379)
+REDIS_ACTIVATION_CODES_DB = os.environ.get("REDIS_ACTIVATION_CODES_DB", 0)

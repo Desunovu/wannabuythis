@@ -1,6 +1,8 @@
 import inspect
 from typing import Any, Callable
 
+from src.common.adapters.activation_code_storage import ActivationCodeStorage
+from src.common.dependencies.activation_code_generator import ActivationCodeGenerator
 from src.common.dependencies.notificator import Notificator
 from src.common.dependencies.password_hash_util import PasswordHashUtil
 from src.common.dependencies.token_manager import TokenManager
@@ -89,6 +91,8 @@ def create_dependencies_dict(
     uow: UnitOfWork,
     password_hash_util: PasswordHashUtil,
     uuid_generator: UUIDGenerator,
+    activation_code_generator: ActivationCodeGenerator,
+    activation_code_storage: ActivationCodeStorage,
     token_manager: TokenManager,
     notificator: Notificator,
 ) -> dict[str, Any]:
@@ -98,6 +102,8 @@ def create_dependencies_dict(
         "uow": uow,
         "password_hash_util": password_hash_util,
         "uuid_generator": uuid_generator,
+        "activation_code_generator": activation_code_generator,
+        "activation_code_storage": activation_code_storage,
         "token_manager": token_manager,
         "notificator": notificator,
     }

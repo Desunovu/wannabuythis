@@ -5,6 +5,9 @@ from sqlalchemy import StaticPool, create_engine
 from sqlalchemy.orm import clear_mappers, sessionmaker
 
 from src import bootstrap
+from src.common.dependencies.activation_code_generator import (
+    RandomActivationCodeGenerator,
+)
 from src.common.dependencies.password_hash_util import HashlibPasswordHashUtil
 from src.common.dependencies.token_manager import JWTManager
 from src.common.dependencies.uuid_generator import DefaultUUIDGenerator
@@ -15,7 +18,7 @@ from src.integration.adapters.sqlalchemy_orm import (
 from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.users.domain.model import User
 from src.wishlists.domain.model import MeasurementUnit, Priority, Wishlist, WishlistItem
-from tests.fakes import FakeNotificator, FakeUnitOfWork
+from tests.fakes import FakeActivationCodeStorage, FakeNotificator, FakeUnitOfWork
 
 
 @pytest.fixture
@@ -148,6 +151,8 @@ def messagebus():
         uow=FakeUnitOfWork(),
         password_hash_util=HashlibPasswordHashUtil(),
         uuid_generator=DefaultUUIDGenerator(),
+        activation_code_generator=RandomActivationCodeGenerator(),
+        activation_code_storage=FakeActivationCodeStorage(),
         token_manager=JWTManager(),
         notificator=FakeNotificator(),
     )

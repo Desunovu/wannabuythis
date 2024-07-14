@@ -23,7 +23,7 @@ from src.users.domain.commands import (
     CreateUser,
     DeactivateUser,
     GenerateAuthToken,
-    ResendActivationLink,
+    ResendActivationCode,
 )
 
 
@@ -247,46 +247,46 @@ class TestActivateUserWithToken:
             messagebus.handle(ActivateUserWithToken(token=token))
 
 
-class TestResendActivationLink:
-    def test_resend_activation_link(
+class TestResendActivationCode:
+    def test_resend_activation_code(
         self, capsys, messagebus, deactivated_user, valid_password
     ):
         messagebus.uow.user_repository.add(deactivated_user)
-        messagebus.handle(
-            ResendActivationLink(
-                username=deactivated_user.username, password=valid_password
-            )
+
+        command = ResendActivationCode(
+            username=deactivated_user.username, password=valid_password
         )
+        messagebus.handle(command)
+
         captured = capsys.readouterr()
         assert deactivated_user.email in captured.out
 
-    def test_resend_activation_link_non_existing_user(self, messagebus, valid_password):
+    def test_resend_activation_code_non_existing_user(self, messagebus, valid_password):
+        command = ResendActivationCode(
+            username="non-existing-user", password=valid_password
+        )
         with pytest.raises(UserNotFound):
-            messagebus.handle(
-                ResendActivationLink(
-                    username="non-existing-user", password=valid_password
-                )
-            )
+            messagebus.handle(command)
 
-    def test_resend_activation_link_wrong_password(self, messagebus, deactivated_user):
+    def test_resend_activation_code_wrong_password(self, messagebus, deactivated_user):
         messagebus.uow.user_repository.add(deactivated_user)
-        with pytest.raises(PasswordVerificationError):
-            messagebus.handle(
-                ResendActivationLink(
-                    username=deactivated_user.username, password="wrong-password"
-                )
-            )
 
-    def test_resend_activation_link_already_active(
+        command = ResendActivationCode(
+            username=deactivated_user.username, password="wrong-password"
+        )
+        with pytest.raises(PasswordVerificationError):
+            messagebus.handle(command)
+
+    def test_resend_activation_code_already_active(
         self, messagebus, activated_user, valid_password
     ):
         messagebus.uow.user_repository.add(activated_user)
+
+        command = ResendActivationCode(
+            username=activated_user.username, password=valid_password
+        )
         with pytest.raises(CannotResendActivationToken):
-            messagebus.handle(
-                ResendActivationLink(
-                    username=activated_user.username, password=valid_password
-                )
-            )
+            messagebus.handle(command)
 
 
 class TestDeactivateUser:
