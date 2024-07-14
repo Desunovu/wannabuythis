@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from src.common.adapters.activation_code_storage import ActivationCodeStorage
 from src.common.dependencies.notificator import Notificator
 from src.common.service.exceptions import UserNotFound, WishlistNotFound
 from src.common.service.uow import UnitOfWork
@@ -66,3 +67,14 @@ class FakeNotificator(Notificator):
         print(
             f"Fake notificator: {recipient.username} ({recipient.email}), {subject}, {message}"
         )
+
+
+class FakeActivationCodeStorage(ActivationCodeStorage):
+    def __init__(self):
+        self._activation_codes = dict()
+
+    def get_activation_code(self, username: str) -> str:
+        return self._activation_codes[username]
+
+    def save_activation_code(self, username: str, code: str) -> None:
+        self._activation_codes[username] = code

@@ -11,7 +11,7 @@ from src.users.domain.commands import (
     ActivateUserWithToken,
     CreateUser,
     GenerateAuthToken,
-    ResendActivationLink,
+    ResendActivationCode,
 )
 from src.users.entrypoints.fastapi._pydantic_models import (
     CreateUserResponse,
@@ -49,7 +49,12 @@ def activate_user(activation_token: str, request: Request):
     request.app.state.messagebus.handle(ActivateUserWithToken(activation_token))
 
 
-@users_auth_router.post("/activate/resend-activation-link", status_code=HTTP_200_OK)
+@users_auth_router.post("/resend-activation", status_code=HTTP_200_OK)
 @limiter.limit("5/minute")
-def resend_activation_link(command: ResendActivationLink, request: Request):
+def resend_activation_code(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], request: Request
+):
+    command = ResendActivationCode(
+        username=form_data.username, password=form_data.password
+    )
     request.app.state.messagebus.handle(command)

@@ -1,3 +1,5 @@
+from src.common.adapters.activation_code_storage import ActivationCodeStorage
+from src.common.dependencies.activation_code_generator import ActivationCodeGenerator
 from src.common.dependencies.notificator import Notificator
 from src.common.dependencies.password_hash_util import PasswordHashUtil
 from src.common.dependencies.token_manager import TokenManager
@@ -19,13 +21,13 @@ from src.users.domain.commands import (
     CreateUser,
     DeactivateUser,
     GenerateAuthToken,
-    ResendActivationLink,
+    ResendActivationCode,
 )
 from src.users.domain.model import User
 from src.users.service.handlers_utils import (
     change_user_password,
     check_user_exists,
-    send_notification_with_activation_link,
+    send_new_activation_code,
 )
 
 
@@ -123,11 +125,12 @@ def handle_activate_user_with_token(
         uow.commit()
 
 
-def handle_resend_activation_link(
-    command: ResendActivationLink,
+def handle_resend_activation_code(
+    command: ResendActivationCode,
     uow: UnitOfWork,
     notificator: Notificator,
-    token_manager: TokenManager,
+    activation_code_generator: ActivationCodeGenerator,
+    activation_code_storage: ActivationCodeStorage,
     password_hash_util: PasswordHashUtil,
 ):
     with uow:
@@ -138,8 +141,11 @@ def handle_resend_activation_link(
         raise PasswordVerificationError
     if user.is_active:
         raise CannotResendActivationToken(command.username)
-    send_notification_with_activation_link(
-        notificator=notificator, token_manager=token_manager, user=user
+    send_new_activation_code(
+        user=user,
+        activation_code_generator=activation_code_generator,
+        activation_code_storage=activation_code_storage,
+        notificator=notificator,
     )
 
 
@@ -158,6 +164,6 @@ USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     ChangePasswordWithOldPassword: handle_change_password_with_old_password,
     ChangeEmail: handle_change_user_email,
     ActivateUser: handle_activate_user,
-    ResendActivationLink: handle_resend_activation_link,
+    ResendActivationCode: handle_resend_activation_code,
     DeactivateUser: handle_deactivate_user,
 }

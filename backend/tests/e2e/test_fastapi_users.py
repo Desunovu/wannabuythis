@@ -6,7 +6,7 @@ CHANGE_EMAIL_URL = "/users/change-email"
 CHANGE_PASSWORD_URL = "/users/change-password"
 REGISTER_URL = "/register"
 ACTIVATE_WITH_TOKEN_URL = "/activate"
-RESEND_ACTIVATION_TOKEN_URL = "/activate/resend-activation-link"
+RESEND_ACTIVATION_URL = "/resend-activation"
 LOGIN_URL = "/login"
 GET_CURRENT_USER_URL = "/users/me"
 GET_USER_URL = "/users"
@@ -68,9 +68,9 @@ class TestFastAPIUsersAuthRoutes:
     def test_resend_activation_link(
         self, client_with_deactivated_user, deactivated_user, valid_password
     ):
-        body = {"username": deactivated_user.username, "password": valid_password}
+        form_data = {"username": deactivated_user.username, "password": valid_password}
         response = client_with_deactivated_user.post(
-            RESEND_ACTIVATION_TOKEN_URL, json=body
+            RESEND_ACTIVATION_URL, data=form_data
         )
         assert response.status_code == 200
 

@@ -1,5 +1,6 @@
+from src.common.adapters.activation_code_storage import ActivationCodeStorage
+from src.common.dependencies.activation_code_generator import ActivationCodeGenerator
 from src.common.dependencies.notificator import Notificator
-from src.common.dependencies.token_manager import TokenManager
 from src.common.domain.events import DomainEvent
 from src.common.service.uow import UnitOfWork
 from src.users.domain.events import (
@@ -9,19 +10,23 @@ from src.users.domain.events import (
     UserCreated,
     UserDeactivated,
 )
-from src.users.service.handlers_utils import send_notification_with_activation_link
+from src.users.service.handlers_utils import send_new_activation_code
 
 
 def handle_user_created(
     event: UserCreated,
     uow: UnitOfWork,
     notificator: Notificator,
-    token_manager: TokenManager,
+    activation_code_generator: ActivationCodeGenerator,
+    activation_code_storage: ActivationCodeStorage,
 ):
     with uow:
         user = uow.user_repository.get(event.username)
-    send_notification_with_activation_link(
-        notificator=notificator, token_manager=token_manager, user=user
+    send_new_activation_code(
+        user=user,
+        activation_code_generator=activation_code_generator,
+        activation_code_storage=activation_code_storage,
+        notificator=notificator,
     )
 
 

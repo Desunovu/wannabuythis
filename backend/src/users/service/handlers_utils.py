@@ -1,4 +1,6 @@
-from src import config
+from src.common.adapters.activation_code_storage import ActivationCodeStorage
+from src.common.dependencies.activation_code_generator import ActivationCodeGenerator
+from src.common.dependencies.notificator import Notificator
 from src.common.service.exceptions import PasswordValidationError, UserNotFound
 from src.common.service.uow import UnitOfWork
 from src.users.domain.model import User
@@ -12,12 +14,17 @@ def check_user_exists(username: str, uow: UnitOfWork) -> bool:
         return False
 
 
-def send_notification_with_activation_link(notificator, token_manager, user):
-    token_lifetime = config.get_activation_token_lifetime()
-    activation_token = token_manager.generate_token(
-        username=user.username, token_lifetime=token_lifetime
+def send_new_activation_code(
+    user: User,
+    activation_code_generator: ActivationCodeGenerator,
+    activation_code_storage: ActivationCodeStorage,
+    notificator: Notificator,
+):
+    activation_code = activation_code_generator.create_code()
+    activation_code_storage.save_activation_code(
+        username=user.username, code=activation_code
     )
-    notificator.send_activation_link(recipient=user, activation_token=activation_token)
+    notificator.send_activation_code(recipient=user, activation_code=activation_code)
 
 
 def change_user_password(user, new_password, password_hash_util):

@@ -11,12 +11,11 @@ class Notificator(abc.ABC):
         self, recipient: "User", subject: str, message: str
     ) -> None: ...
 
-    def send_activation_link(self, recipient: "User", activation_token: str):
-        link = f"{config.get_base_url()}/activate/{activation_token}"
+    def send_activation_code(self, recipient: "User", activation_code: str):
         self.send_notification(
             recipient=recipient,
             subject="WannaBuyThis Account activation",
-            message=f"Activate your account by clicking on this link: {link}",
+            message=f"Activation code: {activation_code}",
         )
 
 

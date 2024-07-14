@@ -1,15 +1,22 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
+from fakeredis import FakeRedis
 from fastapi import FastAPI
 from sqlalchemy.orm import clear_mappers
 
 from src import bootstrap, config
+from src.common.dependencies.activation_code_generator import (
+    RandomActivationCodeGenerator,
+)
 from src.common.dependencies.notificator import EmailNotificator
 from src.common.dependencies.password_hash_util import HashlibPasswordHashUtil
 from src.common.dependencies.token_manager import JWTManager
 from src.common.dependencies.uuid_generator import DefaultUUIDGenerator
 from src.common.entrypoints.fastapi_limiter import limiter
+from src.integration.adapters.redis.activation_code_storage import (
+    RedisActivationCodeStorage,
+)
 from src.integration.adapters.sqlalchemy_orm import start_sqlalchemy_mappers
 from src.integration.entrypoints.fastapi_exception_handlers import (
     exception_to_exception_handlers,
@@ -46,11 +53,14 @@ def setup_messagebus_dependencies():
     notificator = (
         FakeNotificator() if config.get_env() == "development" else EmailNotificator()
     )
+    redis_client = FakeRedis() if config.get_env() == "development" else None
 
     dependencies = bootstrap.create_dependencies_dict(
         uow=SQLAlchemyUnitOfWork(),
         password_hash_util=HashlibPasswordHashUtil(),
         uuid_generator=DefaultUUIDGenerator(),
+        activation_code_generator=RandomActivationCodeGenerator(),
+        activation_code_storage=RedisActivationCodeStorage(redis_client=redis_client),
         token_manager=JWTManager(),
         notificator=notificator,
     )

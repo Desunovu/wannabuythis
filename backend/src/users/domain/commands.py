@@ -29,7 +29,7 @@ class ActivateUserWithToken(Command):
 
 
 @dataclass(frozen=True)
-class ResendActivationLink(Command):
+class ResendActivationCode(Command):
     username: str
     password: str
 

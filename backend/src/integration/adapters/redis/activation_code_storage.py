@@ -1,9 +1,10 @@
 import redis
 
 from src import config
+from src.common.adapters.activation_code_storage import ActivationCodeStorage
 
 
-class RedisActivationCodeStorage:
+class RedisActivationCodeStorage(ActivationCodeStorage):
     def __init__(self, redis_client: redis.Redis = None):
         if redis_client:
             self.redis_client = redis_client
