@@ -3,7 +3,7 @@ import abc
 
 class ActivationCodeStorage(abc.ABC):
     @abc.abstractmethod
-    def get_activation_code(self, username: str) -> str:
+    def get_activation_code(self, username: str) -> None | str:
         pass
 
     @abc.abstractmethod
