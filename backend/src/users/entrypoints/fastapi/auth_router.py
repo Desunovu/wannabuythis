@@ -8,12 +8,13 @@ from starlette.status import HTTP_200_OK
 from src import config
 from src.common.entrypoints.fastapi_limiter import limiter
 from src.users.domain.commands import (
-    ActivateUserWithToken,
+    ActivateUserWithCode,
     CreateUser,
     GenerateAuthToken,
     ResendActivationCode,
 )
 from src.users.entrypoints.fastapi._pydantic_models import (
+    ActivateUserWithCodeRequest,
     CreateUserResponse,
     LoginUserResponse,
 )
@@ -44,9 +45,11 @@ def register(command: CreateUser, request: Request):
     return {"message": "User created successfully"}
 
 
-@users_auth_router.get("/activate/{activation_token}", status_code=HTTP_200_OK)
-def activate_user(activation_token: str, request: Request):
-    request.app.state.messagebus.handle(ActivateUserWithToken(activation_token))
+@users_auth_router.post("/activate", status_code=HTTP_200_OK)
+def activate_user(body_data: ActivateUserWithCodeRequest, request: Request):
+    request.app.state.messagebus.handle(
+        ActivateUserWithCode(username=body_data.username, code=body_data.code)
+    )
 
 
 @users_auth_router.post("/resend-activation", status_code=HTTP_200_OK)

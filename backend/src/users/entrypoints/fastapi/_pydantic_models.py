@@ -17,6 +17,11 @@ class UserResponse(BaseModel):
     is_active: bool
 
 
+class ActivateUserWithCodeRequest(BaseModel):
+    username: str
+    code: str
+
+
 class ChangePasswordByUserRequest(BaseModel):
     old_password: str
     new_password: str

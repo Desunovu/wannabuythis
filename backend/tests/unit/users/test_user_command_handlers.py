@@ -2,13 +2,12 @@ import datetime
 
 import pytest
 
-from src.common.dependencies.token_manager import TokenManager
 from src.common.service.exceptions import (
     CannotGenerateAuthToken,
     CannotResendActivationToken,
+    CodeVerificationError,
     PasswordValidationError,
     PasswordVerificationError,
-    TokenException,
     UserAlreadyActive,
     UserAlreadyDeactivated,
     UserAlreadyExists,
@@ -16,7 +15,7 @@ from src.common.service.exceptions import (
 )
 from src.users.domain.commands import (
     ActivateUser,
-    ActivateUserWithToken,
+    ActivateUserWithCode,
     ChangeEmail,
     ChangePasswordWithOldPassword,
     ChangePasswordWithoutOldPassword,
@@ -215,36 +214,44 @@ class TestActivateUser:
             messagebus.handle(ActivateUser(username=activated_user.username))
 
 
-class TestActivateUserWithToken:
-    def test_activate_user_with_token(
+class TestActivateUserWithCode:
+    @staticmethod
+    def _create_code(messagebus, user):
+        generator = messagebus.dependencies["activation_code_generator"]
+        storage = messagebus.dependencies["activation_code_storage"]
+        code = generator.create_code()
+        storage.save_activation_code(username=user.username, code=code)
+        return code
+
+    def test_activate_user_with_code(
         self, messagebus, deactivated_user, valid_password
     ):
         messagebus.uow.user_repository.add(deactivated_user)
-        token_manager: TokenManager = messagebus.dependencies["token_manager"]
-        token = token_manager.generate_token(
-            username=deactivated_user.username,
-            token_lifetime=datetime.timedelta(minutes=1),
+        code = self._create_code(messagebus, deactivated_user)
+
+        messagebus.handle(
+            ActivateUserWithCode(username=deactivated_user.username, code=code)
         )
-        messagebus.handle(ActivateUserWithToken(token=token))
+
         assert deactivated_user.is_active
 
-    def test_activate_user_with_token_wrong_token(self, messagebus, deactivated_user):
+    def test_wrong_code(self, messagebus, deactivated_user):
         messagebus.uow.user_repository.add(deactivated_user)
-        token = "wrong-token"
-        with pytest.raises(TokenException):
-            messagebus.handle(ActivateUserWithToken(token=token))
+        code = "wrong-token"
 
-    def test_activate_user_with_token_already_active_user(
-        self, messagebus, activated_user, valid_password
-    ):
+        with pytest.raises(CodeVerificationError):
+            messagebus.handle(
+                ActivateUserWithCode(username=deactivated_user.username, code=code)
+            )
+
+    def test_already_active_user(self, messagebus, activated_user, valid_password):
         messagebus.uow.user_repository.add(activated_user)
-        token_manager: TokenManager = messagebus.dependencies["token_manager"]
-        token = token_manager.generate_token(
-            username=activated_user.username,
-            token_lifetime=datetime.timedelta(minutes=1),
-        )
+        code = self._create_code(messagebus, activated_user)
+
         with pytest.raises(UserAlreadyActive):
-            messagebus.handle(ActivateUserWithToken(token=token))
+            messagebus.handle(
+                ActivateUserWithCode(username=activated_user.username, code=code)
+            )
 
 
 class TestResendActivationCode:
