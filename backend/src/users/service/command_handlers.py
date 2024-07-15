@@ -7,6 +7,7 @@ from src.common.domain.commands import Command
 from src.common.service.exceptions import (
     CannotGenerateAuthToken,
     CannotResendActivationToken,
+    CodeVerificationError,
     PasswordValidationError,
     PasswordVerificationError,
     UserAlreadyExists,
@@ -14,7 +15,7 @@ from src.common.service.exceptions import (
 from src.common.service.uow import UnitOfWork
 from src.users.domain.commands import (
     ActivateUser,
-    ActivateUserWithToken,
+    ActivateUserWithCode,
     ChangeEmail,
     ChangePasswordWithOldPassword,
     ChangePasswordWithoutOldPassword,
@@ -115,13 +116,22 @@ def handle_activate_user(command: ActivateUser, uow: UnitOfWork):
         uow.commit()
 
 
-def handle_activate_user_with_token(
-    command: ActivateUserWithToken, uow: UnitOfWork, token_manager: TokenManager
+def handle_activate_user_with_code(
+    command: ActivateUserWithCode,
+    uow: UnitOfWork,
+    activation_code_storage: ActivationCodeStorage,
 ):
-    username = token_manager.get_username_from_token(command.token)
     with uow:
-        user = uow.user_repository.get(username)
+        user = uow.user_repository.get(command.username)
+        stored_code = activation_code_storage.get_activation_code(
+            username=user.username
+        )
+        if stored_code is None or command.code != stored_code:
+            raise CodeVerificationError
+
+        activation_code_storage.save_activation_code(username=user.username, code="")
         user.activate()
+
         uow.commit()
 
 
@@ -159,7 +169,7 @@ def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
 USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     CreateUser: handle_create_user,
     GenerateAuthToken: handle_generate_auth_token,
-    ActivateUserWithToken: handle_activate_user_with_token,
+    ActivateUserWithCode: handle_activate_user_with_code,
     ChangePasswordWithoutOldPassword: handle_change_password_without_old_password,
     ChangePasswordWithOldPassword: handle_change_password_with_old_password,
     ChangeEmail: handle_change_user_email,

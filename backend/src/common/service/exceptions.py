@@ -71,6 +71,11 @@ class PasswordVerificationError(VerificationException):
         super().__init__(error_message)
 
 
+class CodeVerificationError(VerificationException):
+    def __init__(self, error_message: str = "Code does not match"):
+        super().__init__(error_message)
+
+
 class WishlistNotFound(NotFoundException):
     def __init__(self, uuid: UUID):
         super().__init__(f"Wishlist '{uuid}' not found")

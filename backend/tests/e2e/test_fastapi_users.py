@@ -5,7 +5,7 @@ ADMIN_CHANGE_EMAIL_URL = "/admin/users/change-email"
 CHANGE_EMAIL_URL = "/users/change-email"
 CHANGE_PASSWORD_URL = "/users/change-password"
 REGISTER_URL = "/register"
-ACTIVATE_WITH_TOKEN_URL = "/activate"
+ACTIVATE_URL = "/activate"
 RESEND_ACTIVATION_URL = "/resend-activation"
 LOGIN_URL = "/login"
 GET_CURRENT_USER_URL = "/users/me"
@@ -51,18 +51,28 @@ class TestFastAPIUsersAdminRoutes:
 
 
 class TestFastAPIUsersAuthRoutes:
+    @staticmethod
+    def _create_code(client, user):
+        generator = client.app.state.messagebus.dependencies[
+            "activation_code_generator"
+        ]
+        storage = client.app.state.messagebus.dependencies["activation_code_storage"]
+        code = generator.create_code()
+        storage.save_activation_code(username=user.username, code=code)
+        return code
+
     def test_register(self, client, valid_password):
         body = {"username": "username", "email": "email", "password": valid_password}
         response = client.post(url=REGISTER_URL, json=body)
         assert response.status_code == 200
 
-    def test_activate_by_token(self, client_with_deactivated_user, deactivated_user):
-        token_manager = client_with_deactivated_user.app.state.dependencies[
-            "token_manager"
-        ]
-        token = token_manager.generate_token(username=deactivated_user.username)
-        url = f"{ACTIVATE_WITH_TOKEN_URL}/{token}"
-        response = client_with_deactivated_user.get(url)
+    def test_activate(self, client_with_deactivated_user, deactivated_user):
+        code = self._create_code(
+            client=client_with_deactivated_user,
+            user=deactivated_user,
+        )
+        body = {"username": deactivated_user.username, "code": code}
+        response = client_with_deactivated_user.post(url=ACTIVATE_URL, json=body)
         assert response.status_code == 200
 
     def test_resend_activation_link(

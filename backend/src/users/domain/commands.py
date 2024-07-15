@@ -24,8 +24,9 @@ class ActivateUser(Command):
 
 
 @dataclass(frozen=True)
-class ActivateUserWithToken(Command):
-    token: str
+class ActivateUserWithCode(Command):
+    username: str
+    code: str
 
 
 @dataclass(frozen=True)
