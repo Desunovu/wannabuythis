@@ -10,54 +10,55 @@ from src.users.domain.commands import (
     DeactivateUser,
 )
 from src.users.entrypoints.fastapi._pydantic_models import (
-    ChangeEmailByAdminRequest,
-    ChangePasswordByAdminRequest,
+    ChangeEmailRequest,
+    ChangePasswordWithoutOldPasswordRequest,
 )
 
 users_admin_router = APIRouter(prefix="/admin/users", tags=["admin_user_commands"])
 
 
-@users_admin_router.post("/activate", status_code=HTTP_200_OK)
+@users_admin_router.patch("/{username}/activate", status_code=HTTP_200_OK)
 def activate_user(
-    command: ActivateUser,
+    username: str,
     _admin: CurrentAdminDependency,
     request: Request,
 ):
+    command = ActivateUser(username=username)
     request.app.state.messagebus.handle(command)
 
 
-@users_admin_router.post("/deactivate", status_code=HTTP_200_OK)
+@users_admin_router.patch("/{username}/deactivate", status_code=HTTP_200_OK)
 def deactivate_user(
-    command: DeactivateUser,
+    username: str,
     _admin: CurrentAdminDependency,
     request: Request,
 ):
+    command = DeactivateUser(username=username)
     request.app.state.messagebus.handle(command)
 
 
-@users_admin_router.post("/change-password", status_code=HTTP_200_OK)
+@users_admin_router.patch("/{username}/password", status_code=HTTP_200_OK)
 def change_password(
-    password_data: ChangePasswordByAdminRequest,
+    username: str,
+    password_data: ChangePasswordWithoutOldPasswordRequest,
     _admin: CurrentAdminDependency,
     request: Request,
 ):
     command = ChangePasswordWithoutOldPassword(
-        username=password_data.username,
-        new_password=password_data.new_password,
+        username=username, new_password=password_data.new_password
     )
-
     request.app.state.messagebus.handle(command)
 
 
-@users_admin_router.post("/change-email", status_code=HTTP_200_OK)
+@users_admin_router.patch("/{username}/email", status_code=HTTP_200_OK)
 def change_email(
-    email_data: ChangeEmailByAdminRequest,
+    username: str,
+    email_data: ChangeEmailRequest,
     _admin: CurrentAdminDependency,
     request: Request,
 ):
     command = ChangeEmail(
-        username=email_data.username,
+        username=username,
         new_email=email_data.new_email,
     )
-
     request.app.state.messagebus.handle(command)

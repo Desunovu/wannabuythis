@@ -38,15 +38,9 @@ class ChangePasswordByUserRequest(BaseModel):
     new_password: str
 
 
-class ChangeEmailByUserRequest(BaseModel):
+class ChangeEmailRequest(BaseModel):
     new_email: str
 
 
-class ChangePasswordByAdminRequest(BaseModel):
-    username: str
+class ChangePasswordWithoutOldPasswordRequest(BaseModel):
     new_password: str
-
-
-class ChangeEmailByAdminRequest(BaseModel):
-    username: str
-    new_email: str

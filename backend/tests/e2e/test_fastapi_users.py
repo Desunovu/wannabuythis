@@ -1,43 +1,38 @@
 class TestFastAPIUsersAdminRoutes:
-    ADMIN_ACTIVATE_URL = "/admin/users/activate"
-    ADMIN_DEACTIVATE_URL = "/admin/users/deactivate"
-    ADMIN_CHANGE_PASSWORD_URL = "/admin/users/change-password"
-    ADMIN_CHANGE_EMAIL_URL = "/admin/users/change-email"
+    ADMIN_PATH = "/admin/users"
+    ACTIVATE = "activate"
+    DEACTIVATE = "deactivate"
+    CHANGE_PASSWORD = "password"
+    CHANGE_EMAIL = "email"
 
     def test_activate_user(
         self, admin_client_contains_deactivated_user, deactivated_user
     ):
-        body = {"username": deactivated_user.username}
-        response = admin_client_contains_deactivated_user.post(
-            url=self.ADMIN_ACTIVATE_URL, json=body
-        )
+        url = f"{self.ADMIN_PATH}/{deactivated_user.username}/{self.ACTIVATE}"
+        response = admin_client_contains_deactivated_user.patch(url)
         assert response.status_code == 200
 
     def test_deactivate_user(
         self, admin_client_contains_activated_user, activated_user
     ):
-        body = {"username": activated_user.username}
-        response = admin_client_contains_activated_user.post(
-            url=self.ADMIN_DEACTIVATE_URL, json=body
-        )
+        url = f"{self.ADMIN_PATH}/{activated_user.username}/{self.DEACTIVATE}"
+        response = admin_client_contains_activated_user.patch(url=url)
         assert response.status_code == 200
 
     def test_change_password(
         self, admin_client_contains_activated_user, activated_user, valid_new_password
     ):
-        body = {"username": activated_user.username, "new_password": valid_new_password}
-        response = admin_client_contains_activated_user.post(
-            url=self.ADMIN_CHANGE_PASSWORD_URL, json=body
-        )
+        url = f"{self.ADMIN_PATH}/{activated_user.username}/{self.CHANGE_PASSWORD}"
+        body = {"new_password": valid_new_password}
+        response = admin_client_contains_activated_user.patch(url=url, json=body)
         assert response.status_code == 200
 
     def test_change_email(
         self, admin_client_contains_activated_user, activated_user, new_email
     ):
-        body = {"username": activated_user.username, "new_email": new_email}
-        response = admin_client_contains_activated_user.post(
-            url=self.ADMIN_CHANGE_EMAIL_URL, json=body
-        )
+        url = f"{self.ADMIN_PATH}/{activated_user.username}/{self.CHANGE_EMAIL}"
+        body = {"new_email": new_email}
+        response = admin_client_contains_activated_user.patch(url=url, json=body)
         assert response.status_code == 200
 
 
