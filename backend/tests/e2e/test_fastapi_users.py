@@ -9,7 +9,7 @@ AUTH_LOGIN_URL = "/auth/login"
 AUTH_ACTIVATE_URL = "/auth/activate"
 AUTHC_RESEND_ACTIVATION_URL = "/auth/resend-activation"
 GET_CURRENT_USER_URL = "/users/me"
-GET_USER_URL = "/users"
+GET_USERS_URL = "/users"
 
 
 class TestFastAPIUsersAdminRoutes:
@@ -114,7 +114,13 @@ class TestFastAPIUsersQueryRoutes:
         assert response.status_code == 200
         assert response.json()["username"] == user.username
 
+    def test_get_users(self, user_client):
+        response = user_client.get(GET_USERS_URL)
+        assert response.status_code == 200
+        assert len(response.json()) > 0
+
     def test_get_user(self, client_with_user, user):
-        url = f"{GET_USER_URL}/{user.username}"
+        url = f"{GET_USERS_URL}/{user.username}"
         response = client_with_user.get(url)
         assert response.status_code == 200
+        assert response.json()["username"] == user.username
