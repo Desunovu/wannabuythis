@@ -100,12 +100,12 @@ class TestFastAPIUsersCommandRoutes:
             "old_password": valid_password,
             "new_password": valid_new_password,
         }
-        response = user_client.post(url=self.CHANGE_PASSWORD_URL, json=body)
+        response = user_client.patch(url=self.CHANGE_PASSWORD_URL, json=body)
         assert response.status_code == 200
 
     def test_change_email(self, user_client, user, new_email):
         body = {"username": user.username, "new_email": new_email}
-        response = user_client.post(url=self.CHANGE_EMAIL_URL, json=body)
+        response = user_client.patch(url=self.CHANGE_EMAIL_URL, json=body)
         assert response.status_code == 200
 
 

@@ -9,10 +9,10 @@ from src.users.entrypoints.fastapi._pydantic_models import (
     ChangePasswordByUserRequest,
 )
 
-users_command_router = APIRouter(prefix="/users", tags=["user_commands"])
+users_command_router = APIRouter(prefix="/users/me", tags=["user_commands"])
 
 
-@users_command_router.post("/change-password", status_code=HTTP_200_OK)
+@users_command_router.patch("/password", status_code=HTTP_200_OK)
 def change_password(
     password_data: ChangePasswordByUserRequest,
     current_user: CurrentUserDependency,
@@ -26,7 +26,7 @@ def change_password(
     request.app.state.messagebus.handle(command)
 
 
-@users_command_router.post("/change-email", status_code=HTTP_200_OK)
+@users_command_router.patch("/email", status_code=HTTP_200_OK)
 def change_email(
     email_data: ChangeEmailByUserRequest,
     current_user: CurrentUserDependency,
