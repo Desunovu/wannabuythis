@@ -4,10 +4,10 @@ ADMIN_CHANGE_PASSWORD_URL = "/admin/users/change-password"
 ADMIN_CHANGE_EMAIL_URL = "/admin/users/change-email"
 CHANGE_EMAIL_URL = "/users/change-email"
 CHANGE_PASSWORD_URL = "/users/change-password"
-REGISTER_URL = "/register"
-ACTIVATE_URL = "/activate"
-RESEND_ACTIVATION_URL = "/resend-activation"
-LOGIN_URL = "/login"
+AUTH_REGISTER_URL = "/auth/register"
+AUTH_LOGIN_URL = "/auth/login"
+AUTH_ACTIVATE_URL = "/auth/activate"
+AUTHC_RESEND_ACTIVATION_URL = "/auth/resend-activation"
 GET_CURRENT_USER_URL = "/users/me"
 GET_USER_URL = "/users"
 
@@ -63,7 +63,12 @@ class TestFastAPIUsersAuthRoutes:
 
     def test_register(self, client, valid_password):
         body = {"username": "username", "email": "email", "password": valid_password}
-        response = client.post(url=REGISTER_URL, json=body)
+        response = client.post(url=AUTH_REGISTER_URL, json=body)
+        assert response.status_code == 200
+
+    def test_login(self, user_client, user, valid_password):
+        form_data = {"username": user.username, "password": valid_password}
+        response = user_client.post(url=AUTH_LOGIN_URL, data=form_data)
         assert response.status_code == 200
 
     def test_activate(self, client_with_deactivated_user, deactivated_user):
@@ -72,7 +77,7 @@ class TestFastAPIUsersAuthRoutes:
             user=deactivated_user,
         )
         body = {"username": deactivated_user.username, "code": code}
-        response = client_with_deactivated_user.post(url=ACTIVATE_URL, json=body)
+        response = client_with_deactivated_user.post(url=AUTH_ACTIVATE_URL, json=body)
         assert response.status_code == 200
 
     def test_resend_activation_link(
@@ -80,13 +85,8 @@ class TestFastAPIUsersAuthRoutes:
     ):
         form_data = {"username": deactivated_user.username, "password": valid_password}
         response = client_with_deactivated_user.post(
-            RESEND_ACTIVATION_URL, data=form_data
+            url=AUTHC_RESEND_ACTIVATION_URL, data=form_data
         )
-        assert response.status_code == 200
-
-    def test_login(self, user_client, user, valid_password):
-        form_data = {"username": user.username, "password": valid_password}
-        response = user_client.post(url=LOGIN_URL, data=form_data)
         assert response.status_code == 200
 
 

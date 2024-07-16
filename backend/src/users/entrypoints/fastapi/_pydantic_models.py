@@ -17,6 +17,17 @@ class UserResponse(BaseModel):
     is_active: bool
 
 
+class CreateUserRequest(BaseModel):
+    username: str
+    email: str
+    password: str
+
+
+class ResendActivationCodeRequest(BaseModel):
+    username: str
+    password: str
+
+
 class ActivateUserWithCodeRequest(BaseModel):
     username: str
     code: str
