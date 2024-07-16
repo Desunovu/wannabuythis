@@ -19,6 +19,15 @@ def get_me(request: Request, current_user: CurrentUserDependency):
 
 
 @limiter.limit("5/minute")
+@users_query_router.get("/")
+def get_users(request: Request):
+    session = request.app.state.messagebus.uow.session_factory()
+    users = user_queries.get_all_users(session=session)
+
+    return [UserResponse(**asdict(user)) for user in users]
+
+
+@limiter.limit("5/minute")
 @users_query_router.get("/{username}")
 def get_user(
     username: str,
