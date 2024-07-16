@@ -5,7 +5,7 @@ from starlette.status import HTTP_200_OK
 from src.common.entrypoints.fastapi_dependencies import CurrentUserDependency
 from src.users.domain.commands import ChangeEmail, ChangePasswordWithOldPassword
 from src.users.entrypoints.fastapi._pydantic_models import (
-    ChangeEmailByUserRequest,
+    ChangeEmailRequest,
     ChangePasswordByUserRequest,
 )
 
@@ -28,7 +28,7 @@ def change_password(
 
 @users_command_router.patch("/email", status_code=HTTP_200_OK)
 def change_email(
-    email_data: ChangeEmailByUserRequest,
+    email_data: ChangeEmailRequest,
     current_user: CurrentUserDependency,
     request: Request,
 ):
