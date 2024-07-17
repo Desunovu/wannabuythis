@@ -74,10 +74,7 @@ class FakeActivationCodeStorage(ActivationCodeStorage):
         self._activation_codes = dict()
 
     def get_activation_code(self, username: str) -> None | str:
-        try:
-            return self._activation_codes[username]
-        except KeyError:
-            return None
+        return self._activation_codes.get(username)
 
     def save_activation_code(self, username: str, code: str) -> None:
         self._activation_codes[username] = code
