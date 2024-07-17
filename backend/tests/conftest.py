@@ -21,45 +21,82 @@ from src.wishlists.domain.model import MeasurementUnit, Priority, Wishlist, Wish
 from tests.fakes import FakeActivationCodeStorage, FakeNotificator, FakeUnitOfWork
 
 
+# General purpose fixtures
 @pytest.fixture
-def user(user_email, valid_password):
-    """Default active user with #valid_password"""
-    user = User(
+def valid_password():
+    return "passWORD123"
+
+
+@pytest.fixture
+def valid_new_password():
+    return "NEWpassWORD123"
+
+
+@pytest.fixture
+def invalid_password():
+    return "123"
+
+
+@pytest.fixture
+def email():
+    return "testemail@example.com"
+
+
+@pytest.fixture
+def new_email():
+    return "newtestemail@example.com"
+
+
+@pytest.fixture
+def admin_email():
+    return "admin@example.com"
+
+
+@pytest.fixture
+def wishlist_name():
+    return "My wishlist"
+
+
+@pytest.fixture
+def wishlist_new_name():
+    return "My new wishlist name"
+
+
+# User fixtures
+@pytest.fixture
+def user(email, valid_password):
+    return User(
         username="testuser",
-        email=user_email,
+        email=email,
         password_hash=HashlibPasswordHashUtil.hash_password(valid_password),
         is_active=True,
     )
-    return user
 
 
 @pytest.fixture
 def admin_user(admin_email, valid_password):
-    """Admin user"""
-    admin = User(
+    return User(
         username="admin",
         email=admin_email,
         password_hash=HashlibPasswordHashUtil.hash_password(valid_password),
         is_active=True,
         is_superuser=True,
     )
-    return admin
 
 
 @pytest.fixture
 def deactivated_user(user):
-    """User with is_active=False"""
     user.is_active = False
     return user
 
 
 @pytest.fixture
 def activated_user(user):
-    """User with is_active=True"""
     user.is_active = True
     return user
 
 
+# Wishlist fixtures
 @pytest.fixture
 def measurement_unit():
     return MeasurementUnit.KILOGRAM
@@ -72,7 +109,6 @@ def priority():
 
 @pytest.fixture
 def purchased_banana_item(measurement_unit, priority):
-    """Purchased wishlist item"""
     return WishlistItem(
         uuid=uuid4(),
         wishlist_uuid=uuid4(),
@@ -86,7 +122,6 @@ def purchased_banana_item(measurement_unit, priority):
 
 @pytest.fixture
 def apple_item(measurement_unit, priority):
-    """Just an apple wishlist item"""
     return WishlistItem(
         uuid=uuid4(),
         wishlist_uuid=uuid4(),
@@ -99,7 +134,6 @@ def apple_item(measurement_unit, priority):
 
 @pytest.fixture
 def wishlist(user, wishlist_name):
-    """Empty wishlist"""
     return Wishlist(
         uuid=uuid4(), owner_username=user.username, name=wishlist_name, items=[]
     )
@@ -107,87 +141,25 @@ def wishlist(user, wishlist_name):
 
 @pytest.fixture
 def populated_wishlist(user, purchased_banana_item, apple_item, wishlist_name):
-    """Wishlist containing two wishlist items"""
+    """Wishlist with banana (purchased) and apple items"""
     populated_wishlist = Wishlist(
         uuid=uuid4(),
         owner_username=user.username,
         name=wishlist_name,
-        items=[],
+        items=[purchased_banana_item, apple_item],
     )
     purchased_banana_item.wishlist_uuid = populated_wishlist.uuid
     apple_item.wishlist_uuid = populated_wishlist.uuid
-    populated_wishlist.items = [purchased_banana_item, apple_item]
     return populated_wishlist
 
 
 @pytest.fixture
 def archived_wishlist(wishlist):
-    """Archived wishlist"""
     wishlist.is_archived = True
     return wishlist
 
 
-@pytest.fixture
-def messagebus():
-    dependencies = bootstrap.create_dependencies_dict(
-        uow=FakeUnitOfWork(),
-        password_hash_util=HashlibPasswordHashUtil(),
-        uuid_generator=DefaultUUIDGenerator(),
-        activation_code_generator=RandomActivationCodeGenerator(),
-        activation_code_storage=FakeActivationCodeStorage(),
-        token_manager=JWTManager(),
-        notificator=FakeNotificator(),
-    )
-    return bootstrap.initialize_messagebus(dependencies=dependencies)
-
-
-@pytest.fixture
-def valid_password():
-    """Valid password. Used in user fixture"""
-    return "passWORD123"
-
-
-@pytest.fixture
-def valid_new_password():
-    """Another valid password used for password change test"""
-    return "NEWpassWORD123"
-
-
-@pytest.fixture
-def invalid_password():
-    return "123"
-
-
-@pytest.fixture
-def user_email():
-    """Default user email. Used in user fixture"""
-    return "testemail@example.com"
-
-
-@pytest.fixture
-def new_email():
-    """User email used for email change test"""
-    return "newtestemail@example.com"
-
-
-@pytest.fixture
-def admin_email():
-    """Admin user email. Used in admin_user fixture"""
-    return "admin@example.com"
-
-
-@pytest.fixture
-def wishlist_name():
-    """Default wishlist name. Used in wishlist fixture"""
-    return "My wishlist"
-
-
-@pytest.fixture
-def wishlist_new_name():
-    """Wishlist name used for wishlist name change test"""
-    return "My new wishlist name"
-
-
+# ORM, Database and session fixtures
 @pytest.fixture
 def prepare_mappers():
     start_sqlalchemy_mappers()
@@ -197,7 +169,6 @@ def prepare_mappers():
 
 @pytest.fixture
 def sqlite_database_engine(prepare_mappers):
-    # Create an in-memory SQLite database
     engine = create_engine(
         "sqlite://",
         connect_args={"check_same_thread": False},
@@ -223,3 +194,18 @@ def sqlite_session(sqlite_session_factory):
 @pytest.fixture
 def sqlalchemy_uow(sqlite_session_factory):
     return SQLAlchemyUnitOfWork(sqlite_session_factory)
+
+
+# Messagebus fixture
+@pytest.fixture
+def messagebus():
+    dependencies = bootstrap.create_dependencies_dict(
+        uow=FakeUnitOfWork(),
+        password_hash_util=HashlibPasswordHashUtil(),
+        uuid_generator=DefaultUUIDGenerator(),
+        activation_code_generator=RandomActivationCodeGenerator(),
+        activation_code_storage=FakeActivationCodeStorage(),
+        token_manager=JWTManager(),
+        notificator=FakeNotificator(),
+    )
+    return bootstrap.initialize_messagebus(dependencies=dependencies)
