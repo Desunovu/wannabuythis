@@ -71,8 +71,8 @@ def priority():
 
 
 @pytest.fixture
-def banana_item(measurement_unit, priority):
-    """Just a banana wishlist item"""
+def purchased_banana_item(measurement_unit, priority):
+    """Purchased wishlist item"""
     return WishlistItem(
         uuid=uuid4(),
         wishlist_uuid=uuid4(),
@@ -80,6 +80,7 @@ def banana_item(measurement_unit, priority):
         quantity=2,
         measurement_unit=measurement_unit,
         priority=priority,
+        is_purchased=True,
     )
 
 
@@ -105,7 +106,7 @@ def wishlist(user, wishlist_name):
 
 
 @pytest.fixture
-def populated_wishlist(user, banana_item, apple_item, wishlist_name):
+def populated_wishlist(user, purchased_banana_item, apple_item, wishlist_name):
     """Wishlist containing two wishlist items"""
     populated_wishlist = Wishlist(
         uuid=uuid4(),
@@ -113,28 +114,9 @@ def populated_wishlist(user, banana_item, apple_item, wishlist_name):
         name=wishlist_name,
         items=[],
     )
-    banana_item.wishlist_uuid = populated_wishlist.uuid
+    purchased_banana_item.wishlist_uuid = populated_wishlist.uuid
     apple_item.wishlist_uuid = populated_wishlist.uuid
-    populated_wishlist.items = [banana_item, apple_item]
-    return populated_wishlist
-
-
-@pytest.fixture
-def populated_wishlist_with_purchased_items(
-    user, banana_item, apple_item, wishlist_name
-):
-    """Wishlist containing two purchased wishlist items"""
-    populated_wishlist = Wishlist(
-        uuid=uuid4(),
-        owner_username=user.username,
-        name=wishlist_name,
-        items=[],
-    )
-    banana_item.wishlist_uuid = populated_wishlist.uuid
-    apple_item.wishlist_uuid = populated_wishlist.uuid
-    banana_item.is_purchased = True
-    apple_item.is_purchased = True
-    populated_wishlist.items = [banana_item, apple_item]
+    populated_wishlist.items = [purchased_banana_item, apple_item]
     return populated_wishlist
 
 
