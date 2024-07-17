@@ -72,15 +72,12 @@ class TestFastAPIWishlistsCommandRoutes:
 
     def test_mark_wishlist_item_as_not_purchased(
         self,
-        user_with_populated_wishlist_with_purchased_items_client,
-        populated_wishlist_with_purchased_items,
-        apple_item,
+        user_with_populated_wishlist_client,
+        purchased_banana_item,
     ):
-        url = f"{MARK_WISHLIST_ITEM_AS_NOT_PURCHASED}{populated_wishlist_with_purchased_items.uuid}"
-        body = {"item_uuid": apple_item.uuid.hex}
-        response = user_with_populated_wishlist_with_purchased_items_client.post(
-            url=url, json=body
-        )
+        url = f"{MARK_WISHLIST_ITEM_AS_NOT_PURCHASED}{purchased_banana_item.wishlist_uuid}"
+        body = {"item_uuid": purchased_banana_item.uuid.hex}
+        response = user_with_populated_wishlist_client.post(url=url, json=body)
         assert response.status_code == 200
 
 
