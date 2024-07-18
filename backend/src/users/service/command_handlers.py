@@ -25,7 +25,7 @@ from src.users.domain.commands import (
     ResendActivationCode,
 )
 from src.users.domain.model import User
-from src.users.service.handlers_utils import (
+from src.users.service.handler_utils import (
     change_user_password,
     check_user_exists,
     send_new_activation_code,
