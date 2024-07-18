@@ -1,4 +1,4 @@
-from src.common.dependencies.uuid_generator import UUIDGenerator
+from src.common.utils.uuid_generator import UUIDGenerator
 from src.common.domain.commands import Command
 from src.common.service.uow import UnitOfWork
 from src.wishlists.domain.commands import (

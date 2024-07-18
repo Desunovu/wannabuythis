@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from src.common.dependencies.token_manager import JWTManager
+from src.common.utils.token_manager import JWTManager
 from src.integration.entrypoints.fastapi_app import create_app
 
 

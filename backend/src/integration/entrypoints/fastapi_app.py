@@ -6,13 +6,13 @@ from fastapi import FastAPI
 from sqlalchemy.orm import clear_mappers
 
 from src import bootstrap, config
-from src.common.dependencies.activation_code_generator import (
+from src.common.utils.activation_code_generator import (
     RandomActivationCodeGenerator,
 )
-from src.common.dependencies.notificator import EmailNotificator
-from src.common.dependencies.password_hash_util import HashlibPasswordHashUtil
-from src.common.dependencies.token_manager import JWTManager
-from src.common.dependencies.uuid_generator import DefaultUUIDGenerator
+from src.common.utils.notificator import EmailNotificator
+from src.common.utils.password_hash_util import HashlibPasswordHashUtil
+from src.common.utils.token_manager import JWTManager
+from src.common.utils.uuid_generator import DefaultUUIDGenerator
 from src.common.entrypoints.fastapi_limiter import limiter
 from src.integration.adapters.redis.activation_code_storage import (
     RedisActivationCodeStorage,
@@ -48,7 +48,7 @@ async def lifespan(application: FastAPI):
 
 
 def setup_messagebus_dependencies():
-    """Set up dependencies for messagebus based on app environment"""
+    """Set up utils for messagebus based on app environment"""
 
     notificator = (
         FakeNotificator() if config.get_env() == "development" else EmailNotificator()
@@ -70,7 +70,7 @@ def setup_messagebus_dependencies():
 def create_app():
     app = FastAPI(lifespan=lifespan)
 
-    # Initialize dependencies and messagebus
+    # Initialize utils and messagebus
     dependencies = setup_messagebus_dependencies()
     messagebus = bootstrap.initialize_messagebus(dependencies=dependencies)
 
