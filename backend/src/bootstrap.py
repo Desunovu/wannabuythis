@@ -2,11 +2,11 @@ import inspect
 from typing import Any, Callable
 
 from src.common.adapters.activation_code_storage import ActivationCodeStorage
-from src.common.dependencies.activation_code_generator import ActivationCodeGenerator
-from src.common.dependencies.notificator import Notificator
-from src.common.dependencies.password_hash_util import PasswordHashUtil
-from src.common.dependencies.token_manager import TokenManager
-from src.common.dependencies.uuid_generator import UUIDGenerator
+from src.common.utils.activation_code_generator import ActivationCodeGenerator
+from src.common.utils.notificator import Notificator
+from src.common.utils.password_hash_util import PasswordHashUtil
+from src.common.utils.token_manager import TokenManager
+from src.common.utils.uuid_generator import UUIDGenerator
 from src.common.domain.commands import Command
 from src.common.domain.events import DomainEvent
 from src.common.logger import setup_logging
