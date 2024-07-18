@@ -10,7 +10,7 @@ from src.users.domain.events import (
     UserCreated,
     UserDeactivated,
 )
-from src.users.service.handlers_utils import send_new_activation_code
+from src.users.service.handler_utils import send_new_activation_code
 
 
 def handle_user_created(
