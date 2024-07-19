@@ -24,20 +24,24 @@ class TokenException(Exception):
         super().__init__(message)
 
 
-class CannotGenerateAuthToken(Forbidden):
-    def __init__(self, username: str):
-        super().__init__(f"Cannot generate token for inactive user ({username})")
-
-
-class CannotResendActivationToken(Forbidden):
-    def __init__(self, username: str):
-        super().__init__(f"Cannot resend activation token for user ({username})")
-
-
 class UserNotAuthorized(Forbidden):
     def __init__(self, username: str):
         super().__init__(
             f"User '{username}' does not have permission to perform this action"
+        )
+
+
+class UserNotActive(Forbidden):
+    def __init__(self, username: str):
+        super().__init__(
+            f"User {username} cannot perform this action because it is not active"
+        )
+
+
+class UserActive(Forbidden):
+    def __init__(self, username: str):
+        super().__init__(
+            f"User {username} cannot perform this action because it is active"
         )
 
 
