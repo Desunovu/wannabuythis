@@ -10,7 +10,7 @@ from src.common.utils.activation_code_generator import (
     RandomActivationCodeGenerator,
 )
 from src.common.utils.notificator import EmailNotificator
-from src.common.utils.password_hash_util import HashlibPasswordHashUtil
+from src.common.utils.password_manager import HashlibPasswordManager
 from src.common.utils.token_manager import JWTManager
 from src.common.utils.uuid_generator import DefaultUUIDGenerator
 from src.common.entrypoints.fastapi_limiter import limiter
@@ -57,7 +57,7 @@ def setup_messagebus_dependencies():
 
     dependencies = bootstrap.create_dependencies_dict(
         uow=SQLAlchemyUnitOfWork(),
-        password_hash_util=HashlibPasswordHashUtil(),
+        password_manager=HashlibPasswordManager(),
         uuid_generator=DefaultUUIDGenerator(),
         activation_code_generator=RandomActivationCodeGenerator(),
         activation_code_storage=RedisActivationCodeStorage(redis_client=redis_client),
