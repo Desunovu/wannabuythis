@@ -1,18 +1,8 @@
 from src.common.adapters.activation_code_storage import ActivationCodeStorage
-from src.common.service.exceptions import UserNotFound
-from src.common.service.uow import UnitOfWork
 from src.common.utils.activation_code_generator import ActivationCodeGenerator
 from src.common.utils.notificator import Notificator
 from src.common.utils.password_manager import PasswordManager
 from src.users.domain.model import User
-
-
-def check_user_exists(username: str, uow: UnitOfWork) -> bool:
-    try:
-        _user = uow.user_repository.get(username)
-        return True
-    except UserNotFound:
-        return False
 
 
 def send_new_activation_code(

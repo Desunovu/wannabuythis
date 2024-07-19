@@ -4,7 +4,6 @@ from src.common.service.exceptions import (
     CannotGenerateAuthToken,
     CannotResendActivationToken,
     CodeVerificationError,
-    UserAlreadyExists,
 )
 from src.common.service.uow import UnitOfWork
 from src.common.utils.activation_code_generator import ActivationCodeGenerator
@@ -24,7 +23,7 @@ from src.users.domain.commands import (
 )
 from src.users.domain.model import User
 from src.users.service import handler_utils
-from src.users.service.handler_utils import check_user_exists, send_new_activation_code
+from src.users.service.handler_utils import send_new_activation_code
 
 
 def handle_create_user(
@@ -33,14 +32,16 @@ def handle_create_user(
     password_manager: PasswordManager,
 ):
     with uow:
-        if check_user_exists(username=command.username, uow=uow):
-            raise UserAlreadyExists(command.username)
+        uow.user_repository.assert_user_does_not_exist(command.username)
         PasswordManager.assert_password_valid(command.password)
-        password_hash = password_manager.hash_password(command.password)
+
         user = User(
-            username=command.username, email=command.email, password_hash=password_hash
+            username=command.username,
+            email=command.email,
+            password_hash=password_manager.hash_password(command.password),
         )
         uow.user_repository.add(user)
+
         uow.commit()
 
 

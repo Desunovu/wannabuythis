@@ -46,9 +46,9 @@ class UserNotFound(NotFoundException):
         super().__init__(f"User '{username}' not found")
 
 
-class UserAlreadyExists(ConflictException):
+class UserExists(ConflictException):
     def __init__(self, username: str):
-        super().__init__(f"User '{username}' already exists")
+        super().__init__(f"User '{username}' exists")
 
 
 class UserAlreadyActive(ConflictException):
