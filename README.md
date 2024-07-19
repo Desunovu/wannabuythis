@@ -1,11 +1,11 @@
-### WannaBuyThis
+### wannabuythis
 
-WannaBuyThis is an application designed to help you manage and organize your wish lists. It is divided into various frontend and backend applications to ensure a seamless and efficient user experience.
+wantbuythis is a web application for advanced wishlist management. This monorepository contains backend and frontend applications in their respective directories.
 
 **Technology Stack:**
-- **Frontend:** *not implemented yet*
-- **Backend:** Python, FastAPI, SQLAlchemy. (For more information, see /backend/pyproject.toml)
-- **Other remarks:** The project was created to train in the use of test-driven development approaches, domain-driven design, event architecture and patterns of their support.
+- **Frontend:** Nuxt.js
+- **Backend:** Python, FastAPI, SQLAlchemy (see /backend/pyproject.toml for details)
+- **Other remarks:** Initially, the project was created for educational purposes, to practice architectural patterns and various python application designs. The code does not pretend to be a good example of TDD, DDD, EDA and other approaches.
 
 **Startup Instructions:**
 1. **Clone the Repository:**
@@ -33,7 +33,3 @@ WannaBuyThis is an application designed to help you manage and organize your wis
       ```sh
       poetry run uvicorn src.integration.entrypoints.fastapi_app:app --reload
       ```
-
-**Features:**
-- Create, edit, and manage wish lists.
-- User authentication and authorization.
