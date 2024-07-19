@@ -1,10 +1,6 @@
 from src.common.adapters.activation_code_storage import ActivationCodeStorage
 from src.common.domain.commands import Command
-from src.common.service.exceptions import (
-    CannotGenerateAuthToken,
-    CannotResendActivationToken,
-    CodeVerificationError,
-)
+from src.common.service.exceptions import CodeVerificationError
 from src.common.service.uow import UnitOfWork
 from src.common.utils.activation_code_generator import ActivationCodeGenerator
 from src.common.utils.notificator import Notificator
@@ -52,13 +48,14 @@ def handle_generate_auth_token(
     token_manager: TokenManager,
 ):
     with uow:
-        user = uow.user_repository.get(command.username)
+        user = uow.user_repository.get_active_user(command.username)
     password_manager.assert_passwords_match(command.password, user.password_hash)
-    if not user.is_active:
-        raise CannotGenerateAuthToken(command.username)
+
     token = token_manager.generate_token(
-        username=user.username, token_lifetime=command.token_lifetime
+        username=user.username,
+        token_lifetime=command.token_lifetime,
     )
+
     return token
 
 
@@ -135,10 +132,9 @@ def handle_resend_activation_code(
     password_manager: PasswordManager,
 ):
     with uow:
-        user = uow.user_repository.get(command.username)
+        user = uow.user_repository.get_inactive_user(command.username)
     password_manager.assert_passwords_match(command.password, user.password_hash)
-    if user.is_active:
-        raise CannotResendActivationToken(command.username)
+
     send_new_activation_code(
         user=user,
         activation_code_generator=activation_code_generator,

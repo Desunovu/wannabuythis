@@ -3,14 +3,14 @@ import datetime
 import pytest
 
 from src.common.service.exceptions import (
-    CannotGenerateAuthToken,
-    CannotResendActivationToken,
     CodeVerificationError,
     PasswordValidationError,
     PasswordVerificationError,
+    UserActive,
     UserAlreadyActive,
     UserAlreadyDeactivated,
     UserExists,
+    UserNotActive,
     UserNotFound,
 )
 from src.users.domain.commands import (
@@ -86,7 +86,7 @@ class TestGenerateAuthToken:
     def test_generate_auth_token_inactive_user(
         self, messagebus, deactivated_user, valid_password
     ):
-        with pytest.raises(CannotGenerateAuthToken):
+        with pytest.raises(UserNotActive):
             messagebus.uow.user_repository.add(deactivated_user)
             messagebus.handle(
                 GenerateAuthToken(
@@ -292,7 +292,7 @@ class TestResendActivationCode:
         command = ResendActivationCode(
             username=activated_user.username, password=valid_password
         )
-        with pytest.raises(CannotResendActivationToken):
+        with pytest.raises(UserActive):
             messagebus.handle(command)
 
 
