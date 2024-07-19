@@ -10,7 +10,7 @@ from src.common.service.exceptions import (
     PasswordVerificationError,
     UserAlreadyActive,
     UserAlreadyDeactivated,
-    UserAlreadyExists,
+    UserExists,
     UserNotFound,
 )
 from src.users.domain.commands import (
@@ -49,7 +49,7 @@ class TestCreateUser:
 
     def test_create_user_with_existing_username(self, messagebus, user, valid_password):
         messagebus.uow.user_repository.add(user)
-        with pytest.raises(UserAlreadyExists):
+        with pytest.raises(UserExists):
             messagebus.handle(
                 CreateUser(
                     username=user.username,
