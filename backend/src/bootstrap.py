@@ -2,16 +2,16 @@ import inspect
 from typing import Any, Callable
 
 from src.common.adapters.activation_code_storage import ActivationCodeStorage
-from src.common.utils.activation_code_generator import ActivationCodeGenerator
-from src.common.utils.notificator import Notificator
-from src.common.utils.password_hash_util import PasswordHashUtil
-from src.common.utils.token_manager import TokenManager
-from src.common.utils.uuid_generator import UUIDGenerator
 from src.common.domain.commands import Command
 from src.common.domain.events import DomainEvent
 from src.common.logger import setup_logging
 from src.common.service.messagebus import Messagebus
 from src.common.service.uow import UnitOfWork
+from src.common.utils.activation_code_generator import ActivationCodeGenerator
+from src.common.utils.notificator import Notificator
+from src.common.utils.password_manager import PasswordManager
+from src.common.utils.token_manager import TokenManager
+from src.common.utils.uuid_generator import UUIDGenerator
 from src.users.service.command_handlers import USER_COMMAND_HANDLERS
 from src.users.service.event_handlers import USER_EVENT_HANDLERS
 from src.wishlists.service.command_handlers import WISHLIST_COMMAND_HANDLERS
@@ -89,7 +89,7 @@ def initialize_messagebus(dependencies: dict[str, Any]) -> Messagebus:
 
 def create_dependencies_dict(
     uow: UnitOfWork,
-    password_hash_util: PasswordHashUtil,
+    password_manager: PasswordManager,
     uuid_generator: UUIDGenerator,
     activation_code_generator: ActivationCodeGenerator,
     activation_code_storage: ActivationCodeStorage,
@@ -100,7 +100,7 @@ def create_dependencies_dict(
 
     return {
         "uow": uow,
-        "password_hash_util": password_hash_util,
+        "password_manager": password_manager,
         "uuid_generator": uuid_generator,
         "activation_code_generator": activation_code_generator,
         "activation_code_storage": activation_code_storage,

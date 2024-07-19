@@ -5,10 +5,8 @@ from sqlalchemy import StaticPool, create_engine
 from sqlalchemy.orm import clear_mappers, sessionmaker
 
 from src import bootstrap
-from src.common.utils.activation_code_generator import (
-    RandomActivationCodeGenerator,
-)
-from src.common.utils.password_hash_util import HashlibPasswordHashUtil
+from src.common.utils.activation_code_generator import RandomActivationCodeGenerator
+from src.common.utils.password_manager import HashlibPasswordManager
 from src.common.utils.token_manager import JWTManager
 from src.common.utils.uuid_generator import DefaultUUIDGenerator
 from src.integration.adapters.sqlalchemy_orm import (
@@ -68,7 +66,7 @@ def user(email, valid_password):
     return User(
         username="testuser",
         email=email,
-        password_hash=HashlibPasswordHashUtil.hash_password(valid_password),
+        password_hash=HashlibPasswordManager.hash_password(valid_password),
         is_active=True,
     )
 
@@ -78,7 +76,7 @@ def admin_user(admin_email, valid_password):
     return User(
         username="admin",
         email=admin_email,
-        password_hash=HashlibPasswordHashUtil.hash_password(valid_password),
+        password_hash=HashlibPasswordManager.hash_password(valid_password),
         is_active=True,
         is_superuser=True,
     )
@@ -201,7 +199,7 @@ def sqlalchemy_uow(sqlite_session_factory):
 def messagebus():
     dependencies = bootstrap.create_dependencies_dict(
         uow=FakeUnitOfWork(),
-        password_hash_util=HashlibPasswordHashUtil(),
+        password_manager=HashlibPasswordManager(),
         uuid_generator=DefaultUUIDGenerator(),
         activation_code_generator=RandomActivationCodeGenerator(),
         activation_code_storage=FakeActivationCodeStorage(),
