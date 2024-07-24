@@ -12,6 +12,7 @@
   "devDependencies": {
     "@nuxt/devtools": "latest",
     "@nuxt/ui": "^2.17.0",
+    "@sidebase/nuxt-auth": "^0.8.1",
     "nuxt": "^3.12.4",
     "nuxt-open-fetch": "^0.9.1"
   }
