@@ -2,6 +2,7 @@
 import type { FormError, FormSubmitEvent } from "#ui/types";
 
 const { $backend } = useNuxtApp();
+const { signIn } = useAuth();
 
 const state = reactive({
   username: undefined,
@@ -16,20 +17,21 @@ const validate = (state: any): FormError[] => {
 };
 
 async function onSubmit(event: FormSubmitEvent<any>) {
-  const formData = new FormData()
-  formData.append("username", event.data.username)
-  formData.append("password", event.data.password)
+  const formData = new FormData();
+  formData.append("username", event.data.username);
+  formData.append("password", event.data.password);
 
-  const response = await $backend("/auth/login", {
-    method: "POST",
-    body: formData,
-  })
-  console.log(response);
+  await signIn(formData, { callbackUrl: "/" });
 }
 </script>
 
 <template>
-  <UForm :validate="validate" :state="state" class="space-y-4" @submit="onSubmit">
+  <UForm
+    :validate="validate"
+    :state="state"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
     <UFormGroup label="Username" name="username">
       <UInput v-model="state.username" />
     </UFormGroup>
