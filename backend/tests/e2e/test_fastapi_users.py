@@ -53,8 +53,8 @@ class TestFastAPIUsersAuthRoutes:
         return code
 
     def test_register(self, client, valid_password):
-        body = {"username": "username", "email": "email", "password": valid_password}
-        response = client.post(url=self.AUTH_REGISTER_URL, json=body)
+        form_data = {"username": "username", "email": "email", "password": valid_password}
+        response = client.post(url=self.AUTH_REGISTER_URL, data=form_data)
         assert response.status_code == 200
 
     def test_login(self, user_client, user, valid_password):
