@@ -6,21 +6,11 @@ class LoginUserResponse(BaseModel):
     token_type: str
 
 
-class CreateUserResponse(BaseModel):
-    message: str
-
-
 class UserResponse(BaseModel):
     username: str
     email: str
     is_active: bool
     is_active: bool
-
-
-class CreateUserRequest(BaseModel):
-    username: str
-    email: str
-    password: str
 
 
 class ResendActivationCodeRequest(BaseModel):
