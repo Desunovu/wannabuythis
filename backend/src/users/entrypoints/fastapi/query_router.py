@@ -28,7 +28,7 @@ def get_users(request: Request):
 
 
 @limiter.limit("5/minute")
-@users_query_router.get("/{username}, response_model=UserResponse")
+@users_query_router.get("/{username}", response_model=UserResponse)
 def get_user(
     username: str,
     request: Request,
