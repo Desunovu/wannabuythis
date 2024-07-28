@@ -13,6 +13,10 @@ export default defineNuxtConfig({
   },
   auth: {
     baseURL: "http://localhost:8000/",
+    globalAppMiddleware: {
+      isEnabled: true,
+      addDefaultCallbackUrl: "login",
+    },
     provider: {
       type: "local",
       endpoints: {
@@ -20,9 +24,6 @@ export default defineNuxtConfig({
         signOut: false,
         signUp: { path: "auth/register", method: "post" },
         getSession: { path: "users/me", method: "get" },
-      },
-      pages: {
-        login: "auth/login",
       },
       token: {
         signInResponseTokenPointer: "/access_token",
