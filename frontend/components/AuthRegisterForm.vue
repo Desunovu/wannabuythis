@@ -15,7 +15,8 @@ const validate = (state: any): FormError[] => {
   if (!state.username) errors.push({ path: "username", message: "Required" });
   if (!state.email) errors.push({ path: "email", message: "Required" });
   if (!state.password) errors.push({ path: "password", message: "Required" });
-  if (state.password !== state.confirmPassword) errors.push({ path: "confirmPassword", message: "Passwords do not match" });
+  if (state.password !== state.confirmPassword)
+    errors.push({ path: "confirmPassword", message: "Passwords do not match" });
   return errors;
 };
 
@@ -25,12 +26,17 @@ async function onSubmit(event: FormSubmitEvent<any>) {
   formData.append("email", event.data.email);
   formData.append("password", event.data.password);
 
-  await signUp(formData, { callbackUrl: '/profile', redirect: true })
+  await signUp(formData, { callbackUrl: "/profile", redirect: true });
 }
 </script>
 
 <template>
-  <UForm :validate="validate" :state="state" class="space-y-4" @submit="onSubmit">
+  <UForm
+    :validate="validate"
+    :state="state"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
     <UFormGroup label="Username" name="username">
       <UInput v-model="state.username" />
     </UFormGroup>
