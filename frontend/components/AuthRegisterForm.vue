@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FormError, FormSubmitEvent } from "#ui/types";
 
-const { $backend } = useNuxtApp();
+const { signUp } = useAuth();
 
 const state = reactive({
   username: undefined,
@@ -20,11 +20,12 @@ const validate = (state: any): FormError[] => {
 };
 
 async function onSubmit(event: FormSubmitEvent<any>) {
-  const response = await $backend("/auth/register", {
-    method: "POST",
-    body: event.data
-  })
-  console.log(response);
+  const formData = new FormData();
+  formData.append("username", event.data.username);
+  formData.append("email", event.data.email);
+  formData.append("password", event.data.password);
+
+  await signUp(formData, { callbackUrl: '/profile', redirect: true })
 }
 </script>
 
