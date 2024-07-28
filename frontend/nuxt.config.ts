@@ -32,8 +32,8 @@ export default defineNuxtConfig({
           username: "string",
           email: "string",
           is_active: "boolean",
-        }
-      }
+        },
+      },
     },
   },
 });
