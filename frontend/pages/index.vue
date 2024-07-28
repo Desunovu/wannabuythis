@@ -1,4 +1,7 @@
 <script setup lang="ts">
+definePageMeta({
+  auth: false,
+});
 const { data } = useAuth();
 </script>
 
