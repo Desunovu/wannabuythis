@@ -32,8 +32,8 @@ def handle_create_user(
         PasswordManager.assert_password_valid(command.password)
 
         user = User(
-            username=command.username,
-            email=command.email,
+            username=command.username.lower(),
+            email=command.email.lower(),
             password_hash=password_manager.hash_password(command.password),
         )
         uow.user_repository.add(user)
