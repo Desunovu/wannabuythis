@@ -3,6 +3,7 @@ from typing import Any
 
 from src.common.domain.commands import Command
 from src.common.domain.events import DomainEvent
+from src.common.service.exceptions import ApplicationException
 from src.common.service.uow import UnitOfWork
 
 # Dependencies should be injected in handlers by bootstrap script (see src/bootstrap.py)
@@ -34,6 +35,11 @@ class Messagebus:
                 f"Command {command} handled successfully by {command_handler.__name__}"
             )
             return result
+        except ApplicationException as e:
+            logger.error(
+                f"Failed to handle command {command}: {e}"
+            )
+            raise e
         except Exception as e:
             logger.exception(f"Failed to handle command {command}. Exception: {e}")
             raise e
@@ -45,6 +51,10 @@ class Messagebus:
                 self.queue.extend(self.uow.collect_new_events())
                 logger.info(
                     f"Event {event} handled successfully by {event_handler.__name__}"
+                )
+            except ApplicationException as e:
+                logger.warning(
+                    f"Failed to handle event {event} by {event_handler.__name__}: {e}"
                 )
             except Exception as e:
                 logger.exception(
