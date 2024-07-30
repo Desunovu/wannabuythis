@@ -1,27 +1,31 @@
 from uuid import UUID
 
 
-class NotFoundException(Exception):
+class ApplicationException(Exception):
     pass
 
 
-class ConflictException(Exception):
+class NotFoundException(ApplicationException):
     pass
 
 
-class ValidationException(Exception):
+class ConflictException(ApplicationException):
     pass
 
 
-class VerificationException(Exception):
+class ValidationException(ApplicationException):
     pass
 
 
-class Forbidden(Exception):
+class VerificationException(ApplicationException):
     pass
 
 
-class TokenException(Exception):
+class Forbidden(ApplicationException):
+    pass
+
+
+class TokenException(ApplicationException):
     def __init__(self, message: str):
         super().__init__(message)
 
