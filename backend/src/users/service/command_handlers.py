@@ -48,7 +48,7 @@ def handle_generate_auth_token(
     token_manager: TokenManager,
 ):
     with uow:
-        user = uow.user_repository.get(command.username)
+        user = uow.user_repository.get(command.username.lower())
     password_manager.assert_passwords_match(command.password, user.password_hash)
 
     token = token_manager.generate_token(
