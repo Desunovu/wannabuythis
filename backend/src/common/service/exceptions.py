@@ -1,25 +1,31 @@
 from uuid import UUID
 
-from fastapi.exceptions import ValidationException
 
-
-class NotFoundException(Exception):
+class ApplicationException(Exception):
     pass
 
 
-class ConflictException(Exception):
+class NotFoundException(ApplicationException):
     pass
 
 
-class VerificationException(Exception):
+class ConflictException(ApplicationException):
     pass
 
 
-class Forbidden(Exception):
+class ValidationException(ApplicationException):
     pass
 
 
-class TokenException(Exception):
+class VerificationException(ApplicationException):
+    pass
+
+
+class Forbidden(ApplicationException):
+    pass
+
+
+class TokenException(ApplicationException):
     def __init__(self, message: str):
         super().__init__(message)
 

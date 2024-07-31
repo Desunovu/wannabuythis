@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.requests import Request
 from starlette.status import HTTP_200_OK
@@ -15,7 +15,6 @@ from src.users.domain.commands import (
 )
 from src.users.entrypoints.fastapi._pydantic_models import (
     ActivateUserWithCodeRequest,
-    CreateUserRequest,
     LoginUserResponse,
 )
 
@@ -24,12 +23,18 @@ users_auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
 @users_auth_router.post("/register", status_code=HTTP_200_OK)
 @limiter.limit("5/minute")
-def register(body_data: CreateUserRequest, request: Request):
+def register(
+    username: Annotated[str, Form()],
+    email: Annotated[str, Form()],
+    password: Annotated[str, Form()],
+    request: Request,
+):
     command = CreateUser(
-        username=body_data.username,
-        email=body_data.email,
-        password=body_data.password,
+        username=username,
+        email=email,
+        password=password,
     )
+
     request.app.state.messagebus.handle(command)
 
 

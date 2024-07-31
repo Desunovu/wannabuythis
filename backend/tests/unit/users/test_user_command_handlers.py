@@ -73,25 +73,26 @@ class TestGenerateAuthToken:
         )
         assert token
 
+    def test_inactive_user_allowed_to_generate_auth_token(
+        self, messagebus, deactivated_user, valid_password
+    ):
+        messagebus.uow.user_repository.add(deactivated_user)
+        command = GenerateAuthToken(
+            username=deactivated_user.username,
+            password=valid_password,
+            token_lifetime=datetime.timedelta(minutes=1),
+        )
+
+        token = messagebus.handle(command)
+
+        assert token
+
     def test_generate_auth_token_wrong_username(self, messagebus):
         with pytest.raises(UserNotFound):
             messagebus.handle(
                 GenerateAuthToken(
                     username="non-existing-user",
                     password="password",
-                    token_lifetime=datetime.timedelta(minutes=1),
-                )
-            )
-
-    def test_generate_auth_token_inactive_user(
-        self, messagebus, deactivated_user, valid_password
-    ):
-        with pytest.raises(UserNotActive):
-            messagebus.uow.user_repository.add(deactivated_user)
-            messagebus.handle(
-                GenerateAuthToken(
-                    username=deactivated_user.username,
-                    password=valid_password,
                     token_lifetime=datetime.timedelta(minutes=1),
                 )
             )

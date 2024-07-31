@@ -5,6 +5,9 @@ import os.path
 
 def setup_logging(name) -> None:
     logger = logging.getLogger(name)
+    if logger.hasHandlers():
+        logger.handlers.clear()
+
     logger.setLevel(logging.DEBUG)
 
     # Create logs folder if it doesn't exist
@@ -34,3 +37,5 @@ def setup_logging(name) -> None:
     # add the handlers to the logger
     logger.addHandler(fh)
     logger.addHandler(ch)
+
+    logger.propagate = False

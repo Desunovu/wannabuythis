@@ -4,6 +4,7 @@ import uvicorn
 from fakeredis import FakeRedis
 from fastapi import FastAPI
 from sqlalchemy.orm import clear_mappers
+from fastapi.middleware.cors import CORSMiddleware
 
 from src import bootstrap, config
 from src.common.utils.activation_code_generator import (
@@ -69,6 +70,18 @@ def setup_messagebus_dependencies():
 
 def create_app():
     app = FastAPI(lifespan=lifespan)
+
+    # Set up CORS
+    origins = [
+        "http://localhost:3000",
+    ]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     # Initialize utils and messagebus
     dependencies = setup_messagebus_dependencies()

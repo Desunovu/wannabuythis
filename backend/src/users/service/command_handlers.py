@@ -32,8 +32,8 @@ def handle_create_user(
         PasswordManager.assert_password_valid(command.password)
 
         user = User(
-            username=command.username,
-            email=command.email,
+            username=command.username.lower(),
+            email=command.email.lower(),
             password_hash=password_manager.hash_password(command.password),
         )
         uow.user_repository.add(user)
@@ -48,7 +48,7 @@ def handle_generate_auth_token(
     token_manager: TokenManager,
 ):
     with uow:
-        user = uow.user_repository.get_active_user(command.username)
+        user = uow.user_repository.get(command.username.lower())
     password_manager.assert_passwords_match(command.password, user.password_hash)
 
     token = token_manager.generate_token(
