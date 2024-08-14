@@ -1,4 +1,16 @@
 services:
+  postgres:
+    image: postgres:16.3
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
   backend:
     build:
       context: .
@@ -13,17 +25,6 @@ services:
       - POSTGRES_DB=postgres
     volumes:
       - .:/app
-
-  postgres:
-    image: postgres:16.3
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
 
 volumes:
   pgdata:
