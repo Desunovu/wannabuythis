@@ -13,8 +13,11 @@ services:
 
   backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
+      target: development
+    depends_on:
+      - postgres
     ports:
       - "8000:8000"
     environment:
@@ -24,7 +27,7 @@ services:
       - POSTGRES_PORT=5432
       - POSTGRES_DB=postgres
     volumes:
-      - .:/app
+      - ./backend:/app
 
 volumes:
   pgdata:
