@@ -36,7 +36,7 @@ RUN poetry install
 # mountpoint of code
 WORKDIR /app
 EXPOSE 8000
-CMD ["uvicorn", "--reload", "src.integration.entrypoints.fastapi_app:app"]
+CMD ["uvicorn","src.integration.entrypoints.fastapi_app:app",  "--reload", "--host", "0.0.0.0", "--port", "8000"]
 
 # `production` image
 FROM python-base as production
