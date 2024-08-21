@@ -5,11 +5,10 @@ const username = ref(userData.value?.username ?? "");
 const { data: wishlistsData } = await useBackend("/wishlists/user/{username}", {
   path: {
     username: username.value,
-  }
-})
+  },
+});
 </script>
 
 <template>
-  <UserProfile v-if="userData" :userData="userData" />
-  <WishlistsPreview v-if="wishlistsData" :wishlistsData="wishlistsData" />
+  <UserProfile :userData="userData" :wishlistsData="wishlistsData" />
 </template>
