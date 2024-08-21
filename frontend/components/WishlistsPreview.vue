@@ -10,11 +10,5 @@ defineProps<{
     <NuxtLink :to="`/wishlists/${wishlist.uuid}`">
       {{ wishlist.name }}
     </NuxtLink>
-    <div v-for="item in wishlist.items" :key="item.uuid">
-      {{ item.name }}
-      {{ item.quantity }}
-      {{ item.measurement_unit }}
-      {{ item.priority }}
-    </div>
   </UCard>
 </template>
