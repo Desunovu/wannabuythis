@@ -10,5 +10,5 @@ const { data: wishlistData } = await useBackend("/wishlists/{uuid}", {
 </script>
 
 <template>
-  <WishlistFullCard :wishlistData="wishlistData" />
+  <WishlistCard :wishlistData="wishlistData" />
 </template>
