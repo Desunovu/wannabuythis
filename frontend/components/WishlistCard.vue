@@ -10,13 +10,7 @@ defineProps<{
     <template #header>
       <div class="text-2xl">{{ wishlistData.name }}</div>
     </template>
-      <div v-for="item in wishlistData.items" :key="item.uuid">
-        <div>{{ item.name }}</div>
-        <div>{{ item.quantity }} ({{ item.measurement_unit }})</div>
-        <div>Importance: {{ item.priority }}</div>
-        <div v-if="item.is_purchased">Purchased</div>
-        <UDivider />
-      </div>
+      <WishlistItemCard v-for="item in wishlistData.items" :key="item.uuid" :wishlistItem="item" />
   </UCard>
   <div v-else>Wishlist not found</div>
 </template>
