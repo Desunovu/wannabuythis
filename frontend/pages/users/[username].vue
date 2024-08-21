@@ -15,14 +15,10 @@ const { data: userData } = await useBackend("/users/{username}", {
 const { data: wishlistsData } = await useBackend("/wishlists/user/{username}", {
   path: {
     username: username,
-  }
-})
+  },
+});
 </script>
 
 <template>
-  <div v-if="userData">
-  <UserProfile v-if="userData" :userData="userData" />
-  <WishlistsPreview v-if="wishlistsData" :wishlistsData="wishlistsData" />
-  </div>
-  <div v-else>User {{ username }} not found.</div>
+  <UserProfile :userData="userData" :wishlistsData="wishlistsData" />
 </template>
