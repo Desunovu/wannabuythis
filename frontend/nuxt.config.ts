@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   modules: ["@nuxt/ui", "nuxt-open-fetch", "@sidebase/nuxt-auth"],
   compatibilityDate: "2024-07-20",
   openFetch: {
+    disableNuxtPlugin: true,
     clients: {
       backend: {
         baseURL: "http://localhost:8000",
