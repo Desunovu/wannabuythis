@@ -16,7 +16,7 @@ export default defineNuxtPlugin({
               onRequest(ctx) {
                 ctx.options.headers = {
                   ...(ctx.options.headers || {}),
-                  Authorization: `Bearer ${token}`,
+                  ...(token ? { Authorization: `${token.value}` } : {}),
                 };
                 return localOptions?.onRequest?.(ctx);
               },
