@@ -7,6 +7,13 @@ defineProps<{
 </script>
 
 <template>
-  <UserProfileInfo v-if="userData" :userData="userData" />
+  <div class="flex">
+    <div class="flex-auto">
+      <UserProfileInfo v-if="userData" :userData="userData" />
+    </div>
+    <div class="flex-shrink-0">
+      <slot name="right" />
+    </div>
+  </div>
   <WishlistsPreview v-if="wishlistsData" :wishlistsData="wishlistsData" />
 </template>
