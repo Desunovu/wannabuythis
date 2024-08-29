@@ -8,9 +8,16 @@ defineProps<{
 <template>
   <UCard v-if="wishlistData">
     <template #header>
-      <div class="text-2xl">{{ wishlistData.name }}</div>
+      <div class="flex items-center justify-around">
+        <div class="text-2xl">{{ wishlistData.name }}</div>
+        <slot name="right" />
+      </div>
     </template>
-      <WishlistItemCard v-for="item in wishlistData.items" :key="item.uuid" :wishlistItem="item" />
+    <WishlistItemCard
+      v-for="item in wishlistData.items"
+      :key="item.uuid"
+      :wishlistItem="item"
+    />
   </UCard>
   <div v-else>Wishlist not found</div>
 </template>
