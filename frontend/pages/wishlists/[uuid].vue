@@ -11,10 +11,14 @@ const { data: wishlistData } = await useBackend("/wishlists/{uuid}", {
 </script>
 
 <template>
-  <WishlistCard :wishlistData="wishlistData" >
-  <!-- If user is wishlist owner then show action buttons -->
+  <WishlistCard :wishlistData="wishlistData">
+    <!-- If user is wishlist owner then show action buttons -->
     <template #right>
-      <WishlistActions v-if="userData?.username === wishlistData?.owner_username" :wishlistUuid="wishlistUuid" />
+      <WishlistActions
+        v-if="userData?.username === wishlistData?.owner_username"
+        :wishlistUuid="wishlistUuid"
+        :isArchived="wishlistData?.is_archived"
+      />
     </template>
   </WishlistCard>
 </template>
