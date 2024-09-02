@@ -45,8 +45,8 @@ const archiveWishlist = async () => {
 
 <template>
   <div class="flex flex-col space-y-2">
-    <UButton :colon="true" @click="changeWishlistName"> Change name </UButton>
-    <UButton :colon="true" @click="addItem"> Add item </UButton>
-    <UButton :colon="true" @click="archiveWishlist"> Archive </UButton>
+    <UButton @click="changeWishlistName"> Change name </UButton>
+    <UButton @click="addItem"> Add item </UButton>
+    <UButton @click="archiveWishlist"> Archive </UButton>
   </div>
 </template>
