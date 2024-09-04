@@ -17,7 +17,7 @@ def get_wishlist_by_uuid(session: Session, uuid: UUID) -> Wishlist:
 
 
 def get_wishlists_owned_by(session: Session, username: str) -> list[Wishlist]:
-    """SQLAlchemy query to get all wishlists owned by a user."""
+    """SQLAlchemy query to get all unarchived wishlists owned by a user."""
 
     wishlists = session.scalars(
         select(Wishlist)
