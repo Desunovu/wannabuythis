@@ -10,6 +10,20 @@ from src.wishlists.queries import wishlist_queries
 wishlists_query_router = APIRouter(prefix="/wishlists", tags=["wishlist_queries"])
 
 
+@wishlists_query_router.get("/archived")
+def get_current_user_archived_wishlists(
+    request: Request,
+    current_user: CurrentUserDependency,
+) -> list[WishlistResponse]:
+    session = request.app.state.messagebus.uow.session_factory()
+
+    wishlists = wishlist_queries.get_archived_wishlists_owned_by(
+        session=session, username=current_user.username
+    )
+
+    return [WishlistResponse.from_dataclass(wishlist) for wishlist in wishlists]
+
+
 @wishlists_query_router.get("/{uuid}")
 def get_wishlist(uuid: UUID, request: Request) -> WishlistResponse:
     session = request.app.state.messagebus.uow.session_factory()
