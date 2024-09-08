@@ -55,5 +55,8 @@ const createNewWishlist = async () => {
         <UButton @click="changePassword"> Change password </UButton>
       </div>
     </template>
+    <template #bottom>
+      <WishlistsArchivedPreview />
+    </template>
   </UserProfile>
 </template>
