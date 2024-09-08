@@ -16,4 +16,7 @@ defineProps<{
     </div>
   </div>
   <WishlistsPreview v-if="wishlistsData" :wishlistsData="wishlistsData" />
+  <div class="mt-8">
+    <slot name="bottom" />
+  </div>
 </template>
