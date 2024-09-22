@@ -2,6 +2,7 @@
 import type { components } from "#build/types/open-fetch/schemas/backend.js";
 defineProps<{
   wishlistItem: components["schemas"]["WishlistItemResponse"];
+  isOwner: boolean;
 }>();
 </script>
 
@@ -14,8 +15,15 @@ defineProps<{
     <div>Importance: {{ wishlistItem.priority }}</div>
     <div v-if="wishlistItem.is_purchased">Purchased</div>
     <UDivider />
+
     <div class="flex justify-end space-x-2">
-      <WishlistItemActions :wishlist-uuid="wishlistItem.wishlist_uuid" :wishlist-item-uuid="wishlistItem.uuid" :is-purchased="wishlistItem.is_purchased" />
+      <!-- Only show actions if the user is the owner -->
+      <WishlistItemActions
+        v-if="isOwner"
+        :wishlist-uuid="wishlistItem.wishlist_uuid"
+        :wishlist-item-uuid="wishlistItem.uuid"
+        :is-purchased="wishlistItem.is_purchased"
+      />
     </div>
   </UCard>
 </template>
