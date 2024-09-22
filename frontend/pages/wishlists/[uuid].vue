@@ -13,7 +13,7 @@ const { data: wishlistData } = await useBackend("/wishlists/{uuid}", {
 <template>
   <WishlistCard :wishlistData="wishlistData">
     <!-- If user is wishlist owner then show action buttons -->
-    <template #right>
+    <template #actions>
       <WishlistActions
         v-if="userData?.username === wishlistData?.owner_username"
         :wishlistUuid="wishlistUuid"

@@ -6,18 +6,20 @@ defineProps<{
 </script>
 
 <template>
-  <UCard v-if="wishlistData">
-    <template #header>
-      <div class="flex items-center justify-around">
-        <div class="text-2xl">{{ wishlistData.name }}</div>
-        <slot name="right" />
-      </div>
-    </template>
+  <div class="space-y-4">
+    <WishlistCardInfo v-if="wishlistData" :wishlistData="wishlistData">
+      <template #actions>
+        <slot name="actions" />
+      </template>
+    </WishlistCardInfo>
+
     <WishlistItemCard
+      v-if="wishlistData"
       v-for="item in wishlistData.items"
       :key="item.uuid"
       :wishlistItem="item"
     />
-  </UCard>
-  <div v-else>Wishlist not found</div>
+
+    <div v-else>Wishlist not found</div>
+  </div>
 </template>
