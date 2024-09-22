@@ -2,6 +2,7 @@
 import type { components } from "#build/types/open-fetch/schemas/backend.js";
 defineProps<{
   wishlistData: components["schemas"]["WishlistResponse"] | null;
+  isOwner: boolean;
 }>();
 </script>
 
@@ -20,8 +21,13 @@ defineProps<{
           </div>
         </div>
 
-        <!-- Slot for right action buttons -->
-        <slot name="actions" class="basis-1/4" />
+        <!-- Only show actions if the user is the owner -->
+        <div class="basis-1/4" v-if="isOwner">
+          <WishlistActions
+            :wishlistUuid="wishlistData.uuid"
+            :isArchived="wishlistData.is_archived"
+          />
+        </div>
       </div>
     </template>
   </UCard>

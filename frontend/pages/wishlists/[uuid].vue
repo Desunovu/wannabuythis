@@ -8,17 +8,12 @@ const { data: wishlistData } = await useBackend("/wishlists/{uuid}", {
     uuid: wishlistUuid,
   },
 });
+
+const isOwner = computed(() => {
+  return wishlistData?.value?.owner_username === userData?.value?.username;
+});
 </script>
 
 <template>
-  <WishlistCard :wishlistData="wishlistData">
-    <!-- If user is wishlist owner then show action buttons -->
-    <template #actions>
-      <WishlistActions
-        v-if="userData?.username === wishlistData?.owner_username"
-        :wishlistUuid="wishlistUuid"
-        :isArchived="wishlistData?.is_archived"
-      />
-    </template>
-  </WishlistCard>
+  <WishlistCard :wishlistData="wishlistData" :isOwner="isOwner" />
 </template>
