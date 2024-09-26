@@ -14,13 +14,17 @@ defineProps<{
       :isOwner="isOwner"
     />
 
-    <WishlistItemCard
+    <div
+      class="grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4"
       v-if="wishlistData"
-      v-for="item in wishlistData.items"
-      :key="item.uuid"
-      :wishlistItem="item"
-      :isOwner="isOwner"
-    />
+    >
+      <WishlistItemCard
+        v-for="item in wishlistData.items"
+        :key="item.uuid"
+        :wishlistItem="item"
+        :isOwner="isOwner"
+      />
+    </div>
 
     <div v-else>Wishlist not found</div>
   </div>

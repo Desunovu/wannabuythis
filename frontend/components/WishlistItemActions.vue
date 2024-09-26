@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import type { components } from "#build/types/open-fetch/schemas/backend.js";
 const props = defineProps<{
-  wishlistUuid: string,
-  wishlistItemUuid: string,
-  isPurchased: boolean,
+  wishlistUuid: string;
+  wishlistItemUuid: string;
+  isPurchased: boolean;
 }>();
-
 
 async function removeItem() {
   await useBackend("/wishlists/remove-item/{wishlist_uuid}", {
@@ -51,11 +50,21 @@ async function markAsNotPurchased() {
 </script>
 
 <template>
-  <UButton @click="removeItem">Remove item</UButton>
-  <UButton v-if="!props.isPurchased" @click="markAsPurchased">
-    Mark as purchased
-  </UButton>
-  <UButton v-if="props.isPurchased" @click="markAsNotPurchased">
-    Mark as not purchased
-  </UButton>
+  <div class="flex flex-col space-y-2">
+    <UButton class="justify-center" @click="removeItem">Remove item</UButton>
+    <UButton
+      v-if="!props.isPurchased"
+      class="justify-center"
+      @click="markAsPurchased"
+    >
+      Mark as purchased
+    </UButton>
+    <UButton
+      v-if="props.isPurchased"
+      class="justify-center"
+      @click="markAsNotPurchased"
+    >
+      Mark as not purchased
+    </UButton>
+  </div>
 </template>
