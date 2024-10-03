@@ -1,24 +1,21 @@
 <script setup lang="ts">
 import type { components } from "#build/types/open-fetch/schemas/backend.js";
-defineProps<{
+import WishlistItemModalCard from "./WishlistItemModalCard.vue";
+
+const modal = useModal();
+
+const props = defineProps<{
   wishlistData: components["schemas"]["WishlistResponse"] | null;
   isOwner: boolean;
 }>();
-const isWishlistItemModalOpen = ref(false);
-const modalWishlistItemData = ref<
-  components["schemas"]["WishlistItemResponse"] | null
->(null);
 
 const openWishlistItemModal = (
   wishlistItem: components["schemas"]["WishlistItemResponse"]
 ) => {
-  modalWishlistItemData.value = wishlistItem;
-  isWishlistItemModalOpen.value = true;
-  console.log(
-    "openWishlistItemModal",
-    modalWishlistItemData.value,
-    isWishlistItemModalOpen.value
-  );
+  modal.open(WishlistItemModalCard, {
+    wishlistItem: wishlistItem,
+    isOwner: props.isOwner,
+  });
 };
 </script>
 
@@ -46,11 +43,4 @@ const openWishlistItemModal = (
 
     <div v-else>Wishlist not found</div>
   </div>
-
-  <UModal v-model="isWishlistItemModalOpen">
-    <WishlistItemModalCard
-      :wishlistItem="modalWishlistItemData"
-      :isOwner="isOwner"
-    />
-  </UModal>
 </template>
