@@ -55,10 +55,28 @@ const unarchiveWishlist = async () => {
 </script>
 
 <template>
-  <div class="flex flex-col space-y-2">
-    <UButton @click="changeWishlistName"> Change name </UButton>
-    <UButton @click="addItem"> Add item </UButton>
-    <UButton @click="archiveWishlist"> Archive </UButton>
-    <UButton v-if="isArchived" @click="unarchiveWishlist"> Unarchive </UButton>
-  </div>
+  <UModal>
+    <UCard>
+      <div class="text-2xl font-bold text-center mb-8">Wishlist actions</div>
+      <div class="flex flex-col items-stretch space-y-4">
+        <UButton class="justify-center" @click="changeWishlistName">
+          Change name
+        </UButton>
+
+        <UButton class="justify-center" @click="addItem"> Add item </UButton>
+
+        <UButton v-if="!isArchived" class="justify-center" @click="archiveWishlist">
+          Archive
+        </UButton>
+
+        <UButton
+          v-if="isArchived"
+          class="justify-center"
+          @click="unarchiveWishlist"
+        >
+          Unarchive
+        </UButton>
+      </div>
+    </UCard>
+  </UModal>
 </template>
