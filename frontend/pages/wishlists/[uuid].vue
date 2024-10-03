@@ -15,5 +15,5 @@ const isOwner = computed(() => {
 </script>
 
 <template>
-  <WishlistCard :wishlistData="wishlistData" :isOwner="isOwner" />
+  <Wishlist :wishlistData="wishlistData" :isOwner="isOwner" />
 </template>
