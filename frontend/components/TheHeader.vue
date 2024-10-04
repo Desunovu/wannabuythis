@@ -20,10 +20,8 @@ const loggedOutMenuItems = [
   { name: "Register", icon: "i-heroicons-user-circle", to: "/register" },
 ];
 
-const menuItems = ref(loggedOutMenuItems);
-
-watch(data, () => {
-  menuItems.value = data.value ? loggedInMenuItems : loggedOutMenuItems;
+const menuItems = computed(() => {
+  return data.value ? loggedInMenuItems : loggedOutMenuItems;
 });
 </script>
 
