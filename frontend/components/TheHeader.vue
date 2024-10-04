@@ -2,20 +2,29 @@
 const { data } = useAuth();
 
 const loggedInMenuItems = [
-  { name: "Профиль", icon: "i-heroicons-user-circle", to: "/profile" },
-  { name: "Поиск пользователя", icon: "i-heroicons-magnifying-glass", to: "/users" },
-  { name: "Выйти", icon: "i-heroicons-arrow-right-on-rectangle", to: "/logout" },
+  { name: "Profile", icon: "i-heroicons-user-circle", to: "/profile" },
+  {
+    name: "Users",
+    icon: "i-heroicons-magnifying-glass",
+    to: "/users",
+  },
+  {
+    name: "Logout",
+    icon: "i-heroicons-arrow-right-on-rectangle",
+    to: "/logout",
+  },
 ];
+
 const loggedOutMenuItems = [
-  { name: "Войти", icon: "i-heroicons-user-circle", to: "/login" },
-  { name: "Регистрация", icon: "i-heroicons-user-circle", to: "/register" },
+  { name: "Login", icon: "i-heroicons-user-circle", to: "/login" },
+  { name: "Register", icon: "i-heroicons-user-circle", to: "/register" },
 ];
+
 const menuItems = ref(loggedOutMenuItems);
 
 watch(data, () => {
   menuItems.value = data.value ? loggedInMenuItems : loggedOutMenuItems;
 });
-
 </script>
 
 <template>
@@ -24,17 +33,14 @@ watch(data, () => {
       Wannabuythis
     </NuxtLink>
     <div class="flex basis-3/4 justify-end">
-      <UButtonGroup>
-        <UButton
-          v-for="item in menuItems"
-          :key="item.name"
-          variant="ghost"
-          :icon="item.icon"
-          :to="item.to"
-          :label="item.name"
-        />
-      </UButtonGroup>
+      <UButton
+        v-for="item in menuItems"
+        :key="item.name"
+        variant="ghost"
+        :icon="item.icon"
+        :to="item.to"
+        :label="item.name"
+      />
     </div>
   </div>
 </template>
-
