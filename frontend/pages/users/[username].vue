@@ -20,5 +20,5 @@ const { data: wishlistsData } = await useBackend("/wishlists/user/{username}", {
 </script>
 
 <template>
-  <UserProfile :userData="userData" :wishlistsData="wishlistsData" />
+  <Profile :userData="userData" :wishlistsData="wishlistsData" />
 </template>

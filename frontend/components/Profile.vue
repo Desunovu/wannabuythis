@@ -9,7 +9,7 @@ defineProps<{
 <template>
   <UCard>
     <div class="flex items-start justify-between my-4">
-      <UserProfileInfo v-if="userData" :userData="userData" class="basis-3/4" />
+      <ProfileInfo v-if="userData" :userData="userData" class="basis-3/4" />
       <slot name="right" class="basis-1/4" />
     </div>
     <div class="flex flex-col space-y-4 mt-4">
