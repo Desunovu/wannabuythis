@@ -30,7 +30,7 @@ const { priorityColor, priorityText, amountText } = useWishlistItemStyles(
         </div>
 
         <!-- Only show actions if the user is the owner -->
-        <WishlistItemActions
+        <ItemActionButtons
           v-if="isOwner"
           :wishlist-uuid="wishlistItem.wishlist_uuid"
           :wishlist-item-uuid="wishlistItem.uuid"
