@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { components } from "#build/types/open-fetch/schemas/backend.js";
-import WishlistItemModalCard from "./WishlistItemModalCard.vue";
+import ItemModalCard from "./ItemModalCard.vue";
 
 const modal = useModal();
 
@@ -12,7 +12,7 @@ const props = defineProps<{
 const openWishlistItemModal = (
   wishlistItem: components["schemas"]["WishlistItemResponse"]
 ) => {
-  modal.open(WishlistItemModalCard, {
+  modal.open(ItemModalCard, {
     wishlistItem: wishlistItem,
     isOwner: props.isOwner,
   });
@@ -37,7 +37,7 @@ const openWishlistItemModal = (
         class="cursor-pointer"
         @click="openWishlistItemModal(item)"
       >
-        <WishlistItemCard :wishlistItem="item" />
+        <ItemCard :wishlistItem="item" />
       </div>
     </div>
 
