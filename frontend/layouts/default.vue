@@ -1,8 +1,9 @@
 <template>
   <UContainer>
-    <!-- This would be the header -->
     <TheHeader />
-    <slot />
+    <div class="py-8">
+      <slot />
+    </div>
     <!-- This would be the footer -->
   </UContainer>
 </template>
