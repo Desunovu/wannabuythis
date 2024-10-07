@@ -13,7 +13,7 @@ const { data: wishlistsData } = await useBackend("/wishlists/user/{username}", {
 <template>
   <Profile :userData="userData" :wishlistsData="wishlistsData">
     <template #right>
-      <ProfileActions />
+      <ProfileActionButtons />
     </template>
     <template #bottom>
       <WishlistsArchivedPreview />
