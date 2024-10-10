@@ -11,7 +11,7 @@ defineProps<{
 
   <div v-if="!wishlistsData">No wishlists found</div>
   <UCard v-for="wishlist in wishlistsData" :key="wishlist.uuid">
-    <div class="flex flex-col group items-baseline space-x-2">
+    <div class="flex flex-col items-baseline space-x-2">
       <NuxtLink
         :to="`/wishlists/${wishlist.uuid}`"
         class="text-lg font-semibold"
@@ -19,11 +19,11 @@ defineProps<{
         {{ wishlist.name }}
       </NuxtLink>
 
-      <div class="hidden group-hover:block text-sm text-gray-500">
+      <div class="text-sm text-gray-500">
         {{ wishlist.items.length }} items
       </div>
 
-      <div class="text-sm hidden group-hover:block text-gray-500">
+      <div class="text-sm text-gray-500">
         Created at {{ new Date(wishlist.created_at).toLocaleDateString() }}
         {{ wishlist.is_archived ? "(archived)" : "" }}
       </div>
