@@ -21,7 +21,7 @@ const openWishlistItemModal = (
 
 <template>
   <div class="space-y-4">
-    <WishlistCardInfo
+    <WishlistHeader
       v-if="wishlistData"
       :wishlistData="wishlistData"
       :isOwner="isOwner"
