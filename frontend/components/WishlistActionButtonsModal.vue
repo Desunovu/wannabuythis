@@ -1,8 +1,13 @@
 <script setup lang="ts">
+import ItemCreateModal from "./ItemCreateModal.vue";
+
 const props = defineProps<{
   wishlistUuid: string;
   isArchived: boolean | undefined;
 }>();
+
+const modal = useModal();
+
 const changeWishlistName = async () => {
   await useBackend("/wishlists/change-name/{wishlist_uuid}", {
     method: "POST",
@@ -16,21 +21,12 @@ const changeWishlistName = async () => {
   // TODO: handle error
   // TODO: handle success
 };
-const addItem = async () => {
-  await useBackend("/wishlists/add-item/{wishlist_uuid}", {
-    method: "POST",
-    path: {
-      wishlist_uuid: props.wishlistUuid,
-    },
-    body: {
-      name: "New item",
-      quantity: 1,
-      measurement_unit: "piece",
-      priority: 1,
-    },
-  });
-  // TODO: handle error
-  // TODO: handle success
+const openItemCreateModal = async () => {
+  modal.close();
+  setTimeout(
+    () => modal.open(ItemCreateModal, { wishlistUuid: props.wishlistUuid }),
+    400
+  );
 };
 const archiveWishlist = async () => {
   await useBackend("/wishlists/archive/{wishlist_uuid}", {
@@ -63,7 +59,7 @@ const unarchiveWishlist = async () => {
           Change name
         </UButton>
 
-        <UButton class="justify-center" @click="addItem"> Add item </UButton>
+        <UButton class="justify-center" @click="openItemCreateModal"> Add item </UButton>
 
         <UButton v-if="!isArchived" class="justify-center" @click="archiveWishlist">
           Archive
