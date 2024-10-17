@@ -7,6 +7,8 @@ const props = defineProps<{
   isOwner: boolean;
 }>();
 
+const { creationDate } = useWishlistInfo(props.wishlistData)
+
 const modal = useModal();
 
 const openWishlistActionsModal = (
@@ -32,7 +34,7 @@ const openWishlistActionsModal = (
       </div>
 
       <div class="text-sm text-gray-500">
-        Created at {{ new Date(wishlistData.created_at).toLocaleDateString() }}
+        {{ creationDate }}
         {{ wishlistData.is_archived ? "(archived)" : "" }}
       </div>
 
