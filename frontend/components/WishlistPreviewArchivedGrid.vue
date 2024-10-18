@@ -15,12 +15,16 @@ const getArchivedWishlists = async () => {
     <UButton @click="getArchivedWishlists"> Show archived wishlists </UButton>
   </div>
 
-  <div v-if="wishlistsArchivedData?.value.length > 0">
-    <div>Archived wishlists:</div>
-    <WishlistsPreview :wishlistsData="wishlistsArchivedData.value" />
-  </div>
-  
+  <h1 v-if="wishlistsArchivedData?.value.length" class="text-2xl font-bold">
+    Archived Wishlists
+  </h1>
   <div v-if="wishlistsArchivedData?.value.length === 0">
     No archived wishlists found
   </div>
+
+  <WishlistPreviewCard
+    v-for="wishlist in wishlistsArchivedData?.value"
+    :key="wishlist.uuid"
+    :wishlist="wishlist"
+  />
 </template>

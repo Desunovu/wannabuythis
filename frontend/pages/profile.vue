@@ -14,8 +14,9 @@ const { data: wishlistsData } = await useBackend("/wishlists/user/{username}", {
     <template #right>
       <ProfileActionButtons />
     </template>
+    
     <template #bottom>
-      <WishlistGridArchived />
+      <WishlistPreviewArchivedGrid />
     </template>
   </Profile>
 </template>
