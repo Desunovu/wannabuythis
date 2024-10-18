@@ -7,7 +7,6 @@ const { data: wishlistsData } = await useBackend("/wishlists/user/{username}", {
     username: username.value,
   },
 });
-
 </script>
 
 <template>
@@ -16,7 +15,7 @@ const { data: wishlistsData } = await useBackend("/wishlists/user/{username}", {
       <ProfileActionButtons />
     </template>
     <template #bottom>
-      <WishlistsArchivedPreview />
+      <WishlistGridArchived />
     </template>
   </Profile>
 </template>

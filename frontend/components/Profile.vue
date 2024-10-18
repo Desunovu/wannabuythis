@@ -12,7 +12,7 @@ defineProps<{
     <slot name="right" class="basis-1/4" />
   </div>
   <div class="flex flex-col space-y-4 mt-4">
-    <WishlistsPreview v-if="wishlistsData" :wishlistsData="wishlistsData" />
+    <WishlistGrid v-if="wishlistsData" :wishlistsData="wishlistsData" />
     <slot name="bottom" />
   </div>
 </template>
