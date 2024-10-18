@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { components } from "#build/types/open-fetch/schemas/backend.js";
+
 defineProps<{
   userData: components["schemas"]["UserResponse"] | null;
   wishlistsData: components["schemas"]["WishlistResponse"][] | null;
@@ -12,7 +13,7 @@ defineProps<{
     <slot name="right" class="basis-1/4" />
   </div>
   <div class="flex flex-col space-y-4 mt-4">
-    <WishlistGrid v-if="wishlistsData" :wishlistsData="wishlistsData" />
+    <WishlistPreviewGrid v-if="wishlistsData" :wishlistsData="wishlistsData" />
     <slot name="bottom" />
   </div>
 </template>

@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import type { components } from "#build/types/open-fetch/schemas/backend.js";
-defineProps<{
-  wishlistsData: components["schemas"]["WishlistResponse"][];
+
+const props = defineProps<{
+  wishlist: components["schemas"]["WishlistResponse"];
 }>();
+
+const { creationDate } = useWishlistInfo(props.wishlist);
 </script>
 
 <template>
-  <h1 v-if="wishlistsData.length" class="text-2xl font-bold">Wishlists</h1>
-  <div v-if="wishlistsData.length === 0">No wishlists found</div>
-
-  <div v-if="!wishlistsData">No wishlists found</div>
-  <UCard v-for="wishlist in wishlistsData" :key="wishlist.uuid">
+  <UCard>
     <div class="flex flex-col items-baseline space-x-2">
       <NuxtLink
         :to="`/wishlists/${wishlist.uuid}`"
@@ -20,11 +19,11 @@ defineProps<{
       </NuxtLink>
 
       <div class="text-sm text-gray-500">
-        {{ wishlist.items.length }} items
+        {{ wishlist.items?.length }} items
       </div>
 
       <div class="text-sm text-gray-500">
-        Created at {{ new Date(wishlist.created_at).toLocaleDateString() }}
+        {{ creationDate }}
         {{ wishlist.is_archived ? "(archived)" : "" }}
       </div>
     </div>
