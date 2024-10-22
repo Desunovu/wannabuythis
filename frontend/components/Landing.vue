@@ -1,23 +1,15 @@
-
-
 <template>
-  <div
-    class="container mx-auto p-4 flex flex-col items-center justify-center h-screen"
-  >
-    <div class="text-6xl font-bold mb-8">
-      Record, manage, and share your wishlist — all in one place.
+  <div class="container mx-auto p-4 flex flex-col items-center justify-center h-screen">
+    <div class="text-4xl md:text-5xl font-semibold text-center mb-12">
+      Manage and share your wishlist easily.
     </div>
 
-    <div class="text-xl mb-12">
-      Wannabuythis is a service designed to help you create smart wishlists that
-      assist in tracking purchase priorities. Additionally, the platform allows
-      you to share your lists with others.
+    <div class="text-lg md:text-xl text-gray-700 text-center mb-8 max-w-xl">
+      Wannabuythis helps you organize your wishlist and track your purchase priorities. Share your list with others and keep everything in one place.
     </div>
 
-    <div class="self-end space-x-4">
-      <UButton class="px-8 py-2" to="/login">
-        Start Using the Service
-      </UButton>
+    <div class="mt-4">
+      <UButton class="px-6 py-3 text-lg" to="/login"> Get Started </UButton>
     </div>
   </div>
 </template>
