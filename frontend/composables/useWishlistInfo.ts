@@ -10,7 +10,29 @@ export function useWishlistInfo(
     return `Created at ${new Date(wishlist.created_at).toLocaleDateString()}`;
   });
 
+  const archivedText = computed(() => {
+    if (!wishlist) {
+      return "";
+    }
+    if (wishlist.is_archived) {
+      return "(archived)";
+    }
+    return "";
+  });
+
+  const itemsAmountText = computed(() => {
+    if (!wishlist) {
+      return "";
+    }
+    if (wishlist.items.length === 1) {
+      return "1 item";
+    }
+    return `${wishlist.items.length} items`;
+  });
+
   return {
     creationDate,
+    archivedText,
+    itemsAmountText
   };
 }
