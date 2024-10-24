@@ -3,7 +3,7 @@ import type { components } from "#build/types/open-fetch/schemas/backend.js";
 export function useWishlistInfo(
   wishlist: components["schemas"]["WishlistResponse"] | null
 ) {
-  const creationDate = computed(() => {
+  const creationDateText = computed(() => {
     if (!wishlist) {
       return "";
     }
@@ -31,7 +31,7 @@ export function useWishlistInfo(
   });
 
   return {
-    creationDate,
+    creationDateText,
     archivedText,
     itemsAmountText
   };
