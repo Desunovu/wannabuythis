@@ -8,7 +8,7 @@ const props = defineProps<{
 
 <template>
   <div
-    class="grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4"
+    class="grid grid-cols-1 md:grid-cols-3 gap-4"
   >
     <UserPreviewCard
       v-for="user in users"
