@@ -7,7 +7,7 @@ const props = defineProps<{
   isOwner: boolean;
 }>();
 
-const { creationDate } = useWishlistInfo(props.wishlistData)
+const { creationDateText, archivedText, itemsAmountText } = useWishlistInfo(props.wishlistData)
 
 const modal = useModal();
 
@@ -30,16 +30,12 @@ const openWishlistActionsModal = (
       </div>
 
       <div class="text-sm text-gray-500">
-        {{ wishlistData.items.length }} items
+        {{ itemsAmountText }}
       </div>
 
       <div class="text-sm text-gray-500">
-        {{ creationDate }}
-        {{ wishlistData.is_archived ? "(archived)" : "" }}
-      </div>
-
-      <div v-if="wishlistData.is_archived" class="text-sm text-gray-500">
-        (Wishlist Archived)
+        {{ creationDateText }}
+        {{ archivedText }}
       </div>
     </div>
 
