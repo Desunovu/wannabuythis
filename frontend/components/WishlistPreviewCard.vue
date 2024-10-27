@@ -5,7 +5,7 @@ const props = defineProps<{
   wishlist: components["schemas"]["WishlistResponse"];
 }>();
 
-const { creationDate } = useWishlistInfo(props.wishlist);
+const { creationDateText, archivedText, itemsAmountText } = useWishlistInfo(props.wishlist);
 </script>
 
 <template>
@@ -19,12 +19,12 @@ const { creationDate } = useWishlistInfo(props.wishlist);
       </NuxtLink>
 
       <div class="text-sm text-gray-500">
-        {{ wishlist.items?.length }} items
+        {{ itemsAmountText }}
       </div>
 
       <div class="text-sm text-gray-500">
-        {{ creationDate }}
-        {{ wishlist.is_archived ? "(archived)" : "" }}
+        {{ creationDateText }}
+        {{ archivedText }}
       </div>
     </div>
   </UCard>
