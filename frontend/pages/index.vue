@@ -2,7 +2,7 @@
 definePageMeta({
   auth: {
     unauthenticatedOnly: true,
-    navigateAuthenticatedTo: "profile",
+    navigateAuthenticatedTo: "/profile",
   },
 });
 const { data } = useAuth();
