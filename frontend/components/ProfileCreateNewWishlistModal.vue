@@ -13,8 +13,7 @@ const createNewWishlist = async () => {
 
   newWishlistName.value = "";
   modal.close();
-  // TODO: handle error
-  // TODO: handle success
+  reloadNuxtApp();
 };
 </script>
 

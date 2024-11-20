@@ -17,8 +17,7 @@ const changePassword = async () => {
   oldPassword.value = "";
   newPassword.value = "";
   modal.close();
-  // TODO: handle error
-  // TODO: handle success
+  reloadNuxtApp();
 };
 </script>
 

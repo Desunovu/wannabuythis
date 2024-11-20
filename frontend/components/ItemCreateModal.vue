@@ -42,6 +42,7 @@ const createNewItem = async () => {
   });
 
   modal.close();
+  reloadNuxtApp();
 };
 </script>
 
@@ -69,7 +70,7 @@ const createNewItem = async () => {
           option-attribute="name"
           :options="priorityNames"
         />
-        
+
         <UButton block @click="createNewItem"> Create new item </UButton>
       </div>
     </UCard>
