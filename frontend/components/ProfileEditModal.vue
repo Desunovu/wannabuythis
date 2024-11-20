@@ -15,7 +15,7 @@ const openChangePasswordModal = () => {
 };
 </script>
 
-<template>В
+<template>
   <UModal>
     <UCard>
       <div class="space-y-4">
