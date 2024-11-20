@@ -17,9 +17,9 @@ const changeWishlistName = async () => {
     },
   });
 
+
   modal.close();
-  // TODO: handle error
-  // TODO: handle success
+  reloadNuxtApp();
 };
 </script>
 

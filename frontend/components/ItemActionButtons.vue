@@ -6,7 +6,9 @@ const props = defineProps<{
   isPurchased: boolean;
 }>();
 
-async function removeItem() {
+const modal = useModal();
+
+const removeItem = async () => {
   await useBackend("/wishlists/remove-item/{wishlist_uuid}", {
     method: "POST",
     path: {
@@ -16,9 +18,10 @@ async function removeItem() {
       item_uuid: props.wishlistItemUuid,
     },
   });
-  // TODO: handle error
-  // TODO: handle success
-}
+
+  modal.close();
+  reloadNuxtApp();
+};
 
 async function markAsPurchased() {
   await useBackend("/wishlists/mark-item-as-purchased/{wishlist_uuid}", {
@@ -30,8 +33,9 @@ async function markAsPurchased() {
       item_uuid: props.wishlistItemUuid,
     },
   });
-  // TODO: handle error
-  // TODO: handle success
+
+  modal.close();
+  reloadNuxtApp();
 }
 
 async function markAsNotPurchased() {
@@ -44,8 +48,9 @@ async function markAsNotPurchased() {
       item_uuid: props.wishlistItemUuid,
     },
   });
-  // TODO: handle error
-  // TODO: handle success
+
+  modal.close();
+  reloadNuxtApp();
 }
 </script>
 

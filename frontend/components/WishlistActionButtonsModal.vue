@@ -33,8 +33,9 @@ const archiveWishlist = async () => {
       wishlist_uuid: props.wishlistUuid,
     },
   });
-  // TODO: handle error
-  // TODO: handle success
+
+  modal.close();
+  reloadNuxtApp();
 };
 const unarchiveWishlist = async () => {
   await useBackend("/wishlists/unarchive/{wishlist_uuid}", {
@@ -43,8 +44,9 @@ const unarchiveWishlist = async () => {
       wishlist_uuid: props.wishlistUuid,
     },
   });
-  // TODO: handle error
-  // TODO: handle success
+
+  modal.close();
+  reloadNuxtApp();
 };
 </script>
 

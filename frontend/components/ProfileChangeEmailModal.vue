@@ -13,8 +13,7 @@ const changeEmail = async () => {
 
   newEmail.value = "";
   modal.close();
-  // TODO: handle error
-  // TODO: handle success
+  reloadNuxtApp();
 };
 </script>
 
