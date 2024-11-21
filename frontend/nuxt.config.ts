@@ -7,13 +7,13 @@ export default defineNuxtConfig({
     disableNuxtPlugin: true,
     clients: {
       backend: {
-        baseURL: "http://localhost:8000",
+        baseURL: process.env.BACKEND_URL || "http://localhost:8000/",
         schema: "http://localhost:8000/openapi.json",
       },
     },
   },
   auth: {
-    baseURL: "http://localhost:8000/",
+    baseURL: process.env.BACKEND_URL || "http://localhost:8000/",
     globalAppMiddleware: {
       isEnabled: true,
       addDefaultCallbackUrl: "login",
