@@ -9,11 +9,13 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
-  "devDependencies": {
-    "@nuxt/devtools": "latest",
+  "dependencies": {
     "@nuxt/ui": "^2.17.0",
     "@sidebase/nuxt-auth": "^0.8.1",
     "nuxt": "^3.12.4",
     "nuxt-open-fetch": "^0.9.1"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest"
   }
 }
