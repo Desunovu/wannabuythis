@@ -38,4 +38,4 @@ ENV FASTAPI_ENV=production
 COPY --from=builder-base $VENV_PATH $VENV_PATH
 WORKDIR /app
 COPY . .
-CMD ["uvicorn", "src.integration.entrypoints.fastapi_app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "src.integration.entrypoints.fastapi_app:app", "--host", "0.0.0.0", "--port", "8000", "--root-path", "/api"]
