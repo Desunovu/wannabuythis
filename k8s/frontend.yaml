@@ -33,12 +33,6 @@ spec:
         - name: frontend
           image: wannabuythis-frontend:latest
           imagePullPolicy: Never
-          env:
-            - name: BACKEND_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: wannabuythis-config
-                  key: BACKEND_URL
           ports:
             - containerPort: 3000
           resources:
