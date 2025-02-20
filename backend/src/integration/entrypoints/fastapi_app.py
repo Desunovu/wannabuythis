@@ -15,6 +15,7 @@ from src.common.utils.password_manager import HashlibPasswordManager
 from src.common.utils.token_manager import JWTManager
 from src.common.utils.uuid_generator import DefaultUUIDGenerator
 from src.common.entrypoints.fastapi_limiter import limiter
+from src.integration.adapters.alembic_runner import run_migrations
 from src.integration.adapters.redis.activation_code_storage import (
     RedisActivationCodeStorage,
 )
@@ -44,6 +45,8 @@ ROUTERS = [
 @asynccontextmanager
 async def lifespan(application: FastAPI):
     start_sqlalchemy_mappers()
+    if config.get_env() != "test":
+        run_migrations()
     yield
     clear_mappers()
 
