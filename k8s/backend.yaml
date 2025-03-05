@@ -31,8 +31,8 @@ spec:
     spec:
       containers:
         - name: backend
-          image: wannabuythis-backend:latest
-          imagePullPolicy: Never
+          image: ghcr.io/desunovu/wannabuythis-backend:latest
+          imagePullPolicy: Always
           env:
             - name: POSTGRES_USER
               valueFrom:
