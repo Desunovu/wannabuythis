@@ -23,9 +23,12 @@ jobs:
       matrix:
         include:
           - image: wannabuythis-backend
-            dockerfile: ./backend/Dockerfile
+            context: ./backend
+            file: ./backend/Dockerfile
+
           - image: wannabuythis-frontend
-            dockerfile: ./frontend/Dockerfile
+            context: ./frontend
+            file: ./frontend/Dockerfile
 
     steps:
       - name: Login to Github Container Registry
@@ -52,7 +55,8 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
-          file: ${{ matrix.dockerfile }}
-          push: true
-          target: production
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
           tags: ${{ steps.meta.outputs.tags }}
+          target: production
+          push: true
