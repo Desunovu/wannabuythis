@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: ghcr.io/desunovu/wannabuythis-frontend:latest
+          image: ghcr.io/desunovu/wannabuythis-frontend:main
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
