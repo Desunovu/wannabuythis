@@ -17,7 +17,7 @@
 - **Frontend:** [Nuxt.js](https://nuxt.com/)
 - **Backend:** [FastAPI](https://fastapi.tiangolo.com/), [SQLAlchemy](https://www.sqlalchemy.org/)
 - **Database:** [PostgreSQL](https://www.postgresql.org/)
-- **Deployment:** [Docker](https://www.docker.com/), [Kubernetes (Minikube)](https://minikube.sigs.k8s.io/docs/)
+- **Deployment:** [Docker](https://www.docker.com/), [Kubernetes (K3s)](https://k3s.io/)
 
 **Note:** This project was developed for educational purposes to practice software design patterns and concepts such as Test-Driven Development (TDD), Domain-Driven Design (DDD), and Event-Driven Architecture (EDA). While it includes practical implementations, the codebase may not fully adhere to industry best practices for these methodologies.
 
@@ -34,7 +34,7 @@
 ### **Prerequisites**
 
 - [Docker](https://www.docker.com/)
-- [Minikube](https://minikube.sigs.k8s.io/docs/)
+- [K3d](https://k3d.io/) (lightweight local K3s cluster) or [K3s](https://k3s.io/) installed directly
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - [systemd](https://www.freedesktop.org/wiki/Software/systemd/)
 
@@ -63,14 +63,40 @@ To start the development environment:
 
 ---
 
-## **Local Deployment with Minikube**
+## **Local Deployment with K3s**
+
+### **0. Create or Select a Local K3s/K3d Cluster**
+
+Choose one of the following options:
+
+* **Native k3s** (installed as a service): make sure the server is running, e.g. `sudo systemctl start k3s` (or it may already be up after install).
+* **k3d** (container-based K3s): create a disposable local cluster (example below exposes HTTP 80):
+
+```bash
+k3d cluster create wannabuythis --agents 1 -p "80:80@loadbalancer"
+```
+
+> Skip this step if you already have a cluster and `kubectl` is pointed to it.
 
 ### **1. Configure Kubernetes Resources**
+
+Create a dedicated namespace for the project (run once):
+
+```bash
+kubectl create namespace wannabuythis
+```
 
 Ensure the required configuration files are set up:
 
 - Modify `configmap.yaml` as needed.
-- Create and populate `secret.yaml` (use `secret-template.yaml` as a reference).
+- Manually create the secret with required keys (`POSTGRES_USER`, `POSTGRES_PASSWORD`) using the following command:
+
+  ```bash
+  kubectl create secret generic wannabuythis-secret \
+    --from-literal=POSTGRES_USER=<username> \
+    --from-literal=POSTGRES_PASSWORD=<password> \
+    -n wannabuythis
+  ```
 
 Apply the Kubernetes manifests:
 
@@ -78,45 +104,22 @@ Apply the Kubernetes manifests:
 kubectl apply -f ./k8s
 ```
 
-### **4. Set Up Ingress Access**
+### **2. Expose Services (Traefik Ingress)**
 
-Minikube exposes the Ingress controller on a NodePort. To make the application accessible on port 80, run the following command manually:
+K3s bundles the Traefik ingress controller by default. After applying manifests you can reach:
 
-1. Identify the NodePort assigned to the Ingress controller:
+- Frontend: http://localhost/  
+- Backend API docs: http://localhost/api/docs
 
-   ```bash
-   kubectl get service -n ingress-nginx | grep ingress-nginx-controller
-   ```
-
-   Look for the `NodePort`, e.g., `32219`.
-
-2. Start a socat process to forward traffic from port 80:
-   ```bash
-   sudo socat TCP4-LISTEN:80,fork TCP4:$(minikube ip):32219
-   ```
-   Keep this terminal window open while working with Minikube, as closing it will stop the forwarding.
-
-### **5. Configure Firewall Rules**
-
-Allow traffic on port 80:
-
-```bash
-sudo firewall-cmd --add-port=80/tcp --permanent
-sudo firewall-cmd --reload
-sudo firewall-cmd --list-ports
-```
-
-### **6. Verify Deployment**
+### **3. Verify Deployment**
 
 Once everything is set up, verify that the application is running:
 
 ```bash
 kubectl get pod -n=wannabuythis
 kubectl get service -n=wannabuythis
-kubectl get service -n=ingress-nginx
+kubectl get service -n=kube-system | grep traefik
 ```
-
-The frontend should now be accessible at `http://localhost`.
 
 ---
 
