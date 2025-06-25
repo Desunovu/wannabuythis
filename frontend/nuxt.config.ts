@@ -28,6 +28,8 @@ export default defineNuxtConfig({
       },
       token: {
         signInResponseTokenPointer: "/access_token",
+        maxAgeInSeconds: Number(process.env.TOKEN_LIFETIME_IN_SECONDS) || 24 * 60 * 60,
+        
       },
       session: {
         dataType: {
