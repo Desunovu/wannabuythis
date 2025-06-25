@@ -8,7 +8,7 @@ export default defineNuxtConfig({
     clients: {
       backend: {
         baseURL: process.env.BACKEND_URL || "/api",
-        schema: process.env.BACKEND_URL+"/schema.json" || "/api/schema.json",
+        schema: process.env.BACKEND_URL+"/openapi.json" || "/api/openapi.json",
       },
     },
   },
