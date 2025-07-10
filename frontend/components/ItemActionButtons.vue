@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { components } from "#build/types/open-fetch/schemas/backend.js";
+
 const props = defineProps<{
   wishlistUuid: string;
   wishlistItemUuid: string;
   isPurchased: boolean;
 }>();
 
-const modal = useModal();
+const overlay = useOverlay();
 
 const removeItem = async () => {
   await useBackend("/wishlists/remove-item/{wishlist_uuid}", {
@@ -18,8 +19,7 @@ const removeItem = async () => {
       item_uuid: props.wishlistItemUuid,
     },
   });
-
-  modal.close();
+  overlay.closeAll();
   reloadNuxtApp();
 };
 
@@ -33,8 +33,7 @@ async function markAsPurchased() {
       item_uuid: props.wishlistItemUuid,
     },
   });
-
-  modal.close();
+  overlay.closeAll();
   reloadNuxtApp();
 }
 
@@ -48,8 +47,7 @@ async function markAsNotPurchased() {
       item_uuid: props.wishlistItemUuid,
     },
   });
-
-  modal.close();
+  overlay.closeAll();
   reloadNuxtApp();
 }
 </script>

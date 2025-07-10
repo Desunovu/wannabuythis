@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const modal = useModal();
+const overlay = useOverlay();
 
 const newWishlistName = ref("");
 
@@ -12,25 +12,27 @@ const createNewWishlist = async () => {
   });
 
   newWishlistName.value = "";
-  modal.close();
+  overlay.closeAll();
   reloadNuxtApp();
 };
 </script>
 
 <template>
   <UModal>
-    <UCard>
-      <div class="space-y-4">
-        <div>Creating new wishlist...</div>
-        <UInput
-          block
-          v-model="newWishlistName"
-          placeholder="New wishlist name"
-        />
-        <UButton block @click="createNewWishlist">
-          Create new wishlist
-        </UButton>
-      </div>
-    </UCard>
+    <template #content>
+      <UCard>
+        <div class="flex flex-col space-y-4">
+          <div>Creating new wishlist...</div>
+          <UInput
+            block
+            v-model="newWishlistName"
+            placeholder="New wishlist name"
+          />
+          <UButton block @click="createNewWishlist">
+            Create new wishlist
+          </UButton>
+        </div>
+      </UCard>
+    </template>
   </UModal>
 </template>

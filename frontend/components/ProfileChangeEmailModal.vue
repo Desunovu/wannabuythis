@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const modal = useModal();
+const overlay = useOverlay();
 
 const newEmail = ref("");
 
@@ -12,19 +12,21 @@ const changeEmail = async () => {
   });
 
   newEmail.value = "";
-  modal.close();
+  overlay.closeAll();
   reloadNuxtApp();
 };
 </script>
 
 <template>
   <UModal>
-    <UCard>
-      <div class="space-y-4">
-        <div>Changing email...</div>
-        <UInput block v-model="newEmail" placeholder="New email" />
-        <UButton block @click="changeEmail"> Change email </UButton>
-      </div>
-    </UCard>
+    <template #content>
+      <UCard>
+        <div class="flex flex-col space-y-4">
+          <div>Changing email...</div>
+          <UInput block v-model="newEmail" placeholder="New email" />
+          <UButton block @click="changeEmail">Change email</UButton>
+        </div>
+      </UCard>
+    </template>
   </UModal>
 </template>

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { FormError, FormSubmitEvent } from "#ui/types";
 
-const { $backend } = useNuxtApp();
 const { signIn } = useAuth();
 
 const state = reactive({
@@ -20,7 +19,6 @@ async function onSubmit(event: FormSubmitEvent<any>) {
   const formData = new FormData();
   formData.append("username", event.data.username);
   formData.append("password", event.data.password);
-
   await signIn(formData, { callbackUrl: "/" });
 }
 </script>
@@ -32,13 +30,13 @@ async function onSubmit(event: FormSubmitEvent<any>) {
     class="space-y-4"
     @submit="onSubmit"
   >
-    <UFormGroup label="Username" name="username">
+    <UFormField label="Username" name="username">
       <UInput v-model="state.username" />
-    </UFormGroup>
+    </UFormField>
 
-    <UFormGroup label="Password" name="password">
+    <UFormField label="Password" name="password">
       <UInput v-model="state.password" type="password" />
-    </UFormGroup>
+    </UFormField>
 
     <div class="flex justify-end">
       <UButton type="submit"> Submit </UButton>

@@ -2,14 +2,16 @@
 import ProfileCreateNewWishlistModal from "./ProfileCreateNewWishlistModal.vue";
 import ProfileEditModal from "./ProfileEditModal.vue";
 
-const modal = useModal();
+const overlay = useOverlay();
 
 const openCreateNewWishlistModal = () => {
-  modal.open(ProfileCreateNewWishlistModal);
+  const modal = overlay.create(ProfileCreateNewWishlistModal);
+  const instance = modal.open();
 };
 
 const openProfileEditModal = () => {
-  modal.open(ProfileEditModal);
+  const modal = overlay.create(ProfileEditModal);
+  const instance = modal.open();
 };
 </script>
 
