@@ -5,15 +5,15 @@ const props = defineProps<{
   wishlistUuid: string;
 }>();
 
-const modal = useModal();
+const overlay = useOverlay();
 
 const priorityNames: {
-  name: string;
+  label: string;
   value: components["schemas"]["Priority"];
 }[] = [
-  { name: "Low", value: 1 },
-  { name: "Medium", value: 2 },
-  { name: "High", value: 3 },
+  { label: "Low", value: 1 },
+  { label: "Medium", value: 2 },
+  { label: "High", value: 3 },
 ];
 
 const measurementUnits: components["schemas"]["MeasurementUnit"][] = [
@@ -40,39 +40,40 @@ const createNewItem = async () => {
       priority: itemPriority.value,
     },
   });
-
-  modal.close();
+  overlay.closeAll();
   reloadNuxtApp();
 };
 </script>
 
 <template>
   <UModal>
-    <UCard>
-      <div class="space-y-4">
-        <div>Creating new item...</div>
+    <template #content>
+      <UCard>
+        <div class="space-y-4">
+          <div>Creating new item...</div>
 
-        <UInput block v-model="itemName" placeholder="New item name" />
+          <UInput block v-model="itemName" placeholder="New item name" />
 
-        <UInput block v-model="itemQuantity" placeholder="Quantity" />
+          <UInput block v-model="itemQuantity" placeholder="Quantity" />
 
-        <USelect
-          block
-          v-model="itemMeasurement"
-          placeholder="Measurement unit"
-          :options="measurementUnits"
-        />
+          <USelect
+            block
+            v-model="itemMeasurement"
+            placeholder="Measurement unit"
+            :items="measurementUnits"
+          />
 
-        <USelect
-          block
-          v-model="itemPriority"
-          placeholder="Priority"
-          option-attribute="name"
-          :options="priorityNames"
-        />
+          <USelect
+            block
+            v-model="itemPriority"
+            placeholder="Priority"
+            option-attribute="name"
+            :items="priorityNames"
+          />
 
-        <UButton block @click="createNewItem"> Create new item </UButton>
-      </div>
-    </UCard>
+          <UButton block @click="createNewItem"> Create new item </UButton>
+        </div>
+      </UCard></template
+    >
   </UModal>
 </template>

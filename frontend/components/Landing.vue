@@ -16,7 +16,7 @@
       </h1>
 
       <p
-        class="text-lg md:text-xl text-gray-300 mb-8 max-w-xl mx-auto leading-relaxed"
+        class="text-lg md:text-xl text-neutral-300 mb-8 max-w-xl mx-auto leading-relaxed"
       >
         Wannabuythis helps you organize your wishlist and track your purchase
         priorities. Share your list with others and keep everything in one

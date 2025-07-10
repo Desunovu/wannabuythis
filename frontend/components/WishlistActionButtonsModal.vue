@@ -7,25 +7,26 @@ const props = defineProps<{
   isArchived: boolean | undefined;
 }>();
 
-const modal = useModal();
+const overlay = useOverlay();
 
 const openWishlistChangeNameModal = async () => {
-  modal.close();
-  setTimeout(
-    () =>
-      modal.open(WishlistChangeNameModal, {
-        wishlistUuid: props.wishlistUuid,
-      }),
-    400
-  );
+  const modal = overlay.create(WishlistChangeNameModal, {
+    props: {
+      wishlistUuid: props.wishlistUuid,
+    },
+  });
+  modal.open();
 };
+
 const openItemCreateModal = async () => {
-  modal.close();
-  setTimeout(
-    () => modal.open(ItemCreateModal, { wishlistUuid: props.wishlistUuid }),
-    400
-  );
+  const modal = overlay.create(ItemCreateModal, {
+    props: {
+      wishlistUuid: props.wishlistUuid,
+    },
+  });
+  modal.open();
 };
+
 const archiveWishlist = async () => {
   await useBackend("/wishlists/archive/{wishlist_uuid}", {
     method: "POST",
@@ -34,9 +35,10 @@ const archiveWishlist = async () => {
     },
   });
 
-  modal.close();
+  overlay.closeAll();
   reloadNuxtApp();
 };
+
 const unarchiveWishlist = async () => {
   await useBackend("/wishlists/unarchive/{wishlist_uuid}", {
     method: "POST",
@@ -45,14 +47,15 @@ const unarchiveWishlist = async () => {
     },
   });
 
-  modal.close();
+  overlay.closeAll();
   reloadNuxtApp();
 };
 </script>
 
 <template>
   <UModal>
-    <UCard>
+    <template #content>
+      <UCard>
       <div class="text-2xl font-bold text-center mb-8">Wishlist actions</div>
       <div class="flex flex-col items-stretch space-y-4">
         <UButton class="justify-center" @click="openWishlistChangeNameModal">
@@ -80,5 +83,6 @@ const unarchiveWishlist = async () => {
         </UButton>
       </div>
     </UCard>
+    </template>
   </UModal>
 </template>

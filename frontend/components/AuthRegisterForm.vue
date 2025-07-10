@@ -25,7 +25,6 @@ async function onSubmit(event: FormSubmitEvent<any>) {
   formData.append("username", event.data.username);
   formData.append("email", event.data.email);
   formData.append("password", event.data.password);
-
   await signUp(formData, { callbackUrl: "/profile", redirect: true });
 }
 </script>
@@ -37,21 +36,21 @@ async function onSubmit(event: FormSubmitEvent<any>) {
     class="space-y-4"
     @submit="onSubmit"
   >
-    <UFormGroup label="Username" name="username">
+    <UFormField label="Username" name="username">
       <UInput v-model="state.username" />
-    </UFormGroup>
+    </UFormField>
 
-    <UFormGroup label="Email" name="email">
+    <UFormField label="Email" name="email">
       <UInput v-model="state.email" />
-    </UFormGroup>
+    </UFormField>
 
-    <UFormGroup label="Password" name="password">
+    <UFormField label="Password" name="password">
       <UInput v-model="state.password" type="password" />
-    </UFormGroup>
+    </UFormField>
 
-    <UFormGroup label="Confirm Password" name="confirmPassword">
+    <UFormField label="Confirm Password" name="confirmPassword">
       <UInput v-model="state.confirmPassword" type="password" />
-    </UFormGroup>
+    </UFormField>
 
     <div class="flex justify-end">
       <UButton type="submit"> Register </UButton>

@@ -3,7 +3,7 @@ const props = defineProps<{
   wishlistUuid: string;
 }>();
 
-const modal = useModal();
+const overlay = useOverlay();
 const newWishlistName = ref("");
 
 const changeWishlistName = async () => {
@@ -16,16 +16,15 @@ const changeWishlistName = async () => {
       new_name: newWishlistName.value,
     },
   });
-
-
-  modal.close();
+  overlay.closeAll();
   reloadNuxtApp();
 };
 </script>
 
 <template>
   <UModal>
-    <UCard>
+    <template #content>
+      <UCard>
       <div class="space-y-4">
         <div>Changing wishlist name...</div>
         <UInput
@@ -38,5 +37,6 @@ const changeWishlistName = async () => {
         </UButton>
       </div>
     </UCard>
+    </template>
   </UModal>
 </template>

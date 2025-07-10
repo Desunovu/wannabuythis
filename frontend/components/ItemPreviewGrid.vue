@@ -7,21 +7,24 @@ const props = defineProps<{
   isOwner: boolean;
 }>();
 
-const modal = useModal();
+const overlay = useOverlay();
 
 const openWishlistItemModal = (
-  wishlistItem: components["schemas"]["WishlistItemResponse"]
+  wishlistItem: components["schemas"]["WishlistItemResponse"],
 ) => {
-  modal.open(ItemModalCard, {
-    wishlistItem: wishlistItem,
-    isOwner: props.isOwner,
+  const modal = overlay.create(ItemModalCard, {
+    props: {
+      wishlistItem: wishlistItem,
+      isOwner: props.isOwner,
+    },
   });
+  modal.open()
 };
 </script>
 
 <template>
   <div
-    class="grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4"
+    class="grid grid-cols-1 gap-4 md:grid-cols-[repeat(auto-fit,minmax(250px,1fr))]"
   >
     <ItemCard
       v-for="item in items"

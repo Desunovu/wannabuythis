@@ -6,13 +6,13 @@ const props = defineProps<{
 }>();
 
 const { creationDateText, archivedText, itemsAmountText } = useWishlistInfo(
-  props.wishlist
+  props.wishlist,
 );
 </script>
 
 <template>
   <UCard>
-    <div class="flex flex-row justify-between items-center">
+    <div class="flex flex-row items-center justify-between">
       <div class="flex flex-col items-baseline space-x-2">
         <NuxtLink
           :to="`/wishlists/${wishlist.uuid}`"
@@ -21,11 +21,11 @@ const { creationDateText, archivedText, itemsAmountText } = useWishlistInfo(
           {{ wishlist.name }}
         </NuxtLink>
 
-        <div class="text-sm text-gray-500">
+        <div class="text-sm text-neutral-500">
           {{ itemsAmountText }}
         </div>
 
-        <div class="text-sm text-gray-500">
+        <div class="text-sm text-neutral-500">
           {{ creationDateText }}
           {{ archivedText }}
         </div>
@@ -38,11 +38,11 @@ const { creationDateText, archivedText, itemsAmountText } = useWishlistInfo(
           :key="item.uuid"
           size="2xl"
           :text="item.name.slice(0, 5)"
-          class="h-12 w-12 rounded-full bg-gray-300 border border-gray-400 shadow-sm text-xs"
+          class="h-12 w-12 rounded-full border border-neutral-400 bg-neutral-300 text-xs shadow-sm"
         />
         <div
           v-if="wishlist.items.length > 3"
-          class="flex items-center justify-center w-12 h-12 border border-gray-400 rounded-full bg-gray-300 text-gray-500 text-2xl"
+          class="flex h-12 w-12 items-center justify-center rounded-full border border-neutral-400 bg-neutral-300 text-2xl text-neutral-500"
         >
           ...
         </div>

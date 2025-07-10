@@ -1,9 +1,8 @@
 <script setup lang="ts">
-const modal = useModal();
+const overlay = useOverlay();
 
 const oldPassword = ref("");
 const newPassword = ref("");
-
 
 const changePassword = async () => {
   await useBackend("/users/me/password", {
@@ -13,23 +12,25 @@ const changePassword = async () => {
       new_password: newPassword.value,
     },
   });
-  
+
   oldPassword.value = "";
   newPassword.value = "";
-  modal.close();
+  overlay.closeAll();
   reloadNuxtApp();
 };
 </script>
 
 <template>
   <UModal>
-    <UCard>
-      <div class="space-y-4">
-        <div>Changing password...</div>
-        <UInput block v-model="oldPassword" placeholder="Old password" />
-        <UInput block v-model="newPassword" placeholder="New password" />
-        <UButton block @click="changePassword"> Change password </UButton>
-      </div>
-    </UCard>
+    <template #content>
+      <UCard>
+        <div class="flex flex-col space-y-4">
+          <div>Changing password...</div>
+          <UInput block v-model="oldPassword" placeholder="Old password" />
+          <UInput block v-model="newPassword" placeholder="New password" />
+          <UButton block @click="changePassword">Change password</UButton>
+        </div>
+      </UCard>
+    </template>
   </UModal>
 </template>

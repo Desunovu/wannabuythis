@@ -12,6 +12,7 @@ const initialLetter = computed(() => userData.username.charAt(0).toUpperCase());
     <UAvatar size="2xl" :text="initialLetter" />
     <div>
       <div class="text-2xl">{{ userData.username }}</div>
+      <div class="text-gray-500">{{ userData.email }}</div>
       <div v-if="!userData.is_active" class="text-red-500">
         (User account is not activated)
       </div>

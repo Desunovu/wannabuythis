@@ -3,6 +3,7 @@ export default defineNuxtConfig({
   ssr: false,
   devtools: { enabled: true },
   modules: ["@nuxt/ui", "nuxt-open-fetch", "@sidebase/nuxt-auth"],
+  css: ["~/assets/css/main.css"],
   compatibilityDate: "2024-07-20",
   openFetch: {
     disableNuxtPlugin: true,
