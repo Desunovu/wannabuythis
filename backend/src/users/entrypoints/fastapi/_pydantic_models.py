@@ -10,6 +10,7 @@ class UserResponse(BaseModel):
     username: str
     email: str
     is_active: bool
+    is_superuser: bool
 
 
 class ResendActivationCodeRequest(BaseModel):
