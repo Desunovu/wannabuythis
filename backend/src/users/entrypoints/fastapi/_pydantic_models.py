@@ -13,6 +13,10 @@ class UserResponse(BaseModel):
     is_superuser: bool
 
 
+class PublicUserResponse(BaseModel):
+    username: str
+
+
 class ResendActivationCodeRequest(BaseModel):
     username: str
     password: str
