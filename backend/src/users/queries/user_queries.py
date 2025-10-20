@@ -1,16 +1,22 @@
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, load_only
 
 from src.common.service.exceptions import UserNotFound
 from src.users.domain.model import User
 
 
 def get_all_users(session: Session) -> list[User]:
-    return session.scalars(select(User)).all()
+    stmt = select(User).options(load_only(User.username))
+    users = session.scalars(stmt).all()
+    return users
 
 
 def get_user_by_username(session: Session, username: str) -> User:
-    user = session.get(User, username)
+    user = session.get(
+        User,
+        username,
+        options=[load_only(User.username)],
+    )
     if user is None:
         raise UserNotFound(username)
     return user
