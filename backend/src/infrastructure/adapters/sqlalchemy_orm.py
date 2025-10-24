@@ -12,8 +12,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import registry, relationship
 
-from src.users.domain import model as user_domain_model
-from src.wishlists.domain import model as wishlist_domain_model
+from src.modules.users.domain import model as user_domain_model
+from src.modules.wishlists.domain import model as wishlist_domain_model
 
 mapper_registry = registry()
 

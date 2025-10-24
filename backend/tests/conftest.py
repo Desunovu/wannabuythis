@@ -14,8 +14,8 @@ from src.infrastructure.adapters.sqlalchemy_orm import (
     start_sqlalchemy_mappers,
 )
 from src.infrastructure.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
-from src.users.domain.model import User
-from src.wishlists.domain.model import MeasurementUnit, Priority, Wishlist, WishlistItem
+from src.modules.users.domain.model import User
+from src.modules.wishlists.domain.model import MeasurementUnit, Priority, Wishlist, WishlistItem
 from tests.fakes import FakeActivationCodeStorage, FakeNotificator, FakeUnitOfWork
 
 

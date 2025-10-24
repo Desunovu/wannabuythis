@@ -4,10 +4,10 @@ from src.core.adapters.activation_code_storage import ActivationCodeStorage
 from src.core.utils.notificator import Notificator
 from src.core.service.exceptions import UserNotFound, WishlistNotFound
 from src.core.service.uow import UnitOfWork
-from src.users.adapters.user_repository import UserRepository
-from src.users.domain.model import User
-from src.wishlists.adapters.wishlist_repository import WishlistRepository
-from src.wishlists.domain.model import Wishlist
+from src.modules.users.adapters.user_repository import UserRepository
+from src.modules.users.domain.model import User
+from src.modules.wishlists.adapters.wishlist_repository import WishlistRepository
+from src.modules.wishlists.domain.model import Wishlist
 
 
 class FakeUserRepository(UserRepository):

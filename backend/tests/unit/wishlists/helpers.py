@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.wishlists.domain.model import Wishlist
+    from src.modules.wishlists.domain.model import Wishlist
 
 
 def find_purchased_item(wishlist: "Wishlist"):

@@ -11,7 +11,7 @@ from src.core.service.exceptions import (
     WishlistNotArchived,
     WishlistNotFound,
 )
-from src.wishlists.domain.commands import (
+from src.modules.wishlists.domain.commands import (
     AddWishlistItem,
     ArchiveWishlist,
     ChangeWishlistName,

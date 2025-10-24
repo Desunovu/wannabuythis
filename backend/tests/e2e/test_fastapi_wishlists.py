@@ -1,4 +1,4 @@
-from src.wishlists.domain.model import MeasurementUnit, Priority
+from src.modules.wishlists.domain.model import MeasurementUnit, Priority
 
 GET_WISHLIST_URL = "/wishlists"
 GET_CURRENT_USER_WISHLISTS_URL = "/wishlists"

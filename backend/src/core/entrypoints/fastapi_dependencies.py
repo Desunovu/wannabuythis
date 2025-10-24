@@ -8,11 +8,11 @@ from starlette.status import HTTP_403_FORBIDDEN
 
 from src.core.utils.token_manager import TokenManager
 from src.core.service.exceptions import UserNotAuthorized
-from src.users.queries import user_queries
-from src.wishlists.queries import wishlist_queries
+from src.modules.users.queries import user_queries
+from src.modules.wishlists.queries import wishlist_queries
 
 if TYPE_CHECKING:
-    from src.users.domain.model import User
+    from src.modules.users.domain.model import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 

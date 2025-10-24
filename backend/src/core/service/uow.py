@@ -2,8 +2,8 @@ import abc
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.users.adapters.user_repository import UserRepository
-    from src.wishlists.adapters.wishlist_repository import WishlistRepository
+    from src.modules.users.adapters.user_repository import UserRepository
+    from src.modules.wishlists.adapters.wishlist_repository import WishlistRepository
 
 
 class UnitOfWork(abc.ABC):
