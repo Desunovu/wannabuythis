@@ -13,7 +13,7 @@ from src.modules.users.domain.commands import (
     GenerateAuthToken,
     ResendActivationCode,
 )
-from src.modules.users.entrypoints.fastapi._pydantic_models import (
+from src.modules.users.entrypoints.fastapi.schemas import (
     ActivateUserWithCodeRequest,
     LoginUserResponse,
 )

@@ -5,7 +5,7 @@ from starlette.requests import Request
 
 from src.shared.entrypoints.fastapi_dependencies import CurrentUserDependency
 from src.shared.entrypoints.fastapi_limiter import limiter
-from src.modules.users.entrypoints.fastapi._pydantic_models import UserResponse, PublicUserResponse
+from src.modules.users.entrypoints.fastapi.schemas import UserResponse, PublicUserResponse
 from src.modules.users.queries import user_queries
 
 users_query_router = APIRouter(prefix="/users", tags=["user_queries"])
