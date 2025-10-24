@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.common.service.exceptions import WishlistNotFound
+from src.core.service.exceptions import WishlistNotFound
 from src.wishlists.domain.model import Wishlist
 
 

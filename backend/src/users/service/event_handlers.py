@@ -1,8 +1,8 @@
-from src.common.adapters.activation_code_storage import ActivationCodeStorage
-from src.common.utils.activation_code_generator import ActivationCodeGenerator
-from src.common.utils.notificator import Notificator
-from src.common.domain.events import DomainEvent
-from src.common.service.uow import UnitOfWork
+from src.core.adapters.activation_code_storage import ActivationCodeStorage
+from src.core.utils.activation_code_generator import ActivationCodeGenerator
+from src.core.utils.notificator import Notificator
+from src.core.domain.events import DomainEvent
+from src.core.service.uow import UnitOfWork
 from src.users.domain.events import (
     EmailChanged,
     PasswordChanged,

@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from src.common.service.exceptions import (
+from src.core.service.exceptions import (
     CodeVerificationError,
     PasswordValidationError,
     PasswordVerificationError,

@@ -1,8 +1,8 @@
 import inspect
 
-from src.common.domain.aggregates import AggregateRoot
-from src.common.domain.entities import Entity
-from src.common.domain.value_objects import ValueObject
+from src.core.domain.aggregates import AggregateRoot
+from src.core.domain.entities import Entity
+from src.core.domain.value_objects import ValueObject
 from src.users.domain import model as user_model_module
 from src.wishlists.domain import model as wishlist_model_module
 

@@ -6,7 +6,7 @@ from starlette.requests import Request
 from starlette.status import HTTP_200_OK
 
 from src import config
-from src.common.entrypoints.fastapi_limiter import limiter
+from src.core.entrypoints.fastapi_limiter import limiter
 from src.users.domain.commands import (
     ActivateUserWithCode,
     CreateUser,

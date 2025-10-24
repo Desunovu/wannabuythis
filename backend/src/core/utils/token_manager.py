@@ -4,7 +4,7 @@ import datetime
 import jwt
 
 from src import config
-from src.common.service.exceptions import TokenException
+from src.core.service.exceptions import TokenException
 
 
 class TokenManager(abc.ABC):
