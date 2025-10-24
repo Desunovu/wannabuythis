@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from src.core.domain.events import DomainEvent
+from src.shared.domain.events import DomainEvent
 
 
 @dataclass(kw_only=True)

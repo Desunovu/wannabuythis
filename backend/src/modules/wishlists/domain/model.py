@@ -3,9 +3,9 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from uuid import UUID
 
-from src.core.domain.aggregates import AggregateRoot
-from src.core.domain.entities import Entity
-from src.core.application.exceptions import (
+from src.shared.domain.aggregates import AggregateRoot
+from src.shared.domain.entities import Entity
+from src.shared.application.exceptions import (
     WishlistAlreadyArchived,
     WishlistItemAlreadyPurchased,
     WishlistItemNotFound,

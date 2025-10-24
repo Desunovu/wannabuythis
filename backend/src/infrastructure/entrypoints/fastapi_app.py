@@ -7,14 +7,14 @@ from sqlalchemy.orm import clear_mappers
 from fastapi.middleware.cors import CORSMiddleware
 
 from src import bootstrap, config
-from src.core.utils.activation_codes.activation_code_generator import (
+from src.shared.utils.activation_codes.activation_code_generator import (
     RandomActivationCodeGenerator,
 )
-from src.core.utils.notifications.notificator import EmailNotificator
-from src.core.utils.auth.password_manager import HashlibPasswordManager
-from src.core.utils.auth.token_manager import JWTManager
-from src.core.utils.generators.uuid_generator import DefaultUUIDGenerator
-from src.core.entrypoints.fastapi_limiter import limiter
+from src.shared.utils.notifications.notificator import EmailNotificator
+from src.shared.utils.auth.password_manager import HashlibPasswordManager
+from src.shared.utils.auth.token_manager import JWTManager
+from src.shared.utils.generators.uuid_generator import DefaultUUIDGenerator
+from src.shared.entrypoints.fastapi_limiter import limiter
 from src.infrastructure.database.migrations.alembic_runner import run_migrations
 from src.infrastructure.cache.redis.activation_code_storage import (
     RedisActivationCodeStorage,

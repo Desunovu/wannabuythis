@@ -5,10 +5,10 @@ from sqlalchemy import StaticPool, create_engine
 from sqlalchemy.orm import clear_mappers, sessionmaker
 
 from src import bootstrap
-from src.core.utils.activation_codes.activation_code_generator import RandomActivationCodeGenerator
-from src.core.utils.auth.password_manager import HashlibPasswordManager
-from src.core.utils.auth.token_manager import JWTManager
-from src.core.utils.generators.uuid_generator import DefaultUUIDGenerator
+from src.shared.utils.activation_codes.activation_code_generator import RandomActivationCodeGenerator
+from src.shared.utils.auth.password_manager import HashlibPasswordManager
+from src.shared.utils.auth.token_manager import JWTManager
+from src.shared.utils.generators.uuid_generator import DefaultUUIDGenerator
 from src.infrastructure.database.orm.sqlalchemy_orm import (
     mapper_registry,
     start_sqlalchemy_mappers,
