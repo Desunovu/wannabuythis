@@ -1,6 +1,6 @@
-from src.core.utils.uuid_generator import UUIDGenerator
+from src.core.utils.generators.uuid_generator import UUIDGenerator
 from src.core.domain.commands import Command
-from src.core.service.uow import UnitOfWork
+from src.core.application.uow import UnitOfWork
 from src.modules.wishlists.domain.commands import (
     AddWishlistItem,
     ArchiveWishlist,

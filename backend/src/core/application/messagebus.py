@@ -3,8 +3,8 @@ from typing import Any
 
 from src.core.domain.commands import Command
 from src.core.domain.events import DomainEvent
-from src.core.service.exceptions import ApplicationException
-from src.core.service.uow import UnitOfWork
+from src.core.application.exceptions import ApplicationException
+from src.core.application.uow import UnitOfWork
 
 # Dependencies should be injected in handlers by bootstrap script (see src/bootstrap.py)
 # So we don't need to pass any dependencies to handlers. Usage: handler_name(message)

@@ -1,7 +1,7 @@
 import abc
 
-from src.core.adapters.repository import BaseRepository
-from src.core.service.exceptions import (
+from src.core.ports.repository import BaseRepository
+from src.core.application.exceptions import (
     UserActive,
     UserExists,
     UserNotActive,

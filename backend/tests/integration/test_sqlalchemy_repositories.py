@@ -2,7 +2,7 @@ import uuid
 
 import pytest
 
-from src.core.service.exceptions import UserNotFound, WishlistNotFound
+from src.core.application.exceptions import UserNotFound, WishlistNotFound
 from src.infrastructure.adapters.sqlalchemy_user_repository import SQLAlchemyUserRepository
 from src.infrastructure.adapters.sqlalchemy_wishlist_repository import (
     SQLAlchemyWishlistRepository,

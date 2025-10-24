@@ -1,11 +1,11 @@
-from src.core.adapters.activation_code_storage import ActivationCodeStorage
+from src.core.ports.activation_code_storage import ActivationCodeStorage
 from src.core.domain.commands import Command
-from src.core.service.exceptions import CodeVerificationError
-from src.core.service.uow import UnitOfWork
-from src.core.utils.activation_code_generator import ActivationCodeGenerator
-from src.core.utils.notificator import Notificator
-from src.core.utils.password_manager import PasswordManager
-from src.core.utils.token_manager import TokenManager
+from src.core.application.exceptions import CodeVerificationError
+from src.core.application.uow import UnitOfWork
+from src.core.utils.activation_codes.activation_code_generator import ActivationCodeGenerator
+from src.core.utils.notifications.notificator import Notificator
+from src.core.utils.auth.password_manager import PasswordManager
+from src.core.utils.auth.token_manager import TokenManager
 from src.modules.users.domain.commands import (
     ActivateUser,
     ActivateUserWithCode,
