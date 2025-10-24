@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.core.domain.events import DomainEvent
+from src.shared.domain.events import DomainEvent
 
 
 @dataclass

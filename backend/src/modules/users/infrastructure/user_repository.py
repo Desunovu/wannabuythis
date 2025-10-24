@@ -1,7 +1,7 @@
 import abc
 
-from src.core.ports.repository import BaseRepository
-from src.core.application.exceptions import (
+from src.shared.ports.repository import BaseRepository
+from src.shared.application.exceptions import (
     UserActive,
     UserExists,
     UserNotActive,

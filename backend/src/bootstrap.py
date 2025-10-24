@@ -1,17 +1,17 @@
 import inspect
 from typing import Any, Callable
 
-from src.core.ports.activation_code_storage import ActivationCodeStorage
-from src.core.domain.commands import Command
-from src.core.domain.events import DomainEvent
-from src.core.logger import setup_logging
-from src.core.application.messagebus import Messagebus
-from src.core.application.uow import UnitOfWork
-from src.core.utils.activation_codes.activation_code_generator import ActivationCodeGenerator
-from src.core.utils.notifications.notificator import Notificator
-from src.core.utils.auth.password_manager import PasswordManager
-from src.core.utils.auth.token_manager import TokenManager
-from src.core.utils.generators.uuid_generator import UUIDGenerator
+from src.shared.ports.activation_code_storage import ActivationCodeStorage
+from src.shared.domain.commands import Command
+from src.shared.domain.events import DomainEvent
+from src.shared.logger import setup_logging
+from src.shared.application.messagebus import Messagebus
+from src.shared.application.uow import UnitOfWork
+from src.shared.utils.activation_codes.activation_code_generator import ActivationCodeGenerator
+from src.shared.utils.notifications.notificator import Notificator
+from src.shared.utils.auth.password_manager import PasswordManager
+from src.shared.utils.auth.token_manager import TokenManager
+from src.shared.utils.generators.uuid_generator import UUIDGenerator
 from src.modules.users.application.command_handlers import USER_COMMAND_HANDLERS
 from src.modules.users.application.event_handlers import USER_EVENT_HANDLERS
 from src.modules.wishlists.application.command_handlers import WISHLIST_COMMAND_HANDLERS

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from src.core.application.exceptions import UserNotFound
+from src.shared.application.exceptions import UserNotFound
 from src.modules.users.infrastructure.user_repository import UserRepository
 from src.modules.users.domain.model import User
 

@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from starlette.requests import Request
 from starlette.status import HTTP_200_OK
 
-from src.core.entrypoints.fastapi_dependencies import CurrentUserDependency
+from src.shared.entrypoints.fastapi_dependencies import CurrentUserDependency
 from src.modules.users.domain.commands import ChangeEmail, ChangePasswordWithOldPassword
 from src.modules.users.entrypoints.fastapi._pydantic_models import (
     ChangeEmailRequest,

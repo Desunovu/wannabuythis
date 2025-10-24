@@ -1,7 +1,7 @@
 import abc
 import hashlib
 
-from src.core.application.exceptions import (
+from src.shared.application.exceptions import (
     PasswordValidationError,
     PasswordVerificationError,
 )

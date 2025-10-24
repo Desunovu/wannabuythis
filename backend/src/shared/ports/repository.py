@@ -1,7 +1,7 @@
 import abc
 from typing import Generic, Optional, TypeVar
 
-from src.core.domain.aggregates import AggregateRoot
+from src.shared.domain.aggregates import AggregateRoot
 
 T = TypeVar("T", bound=AggregateRoot)
 
