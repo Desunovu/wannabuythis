@@ -1,6 +1,6 @@
 import pytest
 
-from src.core.service.exceptions import UserNotFound
+from src.core.application.exceptions import UserNotFound
 
 
 class TestSQLAlchemyUnitOfWork:

@@ -5,7 +5,7 @@ from uuid import UUID
 
 from src.core.domain.aggregates import AggregateRoot
 from src.core.domain.entities import Entity
-from src.core.service.exceptions import (
+from src.core.application.exceptions import (
     WishlistAlreadyArchived,
     WishlistItemAlreadyPurchased,
     WishlistItemNotFound,

@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session, load_only
 
-from src.core.service.exceptions import UserNotFound
+from src.core.application.exceptions import UserNotFound
 from src.modules.users.domain.model import User
 
 

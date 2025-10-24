@@ -117,8 +117,8 @@ Once everything is set up, verify that the application is running:
 
 ```bash
 kubectl get pod -n=wannabuythis
-kubectl get service -n=wannabuythis
-kubectl get service -n=kube-system | grep traefik
+kubectl get application -n=wannabuythis
+kubectl get application -n=kube-system | grep traefik
 ```
 
 ---

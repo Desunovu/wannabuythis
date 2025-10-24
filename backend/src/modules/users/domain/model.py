@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
 from src.core.domain.aggregates import AggregateRoot
-from src.core.service.exceptions import UserAlreadyActive, UserAlreadyDeactivated
+from src.core.application.exceptions import UserAlreadyActive, UserAlreadyDeactivated
 from src.modules.users.domain.events import (
     EmailChanged,
     PasswordChanged,

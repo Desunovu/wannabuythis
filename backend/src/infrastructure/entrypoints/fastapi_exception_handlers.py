@@ -8,7 +8,7 @@ from starlette.status import (
     HTTP_409_CONFLICT,
 )
 
-from src.core.service.exceptions import (
+from src.core.application.exceptions import (
     ConflictException,
     Forbidden,
     NotFoundException,
