@@ -12,10 +12,10 @@ from src.core.utils.notifications.notificator import Notificator
 from src.core.utils.auth.password_manager import PasswordManager
 from src.core.utils.auth.token_manager import TokenManager
 from src.core.utils.generators.uuid_generator import UUIDGenerator
-from src.modules.users.service.command_handlers import USER_COMMAND_HANDLERS
-from src.modules.users.service.event_handlers import USER_EVENT_HANDLERS
-from src.modules.wishlists.service.command_handlers import WISHLIST_COMMAND_HANDLERS
-from src.modules.wishlists.service.event_handlers import WISHLIST_EVENT_HANDLERS
+from src.modules.users.application.command_handlers import USER_COMMAND_HANDLERS
+from src.modules.users.application.event_handlers import USER_EVENT_HANDLERS
+from src.modules.wishlists.application.command_handlers import WISHLIST_COMMAND_HANDLERS
+from src.modules.wishlists.application.event_handlers import WISHLIST_EVENT_HANDLERS
 
 COMMAND_HANDLERS = {
     **USER_COMMAND_HANDLERS,

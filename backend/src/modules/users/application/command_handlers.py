@@ -18,8 +18,8 @@ from src.modules.users.domain.commands import (
     ResendActivationCode,
 )
 from src.modules.users.domain.model import User
-from src.modules.users.service import handler_utils
-from src.modules.users.service.handler_utils import send_new_activation_code
+from src.modules.users.application import handler_utils
+from src.modules.users.application.handler_utils import send_new_activation_code
 
 
 def handle_create_user(
