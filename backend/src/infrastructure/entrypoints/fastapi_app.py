@@ -15,15 +15,15 @@ from src.core.utils.auth.password_manager import HashlibPasswordManager
 from src.core.utils.auth.token_manager import JWTManager
 from src.core.utils.generators.uuid_generator import DefaultUUIDGenerator
 from src.core.entrypoints.fastapi_limiter import limiter
-from src.infrastructure.adapters.alembic_runner import run_migrations
-from src.infrastructure.adapters.redis.activation_code_storage import (
+from src.infrastructure.database.migrations.alembic_runner import run_migrations
+from src.infrastructure.cache.redis.activation_code_storage import (
     RedisActivationCodeStorage,
 )
-from src.infrastructure.adapters.sqlalchemy_orm import start_sqlalchemy_mappers
+from src.infrastructure.database.orm.sqlalchemy_orm import start_sqlalchemy_mappers
 from src.infrastructure.entrypoints.fastapi_exception_handlers import (
     exception_to_exception_handlers,
 )
-from src.infrastructure.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
+from src.infrastructure.database.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.modules.users.entrypoints.fastapi.admin_router import users_admin_router
 from src.modules.users.entrypoints.fastapi.auth_router import users_auth_router
 from src.modules.users.entrypoints.fastapi.command_router import users_command_router
