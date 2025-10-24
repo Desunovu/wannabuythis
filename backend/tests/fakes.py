@@ -4,9 +4,9 @@ from src.core.ports.activation_code_storage import ActivationCodeStorage
 from src.core.utils.notifications.notificator import Notificator
 from src.core.application.exceptions import UserNotFound, WishlistNotFound
 from src.core.application.uow import UnitOfWork
-from src.modules.users.adapters.user_repository import UserRepository
+from src.modules.users.infrastructure.user_repository import UserRepository
 from src.modules.users.domain.model import User
-from src.modules.wishlists.adapters.wishlist_repository import WishlistRepository
+from src.modules.wishlists.infrastructure.wishlist_repository import WishlistRepository
 from src.modules.wishlists.domain.model import Wishlist
 
 
