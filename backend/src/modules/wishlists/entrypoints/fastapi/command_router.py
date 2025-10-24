@@ -18,7 +18,7 @@ from src.modules.wishlists.domain.commands import (
     RemoveWishlistItem,
     UnarchiveWishlist,
 )
-from src.modules.wishlists.entrypoints.fastapi._pydantic_models import (
+from src.modules.wishlists.entrypoints.fastapi.schemas import (
     AddWishlistItemRequest,
     ChangeWishlistNameRequest,
     CreateWishlistRequest,
