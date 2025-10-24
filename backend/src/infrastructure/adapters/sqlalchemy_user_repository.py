@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 
 from src.core.service.exceptions import UserNotFound
-from src.users.adapters.user_repository import UserRepository
-from src.users.domain.model import User
+from src.modules.users.adapters.user_repository import UserRepository
+from src.modules.users.domain.model import User
 
 
 class SQLAlchemyUserRepository(UserRepository):

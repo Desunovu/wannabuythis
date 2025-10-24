@@ -3,8 +3,8 @@ import inspect
 from src.core.domain.aggregates import AggregateRoot
 from src.core.domain.entities import Entity
 from src.core.domain.value_objects import ValueObject
-from src.users.domain import model as user_model_module
-from src.wishlists.domain import model as wishlist_model_module
+from src.modules.users.domain import model as user_model_module
+from src.modules.wishlists.domain import model as wishlist_model_module
 
 
 def get_mapper_columns_and_relationships(domain_class) -> list[str]:

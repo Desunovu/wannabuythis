@@ -2,7 +2,7 @@ import abc
 from smtplib import SMTP
 
 from src import config
-from src.users.domain.model import User
+from src.modules.users.domain.model import User
 
 
 class Notificator(abc.ABC):

@@ -24,12 +24,12 @@ from src.infrastructure.entrypoints.fastapi_exception_handlers import (
     exception_to_exception_handlers,
 )
 from src.infrastructure.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
-from src.users.entrypoints.fastapi.admin_router import users_admin_router
-from src.users.entrypoints.fastapi.auth_router import users_auth_router
-from src.users.entrypoints.fastapi.command_router import users_command_router
-from src.users.entrypoints.fastapi.query_router import users_query_router
-from src.wishlists.entrypoints.fastapi.command_router import wishlists_command_router
-from src.wishlists.entrypoints.fastapi.query_router import wishlists_query_router
+from src.modules.users.entrypoints.fastapi.admin_router import users_admin_router
+from src.modules.users.entrypoints.fastapi.auth_router import users_auth_router
+from src.modules.users.entrypoints.fastapi.command_router import users_command_router
+from src.modules.users.entrypoints.fastapi.query_router import users_query_router
+from src.modules.wishlists.entrypoints.fastapi.command_router import wishlists_command_router
+from src.modules.wishlists.entrypoints.fastapi.query_router import wishlists_query_router
 from tests.fakes import FakeNotificator
 
 ROUTERS = [

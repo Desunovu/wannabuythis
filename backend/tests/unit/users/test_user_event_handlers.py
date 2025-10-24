@@ -1,4 +1,4 @@
-from src.users.domain.events import UserCreated
+from src.modules.users.domain.events import UserCreated
 
 
 class TestUserCreated:

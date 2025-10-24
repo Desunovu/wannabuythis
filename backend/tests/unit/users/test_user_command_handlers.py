@@ -13,7 +13,7 @@ from src.core.service.exceptions import (
     UserNotActive,
     UserNotFound,
 )
-from src.users.domain.commands import (
+from src.modules.users.domain.commands import (
     ActivateUser,
     ActivateUserWithCode,
     ChangeEmail,
