@@ -9,11 +9,11 @@ from src.core.utils.activation_codes.activation_code_generator import RandomActi
 from src.core.utils.auth.password_manager import HashlibPasswordManager
 from src.core.utils.auth.token_manager import JWTManager
 from src.core.utils.generators.uuid_generator import DefaultUUIDGenerator
-from src.infrastructure.adapters.sqlalchemy_orm import (
+from src.infrastructure.database.orm.sqlalchemy_orm import (
     mapper_registry,
     start_sqlalchemy_mappers,
 )
-from src.infrastructure.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
+from src.infrastructure.database.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.modules.users.domain.model import User
 from src.modules.wishlists.domain.model import MeasurementUnit, Priority, Wishlist, WishlistItem
 from tests.fakes import FakeActivationCodeStorage, FakeNotificator, FakeUnitOfWork
