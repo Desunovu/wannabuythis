@@ -1,7 +1,7 @@
 import abc
 from uuid import UUID
 
-from src.common.adapters.repository import BaseRepository
+from src.core.adapters.repository import BaseRepository
 from src.wishlists.domain.model import Wishlist
 
 

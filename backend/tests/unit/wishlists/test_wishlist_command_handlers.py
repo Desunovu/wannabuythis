@@ -2,7 +2,7 @@ import uuid
 
 import pytest
 
-from src.common.service.exceptions import (
+from src.core.service.exceptions import (
     UserNotFound,
     WishlistAlreadyArchived,
     WishlistItemAlreadyPurchased,

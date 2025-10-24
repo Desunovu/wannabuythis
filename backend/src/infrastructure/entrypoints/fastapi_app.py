@@ -7,23 +7,23 @@ from sqlalchemy.orm import clear_mappers
 from fastapi.middleware.cors import CORSMiddleware
 
 from src import bootstrap, config
-from src.common.utils.activation_code_generator import (
+from src.core.utils.activation_code_generator import (
     RandomActivationCodeGenerator,
 )
-from src.common.utils.notificator import EmailNotificator
-from src.common.utils.password_manager import HashlibPasswordManager
-from src.common.utils.token_manager import JWTManager
-from src.common.utils.uuid_generator import DefaultUUIDGenerator
-from src.common.entrypoints.fastapi_limiter import limiter
-from src.integration.adapters.alembic_runner import run_migrations
-from src.integration.adapters.redis.activation_code_storage import (
+from src.core.utils.notificator import EmailNotificator
+from src.core.utils.password_manager import HashlibPasswordManager
+from src.core.utils.token_manager import JWTManager
+from src.core.utils.uuid_generator import DefaultUUIDGenerator
+from src.core.entrypoints.fastapi_limiter import limiter
+from src.infrastructure.adapters.alembic_runner import run_migrations
+from src.infrastructure.adapters.redis.activation_code_storage import (
     RedisActivationCodeStorage,
 )
-from src.integration.adapters.sqlalchemy_orm import start_sqlalchemy_mappers
-from src.integration.entrypoints.fastapi_exception_handlers import (
+from src.infrastructure.adapters.sqlalchemy_orm import start_sqlalchemy_mappers
+from src.infrastructure.entrypoints.fastapi_exception_handlers import (
     exception_to_exception_handlers,
 )
-from src.integration.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
+from src.infrastructure.service.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.users.entrypoints.fastapi.admin_router import users_admin_router
 from src.users.entrypoints.fastapi.auth_router import users_auth_router
 from src.users.entrypoints.fastapi.command_router import users_command_router

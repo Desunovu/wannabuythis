@@ -1,4 +1,4 @@
-from src.common.domain.events import DomainEvent
+from src.core.domain.events import DomainEvent
 from src.wishlists.domain.events import (
     WishlistArchived,
     WishlistCreated,

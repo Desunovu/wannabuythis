@@ -1,9 +1,9 @@
 from uuid import UUID
 
-from src.common.adapters.activation_code_storage import ActivationCodeStorage
-from src.common.utils.notificator import Notificator
-from src.common.service.exceptions import UserNotFound, WishlistNotFound
-from src.common.service.uow import UnitOfWork
+from src.core.adapters.activation_code_storage import ActivationCodeStorage
+from src.core.utils.notificator import Notificator
+from src.core.service.exceptions import UserNotFound, WishlistNotFound
+from src.core.service.uow import UnitOfWork
 from src.users.adapters.user_repository import UserRepository
 from src.users.domain.model import User
 from src.wishlists.adapters.wishlist_repository import WishlistRepository

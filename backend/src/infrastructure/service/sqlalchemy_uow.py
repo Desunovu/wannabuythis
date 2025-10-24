@@ -2,9 +2,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from src import config
-from src.common.service.uow import UnitOfWork
-from src.integration.adapters.sqlalchemy_user_repository import SQLAlchemyUserRepository
-from src.integration.adapters.sqlalchemy_wishlist_repository import (
+from src.core.service.uow import UnitOfWork
+from src.infrastructure.adapters.sqlalchemy_user_repository import SQLAlchemyUserRepository
+from src.infrastructure.adapters.sqlalchemy_wishlist_repository import (
     SQLAlchemyWishlistRepository,
 )
 

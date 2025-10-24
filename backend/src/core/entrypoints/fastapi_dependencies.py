@@ -6,8 +6,8 @@ from fastapi.security import OAuth2PasswordBearer
 from starlette.requests import Request
 from starlette.status import HTTP_403_FORBIDDEN
 
-from src.common.utils.token_manager import TokenManager
-from src.common.service.exceptions import UserNotAuthorized
+from src.core.utils.token_manager import TokenManager
+from src.core.service.exceptions import UserNotAuthorized
 from src.users.queries import user_queries
 from src.wishlists.queries import wishlist_queries
 

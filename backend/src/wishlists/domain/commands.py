@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from src.common.domain.commands import Command
+from src.core.domain.commands import Command
 
 
 @dataclass(frozen=True)

@@ -1,7 +1,7 @@
 import redis
 
 from src import config
-from src.common.adapters.activation_code_storage import ActivationCodeStorage
+from src.core.adapters.activation_code_storage import ActivationCodeStorage
 
 
 class RedisActivationCodeStorage(ActivationCodeStorage):

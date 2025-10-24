@@ -1,7 +1,7 @@
 import fakeredis
 import pytest
 
-from src.integration.adapters.redis.activation_code_storage import (
+from src.infrastructure.adapters.redis.activation_code_storage import (
     RedisActivationCodeStorage,
 )
 

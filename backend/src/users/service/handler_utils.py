@@ -1,7 +1,7 @@
-from src.common.adapters.activation_code_storage import ActivationCodeStorage
-from src.common.utils.activation_code_generator import ActivationCodeGenerator
-from src.common.utils.notificator import Notificator
-from src.common.utils.password_manager import PasswordManager
+from src.core.adapters.activation_code_storage import ActivationCodeStorage
+from src.core.utils.activation_code_generator import ActivationCodeGenerator
+from src.core.utils.notificator import Notificator
+from src.core.utils.password_manager import PasswordManager
 from src.users.domain.model import User
 
 
