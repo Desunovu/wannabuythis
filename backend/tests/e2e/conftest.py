@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from src.shared.utils.auth.token_manager import JWTManager
-from src.infrastructure.entrypoints.fastapi_app import create_app
+from src.infrastructure.entrypoints.fastapi.app import create_app
 
 
 def add_authorization_header_to_client(client: TestClient, user) -> None:
