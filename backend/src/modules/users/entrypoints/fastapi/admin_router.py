@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from starlette.requests import Request
 from starlette.status import HTTP_200_OK
 
-from src.shared.entrypoints.fastapi_dependencies import CurrentAdminDependency
+from src.infrastructure.entrypoints.fastapi.dependencies import CurrentAdminDependency
 from src.modules.users.domain.commands import (
     ActivateUser,
     ChangeEmail,

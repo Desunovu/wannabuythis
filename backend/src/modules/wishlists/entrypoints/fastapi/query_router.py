@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter
 from starlette.requests import Request
 
-from src.shared.entrypoints.fastapi_dependencies import CurrentUserDependency
+from src.infrastructure.entrypoints.fastapi.dependencies import CurrentUserDependency
 from src.modules.wishlists.entrypoints.fastapi.schemas import WishlistResponse
 from src.modules.wishlists.queries import wishlist_queries
 

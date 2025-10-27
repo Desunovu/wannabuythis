@@ -3,8 +3,8 @@ from dataclasses import asdict
 from fastapi import APIRouter
 from starlette.requests import Request
 
-from src.shared.entrypoints.fastapi_dependencies import CurrentUserDependency
-from src.shared.entrypoints.fastapi_limiter import limiter
+from src.infrastructure.entrypoints.fastapi.dependencies import CurrentUserDependency
+from src.infrastructure.entrypoints.fastapi.limiter import limiter
 from src.modules.users.entrypoints.fastapi.schemas import UserResponse, PublicUserResponse
 from src.modules.users.queries import user_queries
 
