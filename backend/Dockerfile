@@ -30,7 +30,7 @@ WORKDIR $PYSETUP_PATH
 RUN poetry install
 WORKDIR /app
 COPY . .
-CMD ["uvicorn","src.integration.entrypoints.fastapi_app:app",  "--reload", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn","src.infrastructure.entrypoints.fastapi.app:app",  "--reload", "--host", "0.0.0.0", "--port", "8000"]
 
 # ==== Production Stage ====
 FROM python-base AS production
@@ -38,4 +38,4 @@ ENV FASTAPI_ENV=production
 COPY --from=builder-base $VENV_PATH $VENV_PATH
 WORKDIR /app
 COPY . .
-CMD ["uvicorn", "src.integration.entrypoints.fastapi_app:app", "--host", "0.0.0.0", "--port", "8000", "--root-path", "/api"]
+CMD ["uvicorn", "src.infrastructure.entrypoints.fastapi.app:app", "--host", "0.0.0.0", "--port", "8000", "--root-path", "/api"]
