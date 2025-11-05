@@ -1,7 +1,7 @@
 import abc
 from smtplib import SMTP
 
-from src import config
+from src.config import settings
 from src.modules.users.domain.model import User
 
 
@@ -21,9 +21,9 @@ class Notificator(abc.ABC):
 
 class EmailNotificator(Notificator):
     def send_notification(self, recipient: "User", subject: str, message: str) -> None:
-        with SMTP(config.get_smtp_host()) as smtp:
+        with SMTP(settings.smtp_host) as smtp:
             smtp.sendmail(
-                from_addr=config.get_smtp_sender(),
+                from_addr=settings.smtp_sender,
                 to_addrs=[recipient.email],
                 msg=f"Subject: {subject}\n\n{message}".encode(),
             )

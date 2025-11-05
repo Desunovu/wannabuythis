@@ -6,7 +6,8 @@ from fastapi import FastAPI
 from sqlalchemy.orm import clear_mappers
 from fastapi.middleware.cors import CORSMiddleware
 
-from src import bootstrap, config
+from src import bootstrap
+from src.config import settings
 from src.shared.utils.activation_codes.activation_code_generator import (
     RandomActivationCodeGenerator,
 )
@@ -28,8 +29,12 @@ from src.modules.users.entrypoints.fastapi.admin_router import users_admin_route
 from src.modules.users.entrypoints.fastapi.auth_router import users_auth_router
 from src.modules.users.entrypoints.fastapi.command_router import users_command_router
 from src.modules.users.entrypoints.fastapi.query_router import users_query_router
-from src.modules.wishlists.entrypoints.fastapi.command_router import wishlists_command_router
-from src.modules.wishlists.entrypoints.fastapi.query_router import wishlists_query_router
+from src.modules.wishlists.entrypoints.fastapi.command_router import (
+    wishlists_command_router,
+)
+from src.modules.wishlists.entrypoints.fastapi.query_router import (
+    wishlists_query_router,
+)
 from tests.fakes import FakeNotificator
 
 ROUTERS = [
@@ -45,7 +50,7 @@ ROUTERS = [
 @asynccontextmanager
 async def lifespan(application: FastAPI):
     start_sqlalchemy_mappers()
-    if config.get_env() != "test":
+    if not settings.is_testing:
         run_migrations()
     yield
     clear_mappers()
@@ -54,10 +59,8 @@ async def lifespan(application: FastAPI):
 def setup_messagebus_dependencies():
     """Set up utils for messagebus based on app environment"""
 
-    notificator = (
-        FakeNotificator() if config.get_env() == "development" else EmailNotificator()
-    )
-    redis_client = FakeRedis() if config.get_env() == "development" else None
+    notificator = FakeNotificator() if settings.is_development else EmailNotificator()
+    redis_client = FakeRedis() if settings.is_development else None
 
     dependencies = bootstrap.create_dependencies_dict(
         uow=SQLAlchemyUnitOfWork(),

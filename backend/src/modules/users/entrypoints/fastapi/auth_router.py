@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from starlette.requests import Request
 from starlette.status import HTTP_200_OK
 
-from src import config
+from src.config import settings
 from src.infrastructure.entrypoints.fastapi.limiter import limiter
 from src.modules.users.domain.commands import (
     ActivateUserWithCode,
@@ -44,7 +44,7 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], request: R
     command = GenerateAuthToken(
         username=form_data.username,
         password=form_data.password,
-        token_lifetime=config.get_auth_token_lifetime(),
+        token_lifetime=settings.auth_token_lifetime,
     )
     auth_token = request.app.state.messagebus.handle(command)
 

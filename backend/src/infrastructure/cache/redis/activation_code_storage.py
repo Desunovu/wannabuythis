@@ -1,6 +1,6 @@
 import redis
 
-from src import config
+from src.config import settings
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
 
 
@@ -10,9 +10,9 @@ class RedisActivationCodeStorage(ActivationCodeStorage):
             self.redis_client = redis_client
         else:
             self.redis_client = redis.Redis(
-                host=config.REDIS_HOST,
-                port=config.REDIS_PORT,
-                db=config.REDIS_ACTIVATION_CODES_DB,
+                host=settings.redis_host,
+                port=settings.redis_port,
+                db=settings.redis_activation_codes_db,
             )
 
     def get_activation_code(self, username: str) -> None | str:

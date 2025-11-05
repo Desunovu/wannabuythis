@@ -3,7 +3,7 @@ import datetime
 
 import jwt
 
-from src import config
+from src.config import settings
 from src.shared.application.exceptions import TokenException
 
 
@@ -29,7 +29,7 @@ class JWTManager(TokenManager):
             payload["exp"] = datetime.datetime.now(datetime.UTC) + token_lifetime
         token = jwt.encode(
             payload=payload,
-            key=config.get_secret_key(),
+            key=settings.secret_key,
             algorithm="HS256",
         )
         return token
@@ -39,7 +39,7 @@ class JWTManager(TokenManager):
         try:
             token_payload = jwt.decode(
                 token,
-                config.get_secret_key(),
+                settings.secret_key,
                 algorithms=["HS256"],
             )
         except jwt.exceptions.ExpiredSignatureError as e:

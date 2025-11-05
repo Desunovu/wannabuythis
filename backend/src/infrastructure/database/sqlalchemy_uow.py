@@ -1,18 +1,18 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from src import config
+from src.config import settings
 from src.shared.application.uow import UnitOfWork
-from src.infrastructure.database.repositories.sqlalchemy_user_repository import SQLAlchemyUserRepository
+from src.infrastructure.database.repositories.sqlalchemy_user_repository import (
+    SQLAlchemyUserRepository,
+)
 from src.infrastructure.database.repositories.sqlalchemy_wishlist_repository import (
     SQLAlchemyWishlistRepository,
 )
 
 
 class SQLAlchemyUnitOfWork(UnitOfWork):
-    DEFAULT_SESSION_FACTORY = sessionmaker(
-        bind=create_engine(config.get_postgres_uri())
-    )
+    DEFAULT_SESSION_FACTORY = sessionmaker(bind=create_engine(settings.postgres_uri))
 
     def __init__(self, session_factory: sessionmaker = DEFAULT_SESSION_FACTORY):
         super().__init__()
