@@ -5,13 +5,13 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from src.config import get_postgres_uri
+from src.config import settings
 from src.infrastructure.database.orm.sqlalchemy_orm import mapper_registry
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option("sqlalchemy.url", get_postgres_uri())
+config.set_main_option("sqlalchemy.url", settings.postgres_uri)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
