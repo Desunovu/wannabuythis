@@ -5,7 +5,9 @@ from sqlalchemy import StaticPool, create_engine
 from sqlalchemy.orm import clear_mappers, sessionmaker
 
 from src import bootstrap
-from src.shared.utils.activation_codes.activation_code_generator import RandomActivationCodeGenerator
+from src.shared.utils.activation_codes.activation_code_generator import (
+    RandomActivationCodeGenerator,
+)
 from src.shared.utils.auth.password_manager import HashlibPasswordManager
 from src.shared.utils.auth.token_manager import JWTManager
 from src.shared.utils.generators.uuid_generator import DefaultUUIDGenerator
@@ -15,7 +17,12 @@ from src.infrastructure.database.orm.sqlalchemy_orm import (
 )
 from src.infrastructure.database.sqlalchemy_uow import SQLAlchemyUnitOfWork
 from src.modules.users.domain.model import User
-from src.modules.wishlists.domain.model import MeasurementUnit, Priority, Wishlist, WishlistItem
+from src.modules.wishlists.domain.model import (
+    MeasurementUnit,
+    Priority,
+    Wishlist,
+    WishlistItem,
+)
 from tests.fakes import FakeActivationCodeStorage, FakeNotificator, FakeUnitOfWork
 
 

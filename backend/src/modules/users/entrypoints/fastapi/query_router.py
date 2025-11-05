@@ -5,15 +5,16 @@ from starlette.requests import Request
 
 from src.infrastructure.entrypoints.fastapi.dependencies import CurrentUserDependency
 from src.infrastructure.entrypoints.fastapi.limiter import limiter
-from src.modules.users.entrypoints.fastapi.schemas import UserResponse, PublicUserResponse
+from src.modules.users.entrypoints.fastapi.schemas import (
+    UserResponse,
+    PublicUserResponse,
+)
 from src.modules.users.queries import user_queries
 
 users_query_router = APIRouter(prefix="/users", tags=["user_queries"])
 
 
-@users_query_router.get(
-    "/me", response_model=UserResponse
-)
+@users_query_router.get("/me", response_model=UserResponse)
 def get_me(request: Request, current_user: CurrentUserDependency):
     return UserResponse(**asdict(current_user))
 

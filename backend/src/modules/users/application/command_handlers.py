@@ -2,7 +2,9 @@ from src.shared.ports.activation_code_storage import ActivationCodeStorage
 from src.shared.domain.commands import Command
 from src.shared.application.exceptions import CodeVerificationError
 from src.shared.application.uow import UnitOfWork
-from src.shared.utils.activation_codes.activation_code_generator import ActivationCodeGenerator
+from src.shared.utils.activation_codes.activation_code_generator import (
+    ActivationCodeGenerator,
+)
 from src.shared.utils.notifications.notificator import Notificator
 from src.shared.utils.auth.password_manager import PasswordManager
 from src.shared.utils.auth.token_manager import TokenManager
