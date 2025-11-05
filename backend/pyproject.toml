@@ -16,6 +16,7 @@ pyjwt = "^2.8.0"
 slowapi = "^0.1.9"
 redis = "^5.0.7"
 fakeredis = "^2.23.3"
+pydantic-settings = "^2.11.0"
 
 [tool.poetry.group.dev.dependencies]
 setuptools = "^69.5.1"
