@@ -3,7 +3,9 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.modules.users.infrastructure.user_repository import UserRepository
-    from src.modules.wishlists.infrastructure.wishlist_repository import WishlistRepository
+    from src.modules.wishlists.infrastructure.wishlist_repository import (
+        WishlistRepository,
+    )
 
 
 class UnitOfWork(abc.ABC):

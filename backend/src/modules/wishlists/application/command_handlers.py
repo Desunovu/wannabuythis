@@ -11,7 +11,12 @@ from src.modules.wishlists.domain.commands import (
     RemoveWishlistItem,
     UnarchiveWishlist,
 )
-from src.modules.wishlists.domain.model import MeasurementUnit, Priority, Wishlist, WishlistItem
+from src.modules.wishlists.domain.model import (
+    MeasurementUnit,
+    Priority,
+    Wishlist,
+    WishlistItem,
+)
 
 
 def handle_create_wishlist(

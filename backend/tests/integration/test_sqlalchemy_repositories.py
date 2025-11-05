@@ -3,7 +3,9 @@ import uuid
 import pytest
 
 from src.shared.application.exceptions import UserNotFound, WishlistNotFound
-from src.infrastructure.database.repositories.sqlalchemy_user_repository import SQLAlchemyUserRepository
+from src.infrastructure.database.repositories.sqlalchemy_user_repository import (
+    SQLAlchemyUserRepository,
+)
 from src.infrastructure.database.repositories.sqlalchemy_wishlist_repository import (
     SQLAlchemyWishlistRepository,
 )

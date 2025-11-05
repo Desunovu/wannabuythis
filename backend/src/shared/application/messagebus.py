@@ -36,9 +36,7 @@ class Messagebus:
             )
             return result
         except ApplicationException as e:
-            logger.error(
-                f"Failed to handle command {command}: {e}"
-            )
+            logger.error(f"Failed to handle command {command}: {e}")
             raise e
         except Exception as e:
             logger.exception(f"Failed to handle command {command}. Exception: {e}")
