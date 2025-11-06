@@ -1,15 +1,5 @@
-from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    Enum,
-    ForeignKey,
-    Integer,
-    String,
-    Table,
-    Uuid,
-    event,
-)
+from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
+                        String, Table, Uuid, event)
 from sqlalchemy.orm import registry, relationship
 
 from src.modules.users.domain import model as user_domain_model

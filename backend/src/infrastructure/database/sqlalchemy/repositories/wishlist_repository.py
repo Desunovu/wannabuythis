@@ -3,9 +3,10 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from src.shared.application.exceptions import WishlistNotFound
-from src.modules.wishlists.infrastructure.wishlist_repository import WishlistRepository
 from src.modules.wishlists.domain.model import Wishlist
+from src.modules.wishlists.infrastructure.wishlist_repository import \
+    WishlistRepository
+from src.shared.application.exceptions import WishlistNotFound
 
 
 class SQLAlchemyWishlistRepository(WishlistRepository):
