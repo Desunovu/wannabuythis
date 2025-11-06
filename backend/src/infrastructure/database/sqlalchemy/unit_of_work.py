@@ -2,13 +2,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from src.config import settings
+from src.infrastructure.database.sqlalchemy.repositories.user_repository import \
+    SQLAlchemyUserRepository
+from src.infrastructure.database.sqlalchemy.repositories.wishlist_repository import \
+    SQLAlchemyWishlistRepository
 from src.shared.application.uow import UnitOfWork
-from src.infrastructure.database.repositories.sqlalchemy_user_repository import (
-    SQLAlchemyUserRepository,
-)
-from src.infrastructure.database.repositories.sqlalchemy_wishlist_repository import (
-    SQLAlchemyWishlistRepository,
-)
 
 
 class SQLAlchemyUnitOfWork(UnitOfWork):
