@@ -13,8 +13,8 @@ from src.shared.application.exceptions import (
     Forbidden,
     NotFoundException,
     TokenException,
-    VerificationException,
     ValidationException,
+    VerificationException,
 )
 
 

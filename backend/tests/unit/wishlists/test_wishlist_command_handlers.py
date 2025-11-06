@@ -2,15 +2,6 @@ import uuid
 
 import pytest
 
-from src.shared.application.exceptions import (
-    UserNotFound,
-    WishlistAlreadyArchived,
-    WishlistItemAlreadyPurchased,
-    WishlistItemNotFound,
-    WishlistItemNotPurchased,
-    WishlistNotArchived,
-    WishlistNotFound,
-)
 from src.modules.wishlists.domain.commands import (
     AddWishlistItem,
     ArchiveWishlist,
@@ -20,6 +11,15 @@ from src.modules.wishlists.domain.commands import (
     MarkWishlistItemAsPurchased,
     RemoveWishlistItem,
     UnarchiveWishlist,
+)
+from src.shared.application.exceptions import (
+    UserNotFound,
+    WishlistAlreadyArchived,
+    WishlistItemAlreadyPurchased,
+    WishlistItemNotFound,
+    WishlistItemNotPurchased,
+    WishlistNotArchived,
+    WishlistNotFound,
 )
 from tests.unit.wishlists.helpers import find_not_purchased_item, find_purchased_item
 

@@ -1,6 +1,3 @@
-from src.shared.utils.generators.uuid_generator import UUIDGenerator
-from src.shared.domain.commands import Command
-from src.shared.application.uow import UnitOfWork
 from src.modules.wishlists.domain.commands import (
     AddWishlistItem,
     ArchiveWishlist,
@@ -17,6 +14,9 @@ from src.modules.wishlists.domain.model import (
     Wishlist,
     WishlistItem,
 )
+from src.shared.application.uow import UnitOfWork
+from src.shared.domain.commands import Command
+from src.shared.utils.generators.uuid_generator import UUIDGenerator
 
 
 def handle_create_wishlist(

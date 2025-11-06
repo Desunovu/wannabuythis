@@ -3,8 +3,8 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.shared.application.exceptions import WishlistNotFound
 from src.modules.wishlists.domain.model import Wishlist
+from src.shared.application.exceptions import WishlistNotFound
 
 
 def get_wishlist_by_uuid(session: Session, uuid: UUID) -> Wishlist:
