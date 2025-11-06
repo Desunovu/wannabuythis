@@ -1,7 +1,5 @@
 from dataclasses import dataclass, field
 
-from src.shared.domain.aggregates import AggregateRoot
-from src.shared.application.exceptions import UserAlreadyActive, UserAlreadyDeactivated
 from src.modules.users.domain.events import (
     EmailChanged,
     PasswordChanged,
@@ -9,6 +7,8 @@ from src.modules.users.domain.events import (
     UserCreated,
     UserDeactivated,
 )
+from src.shared.application.exceptions import UserAlreadyActive, UserAlreadyDeactivated
+from src.shared.domain.aggregates import AggregateRoot
 
 
 @dataclass(kw_only=True, unsafe_hash=True)

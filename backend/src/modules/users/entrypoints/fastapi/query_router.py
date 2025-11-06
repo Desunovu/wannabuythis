@@ -6,8 +6,8 @@ from starlette.requests import Request
 from src.infrastructure.entrypoints.fastapi.dependencies import CurrentUserDependency
 from src.infrastructure.entrypoints.fastapi.limiter import limiter
 from src.modules.users.entrypoints.fastapi.schemas import (
-    UserResponse,
     PublicUserResponse,
+    UserResponse,
 )
 from src.modules.users.queries import user_queries
 

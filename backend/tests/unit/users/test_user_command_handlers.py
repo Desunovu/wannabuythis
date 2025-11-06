@@ -2,17 +2,6 @@ import datetime
 
 import pytest
 
-from src.shared.application.exceptions import (
-    CodeVerificationError,
-    PasswordValidationError,
-    PasswordVerificationError,
-    UserActive,
-    UserAlreadyActive,
-    UserAlreadyDeactivated,
-    UserExists,
-    UserNotActive,
-    UserNotFound,
-)
 from src.modules.users.domain.commands import (
     ActivateUser,
     ActivateUserWithCode,
@@ -23,6 +12,17 @@ from src.modules.users.domain.commands import (
     DeactivateUser,
     GenerateAuthToken,
     ResendActivationCode,
+)
+from src.shared.application.exceptions import (
+    CodeVerificationError,
+    PasswordValidationError,
+    PasswordVerificationError,
+    UserActive,
+    UserAlreadyActive,
+    UserAlreadyDeactivated,
+    UserExists,
+    UserNotActive,
+    UserNotFound,
 )
 
 

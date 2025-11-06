@@ -1,10 +1,10 @@
 import logging
 from typing import Any
 
-from src.shared.domain.commands import Command
-from src.shared.domain.events import DomainEvent
 from src.shared.application.exceptions import ApplicationException
 from src.shared.application.uow import UnitOfWork
+from src.shared.domain.commands import Command
+from src.shared.domain.events import DomainEvent
 
 # Dependencies should be injected in handlers by bootstrap script (see src/bootstrap.py)
 # So we don't need to pass any dependencies to handlers. Usage: handler_name(message)

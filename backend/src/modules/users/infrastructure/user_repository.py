@@ -1,13 +1,13 @@
 import abc
 
-from src.shared.ports.repository import BaseRepository
+from src.modules.users.domain.model import User
 from src.shared.application.exceptions import (
     UserActive,
     UserExists,
     UserNotActive,
     UserNotFound,
 )
-from src.modules.users.domain.model import User
+from src.shared.ports.repository import BaseRepository
 
 
 class UserRepository(BaseRepository[User]):

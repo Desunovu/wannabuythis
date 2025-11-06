@@ -1,8 +1,8 @@
 import abc
 from uuid import UUID
 
-from src.shared.ports.repository import BaseRepository
 from src.modules.wishlists.domain.model import Wishlist
+from src.shared.ports.repository import BaseRepository
 
 
 class WishlistRepository(BaseRepository[Wishlist]):

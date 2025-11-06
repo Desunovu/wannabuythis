@@ -5,37 +5,37 @@ from fakeredis import FakeRedis
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import clear_mappers
-from tests.fakes import FakeNotificator
 
 from src import bootstrap
 from src.config import settings
-from src.infrastructure.cache.redis.activation_code_storage import \
-    RedisActivationCodeStorage
-from src.infrastructure.database.sqlalchemy.alembic_runner import \
-    run_migrations
+from src.infrastructure.cache.redis.activation_code_storage import (
+    RedisActivationCodeStorage,
+)
+from src.infrastructure.database.sqlalchemy.alembic_runner import run_migrations
 from src.infrastructure.database.sqlalchemy.orm import start_sqlalchemy_mappers
-from src.infrastructure.database.sqlalchemy.unit_of_work import \
-    SQLAlchemyUnitOfWork
-from src.infrastructure.entrypoints.fastapi.exception_handlers import \
-    exception_to_exception_handlers
+from src.infrastructure.database.sqlalchemy.unit_of_work import SQLAlchemyUnitOfWork
+from src.infrastructure.entrypoints.fastapi.exception_handlers import (
+    exception_to_exception_handlers,
+)
 from src.infrastructure.entrypoints.fastapi.limiter import limiter
-from src.modules.users.entrypoints.fastapi.admin_router import \
-    users_admin_router
+from src.modules.users.entrypoints.fastapi.admin_router import users_admin_router
 from src.modules.users.entrypoints.fastapi.auth_router import users_auth_router
-from src.modules.users.entrypoints.fastapi.command_router import \
-    users_command_router
-from src.modules.users.entrypoints.fastapi.query_router import \
-    users_query_router
-from src.modules.wishlists.entrypoints.fastapi.command_router import \
-    wishlists_command_router
-from src.modules.wishlists.entrypoints.fastapi.query_router import \
-    wishlists_query_router
-from src.shared.utils.activation_codes.activation_code_generator import \
-    RandomActivationCodeGenerator
+from src.modules.users.entrypoints.fastapi.command_router import users_command_router
+from src.modules.users.entrypoints.fastapi.query_router import users_query_router
+from src.modules.wishlists.entrypoints.fastapi.command_router import (
+    wishlists_command_router,
+)
+from src.modules.wishlists.entrypoints.fastapi.query_router import (
+    wishlists_query_router,
+)
+from src.shared.utils.activation_codes.activation_code_generator import (
+    RandomActivationCodeGenerator,
+)
 from src.shared.utils.auth.password_manager import HashlibPasswordManager
 from src.shared.utils.auth.token_manager import JWTManager
 from src.shared.utils.generators.uuid_generator import DefaultUUIDGenerator
 from src.shared.utils.notifications.notificator import EmailNotificator
+from tests.fakes import FakeNotificator
 
 ROUTERS = [
     users_admin_router,

@@ -1,13 +1,5 @@
-from src.shared.ports.activation_code_storage import ActivationCodeStorage
-from src.shared.domain.commands import Command
-from src.shared.application.exceptions import CodeVerificationError
-from src.shared.application.uow import UnitOfWork
-from src.shared.utils.activation_codes.activation_code_generator import (
-    ActivationCodeGenerator,
-)
-from src.shared.utils.notifications.notificator import Notificator
-from src.shared.utils.auth.password_manager import PasswordManager
-from src.shared.utils.auth.token_manager import TokenManager
+from src.modules.users.application import handler_utils
+from src.modules.users.application.handler_utils import send_new_activation_code
 from src.modules.users.domain.commands import (
     ActivateUser,
     ActivateUserWithCode,
@@ -20,8 +12,16 @@ from src.modules.users.domain.commands import (
     ResendActivationCode,
 )
 from src.modules.users.domain.model import User
-from src.modules.users.application import handler_utils
-from src.modules.users.application.handler_utils import send_new_activation_code
+from src.shared.application.exceptions import CodeVerificationError
+from src.shared.application.uow import UnitOfWork
+from src.shared.domain.commands import Command
+from src.shared.ports.activation_code_storage import ActivationCodeStorage
+from src.shared.utils.activation_codes.activation_code_generator import (
+    ActivationCodeGenerator,
+)
+from src.shared.utils.auth.password_manager import PasswordManager
+from src.shared.utils.auth.token_manager import TokenManager
+from src.shared.utils.notifications.notificator import Notificator
 
 
 def handle_create_user(

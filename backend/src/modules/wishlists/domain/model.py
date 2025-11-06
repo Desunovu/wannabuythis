@@ -3,15 +3,6 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from uuid import UUID
 
-from src.shared.domain.aggregates import AggregateRoot
-from src.shared.domain.entities import Entity
-from src.shared.application.exceptions import (
-    WishlistAlreadyArchived,
-    WishlistItemAlreadyPurchased,
-    WishlistItemNotFound,
-    WishlistItemNotPurchased,
-    WishlistNotArchived,
-)
 from src.modules.wishlists.domain.events import (
     WishlistArchived,
     WishlistCreated,
@@ -22,6 +13,15 @@ from src.modules.wishlists.domain.events import (
     WishlistNameChanged,
     WishlistUnarchived,
 )
+from src.shared.application.exceptions import (
+    WishlistAlreadyArchived,
+    WishlistItemAlreadyPurchased,
+    WishlistItemNotFound,
+    WishlistItemNotPurchased,
+    WishlistNotArchived,
+)
+from src.shared.domain.aggregates import AggregateRoot
+from src.shared.domain.entities import Entity
 
 
 class MeasurementUnit(str, enum.Enum):

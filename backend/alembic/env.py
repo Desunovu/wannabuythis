@@ -1,10 +1,8 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-
 from src.config import settings
 from src.infrastructure.database.orm.sqlalchemy_orm import mapper_registry
 

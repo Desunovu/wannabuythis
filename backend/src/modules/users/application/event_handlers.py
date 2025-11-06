@@ -1,10 +1,4 @@
-from src.shared.ports.activation_code_storage import ActivationCodeStorage
-from src.shared.utils.activation_codes.activation_code_generator import (
-    ActivationCodeGenerator,
-)
-from src.shared.utils.notifications.notificator import Notificator
-from src.shared.domain.events import DomainEvent
-from src.shared.application.uow import UnitOfWork
+from src.modules.users.application.handler_utils import send_new_activation_code
 from src.modules.users.domain.events import (
     EmailChanged,
     PasswordChanged,
@@ -12,7 +6,13 @@ from src.modules.users.domain.events import (
     UserCreated,
     UserDeactivated,
 )
-from src.modules.users.application.handler_utils import send_new_activation_code
+from src.shared.application.uow import UnitOfWork
+from src.shared.domain.events import DomainEvent
+from src.shared.ports.activation_code_storage import ActivationCodeStorage
+from src.shared.utils.activation_codes.activation_code_generator import (
+    ActivationCodeGenerator,
+)
+from src.shared.utils.notifications.notificator import Notificator
 
 
 def handle_user_created(

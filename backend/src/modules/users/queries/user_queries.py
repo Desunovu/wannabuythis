@@ -1,8 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session, load_only
 
-from src.shared.application.exceptions import UserNotFound
 from src.modules.users.domain.model import User
+from src.shared.application.exceptions import UserNotFound
 
 
 def get_all_users(session: Session) -> list[User]:

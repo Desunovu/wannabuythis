@@ -1,13 +1,13 @@
 from uuid import UUID
 
-from src.shared.ports.activation_code_storage import ActivationCodeStorage
-from src.shared.utils.notifications.notificator import Notificator
+from src.modules.users.domain.model import User
+from src.modules.users.infrastructure.user_repository import UserRepository
+from src.modules.wishlists.domain.model import Wishlist
+from src.modules.wishlists.infrastructure.wishlist_repository import WishlistRepository
 from src.shared.application.exceptions import UserNotFound, WishlistNotFound
 from src.shared.application.uow import UnitOfWork
-from src.modules.users.infrastructure.user_repository import UserRepository
-from src.modules.users.domain.model import User
-from src.modules.wishlists.infrastructure.wishlist_repository import WishlistRepository
-from src.modules.wishlists.domain.model import Wishlist
+from src.shared.ports.activation_code_storage import ActivationCodeStorage
+from src.shared.utils.notifications.notificator import Notificator
 
 
 class FakeUserRepository(UserRepository):
