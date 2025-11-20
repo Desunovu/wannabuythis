@@ -1,20 +1,52 @@
-from typing import Optional
+import logging
+import time
 
-from sqlalchemy import Engine, create_engine
+import alembic.config
+from sqlalchemy import text
+from sqlalchemy.exc import OperationalError
 
-from src.config import settings
+from src.infrastructure.database.sqlalchemy.unit_of_work import SQLAlchemyUnitOfWork
+
+logger = logging.getLogger(__name__)
 
 
-class DatabaseManager:
-    """Manages database connection and migrations"""
+def wait_for_database(max_retries: int = 10) -> None:
+    """
+    Wait for the database to become available.
 
-    def __init__(self, database_url: Optional[str] = None):
-        self.database_url = database_url or settings.postgres_uri
-        self._engine: Optional[Engine] = None
+    Raises:
+        Exception: If database is not available after max_retries
+    """
 
-    @property
-    def engine(self) -> Engine:
-        """Lazy engine creation"""
-        if self._engine is None:
-            self._engine = create_engine(self.database_url)
-        return self._engine
+    for attempt in range(1, max_retries + 1):
+        try:
+            engine = SQLAlchemyUnitOfWork.get_engine()
+
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            logger.info(f"Database connected (attempt {attempt})")
+            engine.dispose()
+            return
+        except OperationalError as e:
+            if attempt < max_retries:
+                logger.warning(
+                    f"Database not ready, retrying... ({attempt}/{max_retries})"
+                )
+                time.sleep(5)
+            else:
+                engine.dispose()
+                raise Exception(
+                    f"Database unavailable after {max_retries} attempts"
+                ) from e
+
+    engine.dispose()
+
+
+def run_migrations():
+    alembic_args = [
+        "--raiseerr",
+        "upgrade",
+        "head",
+    ]
+
+    alembic.config.main(argv=alembic_args)
