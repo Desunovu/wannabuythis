@@ -1,6 +1,7 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from typing import Optional
 
+from sqlalchemy import Engine, create_engine
+from sqlalchemy.orm import sessionmaker
 from src.config import settings
 from src.infrastructure.database.sqlalchemy.repositories.user_repository import (
     SQLAlchemyUserRepository,
@@ -12,11 +13,19 @@ from src.shared.application.uow import UnitOfWork
 
 
 class SQLAlchemyUnitOfWork(UnitOfWork):
-    DEFAULT_SESSION_FACTORY = sessionmaker(bind=create_engine(settings.postgres_uri))
+    _shared_engine: Optional[Engine] = None
 
-    def __init__(self, session_factory: sessionmaker = DEFAULT_SESSION_FACTORY):
+    @classmethod
+    def get_engine(cls) -> Engine:
+        if cls._shared_engine is None:
+            cls._shared_engine = create_engine(
+                settings.postgres_uri,
+            )
+        return cls._shared_engine
+
+    def __init__(self, session_factory: Optional[sessionmaker] = None):
         super().__init__()
-        self.session_factory = session_factory
+        self.session_factory = session_factory or sessionmaker(bind=self.get_engine())
 
     def _commit(self):
         self.session.commit()
