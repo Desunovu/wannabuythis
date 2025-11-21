@@ -11,7 +11,7 @@ health_router = APIRouter(prefix="/health", tags=["health"])
 @health_router.get("/live")
 async def liveness():
     """Application is alive."""
-    return {"statis": "alive"}
+    return {"status": "alive"}
 
 
 @health_router.get("/ready")
