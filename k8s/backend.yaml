@@ -68,4 +68,16 @@ spec:
             limits:
               cpu: "750m"
               memory: "1Gi"
----
+          # Probes
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
