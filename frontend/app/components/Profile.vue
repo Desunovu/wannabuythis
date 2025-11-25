@@ -2,7 +2,7 @@
 import type { components } from "#build/types/open-fetch/schemas/backend.js";
 
 defineProps<{
-  userData: components["schemas"]["PublicUserResponse"] | null;
+  userData: components["schemas"]["PublicUserResponse"] | components["schemas"]["UserResponse"] | null;
   wishlistsData: components["schemas"]["WishlistResponse"][] | null;
 }>();
 </script>
