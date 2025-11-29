@@ -1,7 +1,6 @@
 import datetime
 
 import pytest
-
 from src.modules.users.domain.commands import (
     ActivateUser,
     ActivateUserWithCode,
@@ -21,6 +20,7 @@ from src.shared.application.exceptions import (
     UserAlreadyActive,
     UserAlreadyDeactivated,
     UserExists,
+    UserInvalidName,
     UserNotActive,
     UserNotFound,
 )
@@ -53,6 +53,28 @@ class TestCreateUser:
             messagebus.handle(
                 CreateUser(
                     username=user.username,
+                    email="testemail@example.com",
+                    password=valid_password,
+                )
+            )
+
+    @pytest.mark.parametrize(
+        "forbidden_username",
+        [
+            "",
+            "admin",
+            "123",
+            "a" * 51,
+            "a b",
+        ],
+    )
+    def test_create_user_invalid_username(
+        self, messagebus, forbidden_username, valid_password
+    ):
+        with pytest.raises(UserInvalidName):
+            messagebus.handle(
+                CreateUser(
+                    username=forbidden_username,
                     email="testemail@example.com",
                     password=valid_password,
                 )

@@ -71,6 +71,11 @@ class UserAlreadyDeactivated(ConflictException):
         super().__init__(f"User {username} is already deactivated")
 
 
+class UserInvalidName(ValidationException):
+    def __init__(self, error_message: str = "Username is invalid"):
+        super().__init__(error_message)
+
+
 class PasswordValidationError(ValidationException):
     def __init__(self, error_message: str = "Password validation failed"):
         super().__init__(error_message)
