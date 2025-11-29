@@ -81,6 +81,29 @@ class Settings(BaseSettings):
     )
     redis_password: str | None = Field(default=None, description="Redis password")
 
+    # User name validation
+    users_name_min_length: int = Field(
+        default=3, description="Minimum length of username"
+    )
+    users_name_max_length: int = Field(
+        default=29, description="Maximum length of username"
+    )
+    users_forbidden_names: set[str] = Field(
+        default=(
+            "admin",
+            "root",
+            "superuser",
+            "moderator",
+            "test",
+            "invalid",
+            "profile",
+            "login",
+            "user",
+            "users",
+        ),
+        description="Set of forbidden names",
+    )
+
     # Computed properties
     @property
     def postgres_uri(self) -> str:
