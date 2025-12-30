@@ -27,7 +27,7 @@ services:
       - POSTGRES_PORT=5432
       - POSTGRES_DB=postgres
     volumes:
-      - ./backend:/app
+      - ./backend/src:/app/src
 
   frontend:
     build:
