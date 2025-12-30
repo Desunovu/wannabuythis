@@ -1,41 +1,35 @@
-# ==== Python-base Stage ====
-FROM python:3.12 AS python-base
-ENV PYTHONBUFFERED=1 \
-    PYTHONWRITEBYTECODE=1 \
-    POETRY_VERSION=2.2.1 \
-    POETRY_HOME="/opt/poetry" \
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
-    POETRY_NO_INTERACTION=1 \
-    \
-    PYSETUP_PATH="/opt/pysetup" \
-    VENV_PATH="/opt/pysetup/.venv"
-ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
-
-# ==== Builder-base Stage ====
-FROM python-base AS builder-base
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
-        curl
-RUN curl -sSL https://install.python-poetry.org | python3 -
-WORKDIR $PYSETUP_PATH
-COPY ./poetry.lock ./pyproject.toml ./
-RUN poetry install --only main
-
-# ==== Development Stage ====
-FROM python-base AS development
-ENV FASTAPI_ENV=development
-COPY --from=builder-base $POETRY_HOME $POETRY_HOME
-COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
-WORKDIR $PYSETUP_PATH
-RUN poetry install
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder-base
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=0
 WORKDIR /app
-COPY . .
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --locked --no-install-project --no-dev
+COPY . /app
+
+# Dev builder
+FROM builder-base AS builder-dev
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked
+
+# Prod builder
+FROM builder-base AS builder-prod
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked --no-dev
+
+# Development
+FROM python:3.12-slim-bookworm AS development
+COPY --from=builder-dev /app /app
+ENV PATH="/app/.venv/bin:$PATH"
+WORKDIR /app
 CMD ["uvicorn","src.infrastructure.entrypoints.fastapi.app:app",  "--reload", "--host", "0.0.0.0", "--port", "8000"]
 
-# ==== Production Stage ====
-FROM python-base AS production
-ENV FASTAPI_ENV=production
-COPY --from=builder-base $VENV_PATH $VENV_PATH
+# Production
+FROM python:3.12-slim-bookworm AS production
+RUN groupadd --system --gid 999 nonroot \
+    && useradd --system --gid 999 --uid 999 --create-home nonroot
+COPY --from=builder-prod --chown=nonroot:nonroot /app /app
+ENV PATH="/app/.venv/bin:$PATH"
+USER nonroot
 WORKDIR /app
-COPY . .
 CMD ["uvicorn", "src.infrastructure.entrypoints.fastapi.app:app", "--host", "0.0.0.0", "--port", "8000", "--root-path", "/api"]
