@@ -40,6 +40,7 @@ from src.shared.utils.notifications.notificator import EmailNotificator
 from tests.fakes import FakeNotificator
 
 from fastapi import FastAPI
+from fastapi.routing import APIRoute
 from fastapi.middleware.cors import CORSMiddleware
 
 ROUTERS = [
@@ -94,6 +95,16 @@ def setup_messagebus_dependencies():
     return dependencies
 
 
+def use_route_names_as_operation_ids(app: FastAPI) -> None:
+    """
+    Simplify operation IDs so that generated API clients have simpler function names.
+    Should be called only afterr all routes have been added.
+    """
+    for route in app.routes:
+        if isinstance(route, APIRoute):
+            route.operation_id = route.name
+
+
 def create_app():
     app = FastAPI(lifespan=lifespan)
 
@@ -121,6 +132,9 @@ def create_app():
     # Include routers
     for router in ROUTERS:
         app.include_router(router)
+
+    # Simplify generated IDs
+    use_route_names_as_operation_ids(app)
 
     # Register exception handlers
     for exception, exception_handler in exception_to_exception_handlers.items():
