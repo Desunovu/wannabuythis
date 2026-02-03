@@ -98,7 +98,7 @@ def remove_wishlist_item(
 
 
 @wishlists_command_router.post("/mark-item-as-purchased/{wishlist_uuid}")
-def set_wishlist_item_status(
+def mark_item_as_purchased(
     wishlist_uuid: UUID,
     item_data: SetWishlistItemStatusRequest,
     _wishlist_owner: WishlistOwnerDependency,
@@ -112,7 +112,7 @@ def set_wishlist_item_status(
 
 
 @wishlists_command_router.post("/mark-item-as-not-purchased/{wishlist_uuid}")
-def set_wishlist_item_status(
+def mark_item_as_not_purchased(
     wishlist_uuid: UUID,
     item_data: SetWishlistItemStatusRequest,
     _wishlist_owner: WishlistOwnerDependency,
