@@ -1,4 +1,4 @@
-import type { components } from "#build/types/open-fetch/schemas/backend.js";
+import type { components } from "#open-fetch-schemas/backend";
 
 export function useWishlistItemStyles(
   wishlistItem: components["schemas"]["WishlistItemResponse"] | null

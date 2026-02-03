@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { components } from "#build/types/open-fetch/schemas/backend.js";
+import type { components } from "#open-fetch-schemas/backend";
 
 const props = defineProps<{
   users: components["schemas"]["UserResponse"][];
