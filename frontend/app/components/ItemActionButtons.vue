@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { components } from "#build/types/open-fetch/schemas/backend.js";
-
 const props = defineProps<{
   wishlistUuid: string;
   wishlistItemUuid: string;
