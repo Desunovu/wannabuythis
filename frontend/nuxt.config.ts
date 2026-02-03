@@ -10,7 +10,7 @@ export default defineNuxtConfig({
     clients: {
       backend: {
         baseURL: process.env.BACKEND_URL || "/api",
-        schema: process.env.BACKEND_URL+"/openapi.json" || "/api/openapi.json",
+        schema: "./openapi.json",
       },
     },
   },
@@ -31,7 +31,6 @@ export default defineNuxtConfig({
       token: {
         signInResponseTokenPointer: "/access_token",
         maxAgeInSeconds: Number(process.env.TOKEN_LIFETIME_IN_SECONDS) || 24 * 60 * 60,
-        
       },
       session: {
         dataType: {
