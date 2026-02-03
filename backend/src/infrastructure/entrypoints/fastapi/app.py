@@ -102,7 +102,8 @@ def use_route_names_as_operation_ids(app: FastAPI) -> None:
     """
     for route in app.routes:
         if isinstance(route, APIRoute):
-            route.operation_id = route.name
+            parts = [str(t) for t in route.tags] + [route.name]
+            route.operation_id = "_".join(parts)
 
 
 def create_app():
