@@ -123,6 +123,19 @@ kubectl get application -n=kube-system | grep traefik
 
 ---
 
+## **CI/CD Pipeline**
+
+### **GitHub Actions Workflows**
+
+The project uses GitHub Actions for CI/CD:
+
+1. **Test Backend**: Runs tests for the backend.
+2. **Generate OpenAPI Spec**: Automatically updates the OpenAPI specification whenever there are changes in the API.
+3. **Build Job**: Builds Docker images and pushes them to GitHub Container Registry (GHCR) for deployment.
+4. **Release**: Creates a new release in GitHub when the VERSION file is updated.
+
+---
+
 ## **License**
 
 This project is released under the [AGPL-3.0 license](./LICENSE).
