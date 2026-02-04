@@ -6,9 +6,6 @@ on:
       - "main"
     tags:
       - "v*"
-  pull_request:
-    branches:
-      - "main"
   workflow_dispatch:
 
 jobs:
@@ -20,6 +17,7 @@ jobs:
       contents: read
 
     strategy:
+      fail-fast: false
       matrix:
         include:
           - image: wannabuythis-backend
@@ -32,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Login to Github Container Registry
         uses: docker/login-action@v3
@@ -47,12 +45,17 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
           tags: |
+            # Branch tag (main)
             type=ref,event=branch
+            # Pull Request tag
             type=ref,event=pr
+            # Unique commit tag
+            type=sha
+            # Semantic version tag
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            # set latest tag for default branch
-            type=raw,value=latest,endble={{is_default_branch}}
+            # Latest tag for default branch
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -62,6 +65,9 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.file }}
-          tags: ${{ steps.meta.outputs.tags }}
-          target: production
           push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          target: production
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
