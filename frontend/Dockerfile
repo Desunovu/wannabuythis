@@ -5,7 +5,7 @@ WORKDIR /app
 # ==== Dependencies Stage ====
 FROM base AS dependencies
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 # ==== Development Stage ====
 FROM dependencies AS development
