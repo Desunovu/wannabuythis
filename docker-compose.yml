@@ -37,7 +37,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - BACKEND_URL=http://localhost:8000
+      - NUXT_PUBLIC_API_URL=http://localhost:8000
     volumes:
       - ./frontend:/app
       - node_modules:/app/node_modules
