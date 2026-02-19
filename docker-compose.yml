@@ -26,8 +26,13 @@ services:
       - POSTGRES_HOST=postgres
       - POSTGRES_PORT=5432
       - POSTGRES_DB=postgres
-    volumes:
-      - ./backend/src:/app/src
+    develop:
+      watch:
+        - action: sync
+          path: ./backend/src
+          target: /app/src
+          ignore:
+            - .venv/
 
   frontend:
     build:
@@ -38,10 +43,16 @@ services:
       - "3000:3000"
     environment:
       - NUXT_PUBLIC_API_URL=http://localhost:8000
-    volumes:
-      - ./frontend:/app
-      - node_modules:/app/node_modules
+    develop:
+      watch:
+        - action: rebuild
+          path: ./frontend/package.json
+        - action: sync
+          path: ./frontend
+          target: /app
+          ignore:
+            - node_nodules/
+            - .nuxt/
 
 volumes:
   pgdata:
-  node_modules:
