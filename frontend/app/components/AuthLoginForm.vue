@@ -2,6 +2,7 @@
 import type { FormError, FormSubmitEvent } from "#ui/types";
 
 const { signIn } = useAuth();
+const toast = useToast();
 
 const state = reactive({
   username: undefined,
@@ -19,7 +20,40 @@ async function onSubmit(event: FormSubmitEvent<any>) {
   const formData = new FormData();
   formData.append("username", event.data.username);
   formData.append("password", event.data.password);
-  await signIn(formData, { callbackUrl: "/" });
+  try {
+    await signIn(formData, { callbackUrl: "/" });
+    toast.add({
+      title: "Login Successful",
+      color: "success",
+      duration: 3000
+    });
+  } catch (error) {
+    if (error.response?.status === 401) {
+      toast.add({
+        title: "Login Failed",
+        description: "Invalid username or password",
+        color: "error",
+        duration: 5000,
+        icon: "i-heroicons-exclamation-circle",
+      });
+    } else if (error.response?.status === 429) {
+      toast.add({
+        title: "Too Many Requests",
+        description: "Please wait before trying again",
+        color: "error",
+        duration: 5000,
+        icon: "i-heroicons-clock",
+      });
+    } else {
+      toast.add({
+        title: "Login Failed",
+        description: "An error occurred during login",
+        color: "error",
+        duration: 5000,
+        icon: "i-heroicons-exclamation-circle",
+      });
+    }
+  }
 }
 </script>
 
