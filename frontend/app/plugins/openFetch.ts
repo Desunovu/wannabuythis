@@ -1,31 +1,35 @@
 export default defineNuxtPlugin({
-  enforce: "pre", // clients will be ready to use by other plugins, Pinia stores etc.
-  setup() {
-    const clients = useRuntimeConfig().public.openFetch;
-    const localFetch = useRequestFetch();
-    const { token } = useAuth();
+  name: 'fetch-interceptor',
+  enforce: 'pre',
+    setup: (nuxtApp) => {
+      nuxtApp.hook('openFetch:onRequest', (ctx) => {
+        if (!ctx.options.headers.get('Authorization')) {
+          const { token } = useAuth()
+          if (token) {
+              ctx.options.headers.set('Authorization', `${token.value}`)
+          }
+        }
+      })
 
-    return {
-      provide: Object.entries(clients).reduce(
-        (acc, [name, options]) => ({
-          ...acc,
-          [name]: createOpenFetch(
-            (localOptions) => ({
-              ...options,
-              ...localOptions,
-              onRequest(ctx) {
-                ctx.options.headers = {
-                  ...(ctx.options.headers || {}),
-                  ...(token ? { Authorization: `${token.value}` } : {}),
-                };
-                return localOptions?.onRequest?.(ctx);
-              },
-            }),
-            localFetch
-          ),
-        }),
-        {}
-      ),
-    };
+        nuxtApp.hook('openFetch:onResponseError', (ctx) => {
+        const toast = useToast()
+        const status = ctx.response?.status
+        if (status === 401) {
+          toast.add({
+            title: 'Unauthorized',
+            description: 'Please log in to continue',
+            color: 'red'
+          })
+          const { signOut } = useAuth()
+          signOut()
+          navigateTo('/login')
+        } else if (status >= 500) {
+          toast.add({
+            title: 'Server Error',
+            description: 'Something went wrong on our end',
+            color: 'red'
+          })
+        }
+      })
   },
-});
+})
