@@ -14,7 +14,6 @@ export default defineNuxtConfig({
   },
 
   openFetch: {
-    disableNuxtPlugin: true,
     clients: {
       backend: {
         baseURL: process.env.NUXT_PUBLIC_API_URL || "/api",
