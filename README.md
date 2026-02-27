@@ -14,14 +14,15 @@ A web application for creating, managing, and sharing wishlists with others.
 
 ## Technology Stack
 
-- **Frontend**: [Nuxt.js 3](https://nuxt.com/) (Vue-based framework)
+- **Frontend**: [Nuxt.js](https://nuxt.com/) (Vue-based framework)
 - **Backend**: [FastAPI](https://fastapi.tiangolo.com/) with [SQLAlchemy](https://www.sqlalchemy.org/)
 - **Database**: [PostgreSQL 16](https://www.postgresql.org/)
+- **Proxy**: [Traefik v3](https://traefik.io/)
 - **Deployment**: [Docker](https://www.docker.com/), [Kubernetes (K3s)](https://k3s.io/)
 
 ---
 
-## Quick Start
+## Development
 
 ### Requirements
 
@@ -38,28 +39,42 @@ A web application for creating, managing, and sharing wishlists with others.
 
 2. **Start the application**
 
-   For standard operation:
-   ```bash
-   docker compose up -d
-   ```
-
    For development with hot-reload:
    ```bash
-   docker compose watch
+   docker compose -f compose.yml -f compose.dev.yml watch
    ```
 
 3. **Access the application**
-   - Frontend: http://localhost:3000
+   - Application: http://localhost
    - Backend API docs: http://localhost:8000/docs
+   - Traefik dashboard: http://localhost:8080
 
 The development setup includes:
 - PostgreSQL database on port 5432
-- FastAPI backend with hot-reload on port 8000
-- Nuxt.js frontend with hot-reload on port 3000
+- FastAPI backend with hot-reload, directly accessible on port 8000
+- Nuxt.js frontend with hot-reload, directly accessible on port 3000
+- Traefik reverse proxy on port 80: routes `/api/*` to backend, `/*` to frontend
 
 ---
 
 ## Deployment
+
+### Docker Compose
+
+1. **Create a `.env` file**
+   ```bash
+   POSTGRES_USER=<your_username>
+   POSTGRES_PASSWORD=<your_password>
+   POSTGRES_DB=wannabuythis
+   ```
+
+2. **Start the application**
+   ```bash
+   docker compose up -d
+   ```
+
+3. **Access the application**
+   - Application: http://localhost
 
 ### Kubernetes (K3s/K3d)
 
