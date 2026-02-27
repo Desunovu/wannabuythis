@@ -22,7 +22,7 @@ FROM python:3.12-slim-bookworm AS development
 COPY --from=builder-dev /app /app
 ENV PATH="/app/.venv/bin:$PATH"
 WORKDIR /app
-CMD ["uvicorn","src.infrastructure.entrypoints.fastapi.app:app",  "--reload", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn","src.infrastructure.entrypoints.fastapi.app:app",  "--reload", "--host", "0.0.0.0", "--port", "8000", "--root-path", "/api"]
 
 # Production
 FROM python:3.12-slim-bookworm AS production
