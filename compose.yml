@@ -49,6 +49,8 @@ services:
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
       - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
+      - "traefik.http.routers.backend.middlewares=strip-api"
+      - "traefik.http.middlewares.strip-api.stripprefix.prefixes=/api"
 
   frontend:
     build:

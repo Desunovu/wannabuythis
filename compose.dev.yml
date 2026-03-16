@@ -19,9 +19,6 @@ services:
       target: development
     ports:
       - "8000:8000"
-    labels:
-      - "traefik.http.routers.backend.middlewares=strip-api"
-      - "traefik.http.middlewares.strip-api.stripprefix.prefixes=/api"
     develop:
       watch:
         - action: sync
