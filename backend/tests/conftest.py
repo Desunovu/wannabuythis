@@ -20,7 +20,7 @@ from src.modules.wishlists.domain.model import (
 from src.shared.utils.activation_codes.activation_code_generator import (
     RandomActivationCodeGenerator,
 )
-from src.shared.utils.auth.password_manager import HashlibPasswordManager
+from src.shared.utils.auth.password_manager import Argon2PasswordManager
 from src.shared.utils.auth.token_manager import JWTManager
 from src.shared.utils.generators.uuid_generator import DefaultUUIDGenerator
 from tests.fakes import FakeActivationCodeStorage, FakeNotificator, FakeUnitOfWork
@@ -73,7 +73,7 @@ def user(email, valid_password):
     return User(
         username="testuser",
         email=email,
-        password_hash=HashlibPasswordManager.hash_password(valid_password),
+        password_hash=Argon2PasswordManager.hash_password(valid_password),
         is_active=True,
     )
 
@@ -83,7 +83,7 @@ def admin_user(admin_email, valid_password):
     return User(
         username="admin",
         email=admin_email,
-        password_hash=HashlibPasswordManager.hash_password(valid_password),
+        password_hash=Argon2PasswordManager.hash_password(valid_password),
         is_active=True,
         is_superuser=True,
     )
@@ -206,7 +206,7 @@ def sqlalchemy_uow(sqlite_session_factory):
 def messagebus():
     dependencies = bootstrap.create_dependencies_dict(
         uow=FakeUnitOfWork(),
-        password_manager=HashlibPasswordManager(),
+        password_manager=Argon2PasswordManager(),
         uuid_generator=DefaultUUIDGenerator(),
         activation_code_generator=RandomActivationCodeGenerator(),
         activation_code_storage=FakeActivationCodeStorage(),
