@@ -63,6 +63,8 @@ def send_new_activation_code(
 def change_user_password(
     user: User, password_manager: PasswordManager, new_password: str
 ):
-    password_manager.assert_password_valid(new_password)
+    password_manager.assert_password_valid(
+        new_password, user_inputs=[user.username, user.email]
+    )
     new_password_hash = password_manager.hash_password(new_password)
     user.change_password_hash(new_password_hash)
