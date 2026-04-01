@@ -1,6 +1,8 @@
 import abc
 import hashlib
 
+from zxcvbn import zxcvbn
+
 from src.shared.application.exceptions import (
     PasswordValidationError,
     PasswordVerificationError,
@@ -9,14 +11,15 @@ from src.shared.application.exceptions import (
 
 class PasswordManager(abc.ABC):
     @staticmethod
-    def assert_password_valid(new_password: str):
+    def assert_password_valid(password: str, user_inputs: list | None = None):
         """Raises PasswordValidationError if the password does not meet the validation rules"""
-        password_length = len(new_password)
-        has_digit = any(char.isdigit() for char in new_password)
-        has_uppercase = any(char.isupper() for char in new_password)
+        if len(password) < 8:
+            raise PasswordValidationError("Password must be at least 8 characters long")
 
-        if not (password_length >= 8 and has_digit and has_uppercase):
-            raise PasswordValidationError
+        results = zxcvbn(password, user_inputs=user_inputs)
+        if results["score"] < 3:
+            feedback = results["feedback"]["warning"] or "Password too weak"
+            raise PasswordValidationError(feedback)
 
     @classmethod
     @abc.abstractmethod

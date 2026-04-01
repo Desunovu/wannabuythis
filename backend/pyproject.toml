@@ -17,6 +17,8 @@ dependencies = [
     "redis>=5.0.7,<6",
     "fakeredis>=2.23.3,<3",
     "pydantic-settings>=2.11.0,<3",
+    "passlib[argon2]>=1.7.4,<2",
+    "zxcvbn>=4.5.0,<5",
 ]
 
 [dependency-groups]
