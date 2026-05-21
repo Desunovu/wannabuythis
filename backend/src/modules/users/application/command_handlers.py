@@ -34,7 +34,9 @@ def handle_create_user(
 ):
     with uow:
         uow.user_repository.assert_user_does_not_exist(command.username)
-        PasswordManager.assert_password_valid(command.password)
+        PasswordManager.assert_password_valid(
+            command.password, user_inputs=[command.username, command.email]
+        )
         NameValidator.validate(command.username)
 
         user = User(

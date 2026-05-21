@@ -3,7 +3,11 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fakeredis import FakeRedis
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.routing import APIRoute
 from sqlalchemy.orm import clear_mappers
+
 from src import bootstrap
 from src.config import settings
 from src.infrastructure.cache.redis.activation_code_storage import (
@@ -33,15 +37,11 @@ from src.modules.wishlists.entrypoints.fastapi.query_router import (
 from src.shared.utils.activation_codes.activation_code_generator import (
     RandomActivationCodeGenerator,
 )
-from src.shared.utils.auth.password_manager import HashlibPasswordManager
+from src.shared.utils.auth.password_manager import Argon2PasswordManager
 from src.shared.utils.auth.token_manager import JWTManager
 from src.shared.utils.generators.uuid_generator import DefaultUUIDGenerator
 from src.shared.utils.notifications.notificator import EmailNotificator
 from tests.fakes import FakeNotificator
-
-from fastapi import FastAPI
-from fastapi.routing import APIRoute
-from fastapi.middleware.cors import CORSMiddleware
 
 ROUTERS = [
     users_admin_router,
@@ -85,7 +85,7 @@ def setup_messagebus_dependencies():
 
     dependencies = bootstrap.create_dependencies_dict(
         uow=SQLAlchemyUnitOfWork(),
-        password_manager=HashlibPasswordManager(),
+        password_manager=Argon2PasswordManager(),
         uuid_generator=DefaultUUIDGenerator(),
         activation_code_generator=RandomActivationCodeGenerator(),
         activation_code_storage=RedisActivationCodeStorage(redis_client=redis_client),

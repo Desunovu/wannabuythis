@@ -1,42 +1,53 @@
 import abc
-import hashlib
+import logging
+
+from passlib.context import CryptContext
+from zxcvbn import zxcvbn
 
 from src.shared.application.exceptions import (
     PasswordValidationError,
     PasswordVerificationError,
 )
 
+logger = logging.getLogger(__name__)
+
 
 class PasswordManager(abc.ABC):
     @staticmethod
-    def assert_password_valid(new_password: str):
+    def assert_password_valid(password: str, user_inputs: list | None = None):
         """Raises PasswordValidationError if the password does not meet the validation rules"""
-        password_length = len(new_password)
-        has_digit = any(char.isdigit() for char in new_password)
-        has_uppercase = any(char.isupper() for char in new_password)
+        if len(password) < 8:
+            raise PasswordValidationError("Password must be at least 8 characters long")
 
-        if not (password_length >= 8 and has_digit and has_uppercase):
-            raise PasswordValidationError
+        results = zxcvbn(password, user_inputs=user_inputs)
+        if results["score"] < 3:
+            feedback = results["feedback"]["warning"] or "Password too weak"
+            raise PasswordValidationError(feedback)
 
-    @classmethod
     @abc.abstractmethod
-    def _verify_password_with_hash(cls, password: str, password_hash: str) -> bool: ...
+    def hash_password(self, password: str) -> str: ...
 
-    @classmethod
-    def assert_passwords_match(cls, password: str, password_hash: str):
-        if not cls._verify_password_with_hash(password, password_hash):
+    @abc.abstractmethod
+    def verify_password(cls, password: str, password_hash: str) -> bool: ...
+
+    def assert_passwords_match(self, password: str, password_hash: str):
+        if not self.verify_password(password, password_hash):
             raise PasswordVerificationError
 
-    @staticmethod
-    @abc.abstractmethod
-    def hash_password(password: str) -> str: ...
 
+class Argon2PasswordManager(PasswordManager):
+    def __init__(self):
+        self.pwd_context = CryptContext(
+            schemes=["argon2", "hex_sha256"], default="argon2", deprecated="auto"
+        )
 
-class HashlibPasswordManager(PasswordManager):
-    @staticmethod
-    def hash_password(password: str) -> str:
-        return hashlib.sha256(password.encode()).hexdigest()
+    def hash_password(self, password: str) -> str:
+        return self.pwd_context.hash(password)
 
-    @classmethod
-    def _verify_password_with_hash(cls, password: str, password_hash: str) -> bool:
-        return password_hash == cls.hash_password(password)
+    def verify_password(self, password: str, password_hash: str) -> bool:
+        is_valid, new_hash = self.pwd_context.verify_and_update(password, password_hash)
+        if new_hash:
+            logger.warning(
+                f"Password hash needs to be updated (old_hash={password_hash}, new_hash={new_hash})"
+            )
+        return is_valid
