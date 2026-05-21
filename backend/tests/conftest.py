@@ -73,7 +73,7 @@ def user(email, valid_password):
     return User(
         username="testuser",
         email=email,
-        password_hash=Argon2PasswordManager.hash_password(valid_password),
+        password_hash=Argon2PasswordManager().hash_password(valid_password),
         is_active=True,
     )
 
@@ -83,7 +83,7 @@ def admin_user(admin_email, valid_password):
     return User(
         username="admin",
         email=admin_email,
-        password_hash=Argon2PasswordManager.hash_password(valid_password),
+        password_hash=Argon2PasswordManager().hash_password(valid_password),
         is_active=True,
         is_superuser=True,
     )
