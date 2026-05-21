@@ -29,12 +29,12 @@ from tests.fakes import FakeActivationCodeStorage, FakeNotificator, FakeUnitOfWo
 # General purpose fixtures
 @pytest.fixture
 def valid_password():
-    return "passWORD123"
+    return "StrongPassword123!"
 
 
 @pytest.fixture
 def valid_new_password():
-    return "NEWpassWORD123"
+    return "NEWStrongPassword123!"
 
 
 @pytest.fixture
