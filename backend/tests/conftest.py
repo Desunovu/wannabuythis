@@ -1,15 +1,7 @@
 from uuid import uuid4
 
 import pytest
-from sqlalchemy import StaticPool, create_engine
-from sqlalchemy.orm import clear_mappers, sessionmaker
 
-from src import bootstrap
-from src.infrastructure.database.sqlalchemy.orm import (
-    mapper_registry,
-    start_sqlalchemy_mappers,
-)
-from src.infrastructure.database.sqlalchemy.unit_of_work import SQLAlchemyUnitOfWork
 from src.modules.users.domain.model import User
 from src.modules.wishlists.domain.model import (
     MeasurementUnit,
@@ -17,13 +9,7 @@ from src.modules.wishlists.domain.model import (
     Wishlist,
     WishlistItem,
 )
-from src.shared.utils.activation_codes.activation_code_generator import (
-    RandomActivationCodeGenerator,
-)
 from src.shared.utils.auth.password_manager import Argon2PasswordManager
-from src.shared.utils.auth.token_manager import JWTManager
-from src.shared.utils.generators.uuid_generator import DefaultUUIDGenerator
-from tests.fakes import FakeActivationCodeStorage, FakeNotificator, FakeUnitOfWork
 
 
 # General purpose fixtures
@@ -162,55 +148,3 @@ def populated_wishlist(user, purchased_banana_item, apple_item, wishlist_name):
 def archived_wishlist(wishlist):
     wishlist.is_archived = True
     return wishlist
-
-
-# ORM, Database and session fixtures
-@pytest.fixture
-def prepare_mappers():
-    start_sqlalchemy_mappers()
-    yield
-    clear_mappers()
-
-
-@pytest.fixture
-def sqlite_database_engine(prepare_mappers):
-    engine = create_engine(
-        "sqlite://",
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
-    mapper_registry.metadata.create_all(engine)
-    yield engine
-    mapper_registry.metadata.drop_all(engine)
-
-
-@pytest.fixture
-def sqlite_session_factory(sqlite_database_engine):
-    yield sessionmaker(bind=sqlite_database_engine)
-
-
-@pytest.fixture
-def sqlite_session(sqlite_session_factory):
-    session = sqlite_session_factory()
-    yield session
-    session.close()
-
-
-@pytest.fixture
-def sqlalchemy_uow(sqlite_session_factory):
-    return SQLAlchemyUnitOfWork(sqlite_session_factory)
-
-
-# Messagebus fixture
-@pytest.fixture
-def messagebus():
-    dependencies = bootstrap.create_dependencies_dict(
-        uow=FakeUnitOfWork(),
-        password_manager=Argon2PasswordManager(),
-        uuid_generator=DefaultUUIDGenerator(),
-        activation_code_generator=RandomActivationCodeGenerator(),
-        activation_code_storage=FakeActivationCodeStorage(),
-        token_manager=JWTManager(),
-        notificator=FakeNotificator(),
-    )
-    return bootstrap.initialize_messagebus(dependencies=dependencies)

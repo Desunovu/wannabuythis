@@ -1,3 +1,9 @@
+from src.shared.ports.activation_code_storage import ActivationCodeStorage
+from src.shared.utils.activation_codes.activation_code_generator import (
+    ActivationCodeGenerator,
+)
+
+
 class TestFastAPIUsersAdminRoutes:
     ADMIN_PATH = "/admin/users"
     ACTIVATE = "activate"
@@ -44,10 +50,9 @@ class TestFastAPIUsersAuthRoutes:
 
     @staticmethod
     def _create_code(client, user):
-        generator = client.app.state.messagebus.dependencies[
-            "activation_code_generator"
-        ]
-        storage = client.app.state.messagebus.dependencies["activation_code_storage"]
+        container = client.app.state.dishka_container
+        generator = container.get(ActivationCodeGenerator)
+        storage = container.get(ActivationCodeStorage)
         code = generator.create_code()
         storage.save_activation_code(username=user.username, code=code)
         return code
