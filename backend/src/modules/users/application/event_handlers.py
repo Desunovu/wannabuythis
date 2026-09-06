@@ -1,3 +1,5 @@
+from dishka import FromDishka
+
 from src.modules.users.application.handler_utils import send_new_activation_code
 from src.modules.users.domain.events import (
     EmailChanged,
@@ -17,10 +19,10 @@ from src.shared.utils.notifications.notificator import Notificator
 
 def handle_user_created(
     event: UserCreated,
-    uow: UnitOfWork,
-    notificator: Notificator,
-    activation_code_generator: ActivationCodeGenerator,
-    activation_code_storage: ActivationCodeStorage,
+    uow: FromDishka[UnitOfWork],
+    notificator: FromDishka[Notificator],
+    activation_code_generator: FromDishka[ActivationCodeGenerator],
+    activation_code_storage: FromDishka[ActivationCodeStorage],
 ):
     with uow:
         user = uow.user_repository.get(event.username)

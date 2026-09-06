@@ -1,3 +1,5 @@
+from dishka import FromDishka
+
 from src.modules.wishlists.domain.commands import (
     AddWishlistItem,
     ArchiveWishlist,
@@ -21,8 +23,8 @@ from src.shared.utils.generators.uuid_generator import UUIDGenerator
 
 def handle_create_wishlist(
     command: CreateWishlist,
-    uow: UnitOfWork,
-    uuid_generator: UUIDGenerator,
+    uow: FromDishka[UnitOfWork],
+    uuid_generator: FromDishka[UUIDGenerator],
 ):
     with uow:
         _user = uow.user_repository.get(command.owner_username)
@@ -36,7 +38,7 @@ def handle_create_wishlist(
         uow.commit()
 
 
-def handle_change_wishlist_name(command: ChangeWishlistName, uow: UnitOfWork):
+def handle_change_wishlist_name(command: ChangeWishlistName, uow: FromDishka[UnitOfWork]):
     with uow:
         wishlist = uow.wishlist_repository.get(command.uuid)
         wishlist.change_name(command.new_name)
@@ -45,8 +47,8 @@ def handle_change_wishlist_name(command: ChangeWishlistName, uow: UnitOfWork):
 
 def handle_add_wishlist_item(
     command: AddWishlistItem,
-    uow: UnitOfWork,
-    uuid_generator: UUIDGenerator,
+    uow: FromDishka[UnitOfWork],
+    uuid_generator: FromDishka[UUIDGenerator],
 ):
     with uow:
         wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
@@ -62,7 +64,7 @@ def handle_add_wishlist_item(
         uow.commit()
 
 
-def handle_remove_wishlist_item(command: RemoveWishlistItem, uow: UnitOfWork):
+def handle_remove_wishlist_item(command: RemoveWishlistItem, uow: FromDishka[UnitOfWork]):
     with uow:
         wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
         wishlist.remove_item(command.item_uuid)
@@ -70,7 +72,7 @@ def handle_remove_wishlist_item(command: RemoveWishlistItem, uow: UnitOfWork):
 
 
 def handle_mark_wishlist_item_as_purchased(
-    command: MarkWishlistItemAsPurchased, uow: UnitOfWork
+    command: MarkWishlistItemAsPurchased, uow: FromDishka[UnitOfWork]
 ):
     with uow:
         wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
@@ -79,7 +81,7 @@ def handle_mark_wishlist_item_as_purchased(
 
 
 def handle_mark_wishlist_item_as_not_purchased(
-    command: MarkWishlistItemAsNotPurchased, uow: UnitOfWork
+    command: MarkWishlistItemAsNotPurchased, uow: FromDishka[UnitOfWork]
 ):
     with uow:
         wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
@@ -87,14 +89,14 @@ def handle_mark_wishlist_item_as_not_purchased(
         uow.commit()
 
 
-def handle_archive_wishlist(command: ArchiveWishlist, uow: UnitOfWork):
+def handle_archive_wishlist(command: ArchiveWishlist, uow: FromDishka[UnitOfWork]):
     with uow:
         wishlist = uow.wishlist_repository.get(command.uuid)
         wishlist.archive()
         uow.commit()
 
 
-def handle_unarchive_wishlist(command: UnarchiveWishlist, uow: UnitOfWork):
+def handle_unarchive_wishlist(command: UnarchiveWishlist, uow: FromDishka[UnitOfWork]):
     with uow:
         wishlist = uow.wishlist_repository.get(command.uuid)
         wishlist.unarchive()

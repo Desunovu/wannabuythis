@@ -35,3 +35,21 @@ class UserRepository(BaseRepository[User]):
         if user.is_active:
             raise UserActive(username)
         return user
+
+
+class FakeUserRepository(UserRepository):
+    """In-memory implementation for unit tests."""
+
+    def __init__(self, users: set[User]):
+        super().__init__()
+        self._users = users
+
+    def _get(self, username: str) -> User:
+        try:
+            user = next(user for user in self._users if user.username == username)
+        except StopIteration:
+            raise UserNotFound(username=username)
+        return user
+
+    def _add(self, user: User):
+        self._users.add(user)

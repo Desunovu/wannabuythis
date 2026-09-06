@@ -1,4 +1,3 @@
-from typing import Type
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -21,11 +20,11 @@ class SQLAlchemyWishlistRepository(WishlistRepository):
             raise WishlistNotFound(uuid)
         return wishlist
 
-    def _list_all(self) -> list[Type[Wishlist]]:
+    def _list_all(self) -> list[Wishlist]:
         return self.session.query(Wishlist).all()
 
-    def _list_owned_by(self, username: str) -> list[Type[Wishlist]]:
+    def _list_owned_by(self, username: str) -> list[Wishlist]:
         return self.session.query(Wishlist).filter_by(owner_username=username).all()
 
-    def _add(self, user: Wishlist):
-        self.session.add(user)
+    def _add(self, wishlist: Wishlist):
+        self.session.add(wishlist)

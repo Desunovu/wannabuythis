@@ -1,3 +1,6 @@
+from dishka import FromDishka
+
+from src.config import Settings
 from src.modules.users.application import handler_utils
 from src.modules.users.application.handler_utils import (
     NameValidator,
@@ -29,15 +32,16 @@ from src.shared.utils.notifications.notificator import Notificator
 
 def handle_create_user(
     command: CreateUser,
-    uow: UnitOfWork,
-    password_manager: PasswordManager,
+    uow: FromDishka[UnitOfWork],
+    password_manager: FromDishka[PasswordManager],
+    settings: FromDishka[Settings],
 ):
     with uow:
         uow.user_repository.assert_user_does_not_exist(command.username)
         PasswordManager.assert_password_valid(
             command.password, user_inputs=[command.username, command.email]
         )
-        NameValidator.validate(command.username)
+        NameValidator(settings).validate(command.username)
 
         user = User(
             username=command.username.lower(),
@@ -51,9 +55,9 @@ def handle_create_user(
 
 def handle_generate_auth_token(
     command: GenerateAuthToken,
-    uow: UnitOfWork,
-    password_manager: PasswordManager,
-    token_manager: TokenManager,
+    uow: FromDishka[UnitOfWork],
+    password_manager: FromDishka[PasswordManager],
+    token_manager: FromDishka[TokenManager],
 ):
     with uow:
         user = uow.user_repository.get(command.username.lower())
@@ -68,7 +72,9 @@ def handle_generate_auth_token(
 
 
 def handle_change_password_without_old_password(
-    command: ChangePasswordWithoutOldPassword, uow: UnitOfWork, password_manager
+    command: ChangePasswordWithoutOldPassword,
+    uow: FromDishka[UnitOfWork],
+    password_manager: FromDishka[PasswordManager],
 ):
     with uow:
         user = uow.user_repository.get(command.username)
@@ -82,8 +88,8 @@ def handle_change_password_without_old_password(
 
 def handle_change_password_with_old_password(
     command: ChangePasswordWithOldPassword,
-    uow: UnitOfWork,
-    password_manager: PasswordManager,
+    uow: FromDishka[UnitOfWork],
+    password_manager: FromDishka[PasswordManager],
 ):
     with uow:
         user = uow.user_repository.get(command.username)
@@ -98,14 +104,14 @@ def handle_change_password_with_old_password(
         uow.commit()
 
 
-def handle_change_user_email(command: ChangeEmail, uow: UnitOfWork):
+def handle_change_user_email(command: ChangeEmail, uow: FromDishka[UnitOfWork]):
     with uow:
         user = uow.user_repository.get(command.username)
         user.change_email(command.new_email)
         uow.commit()
 
 
-def handle_activate_user(command: ActivateUser, uow: UnitOfWork):
+def handle_activate_user(command: ActivateUser, uow: FromDishka[UnitOfWork]):
     with uow:
         user = uow.user_repository.get(command.username)
         user.activate()
@@ -114,8 +120,8 @@ def handle_activate_user(command: ActivateUser, uow: UnitOfWork):
 
 def handle_activate_user_with_code(
     command: ActivateUserWithCode,
-    uow: UnitOfWork,
-    activation_code_storage: ActivationCodeStorage,
+    uow: FromDishka[UnitOfWork],
+    activation_code_storage: FromDishka[ActivationCodeStorage],
 ):
     with uow:
         user = uow.user_repository.get(command.username)
@@ -133,11 +139,11 @@ def handle_activate_user_with_code(
 
 def handle_resend_activation_code(
     command: ResendActivationCode,
-    uow: UnitOfWork,
-    notificator: Notificator,
-    activation_code_generator: ActivationCodeGenerator,
-    activation_code_storage: ActivationCodeStorage,
-    password_manager: PasswordManager,
+    uow: FromDishka[UnitOfWork],
+    notificator: FromDishka[Notificator],
+    activation_code_generator: FromDishka[ActivationCodeGenerator],
+    activation_code_storage: FromDishka[ActivationCodeStorage],
+    password_manager: FromDishka[PasswordManager],
 ):
     with uow:
         user = uow.user_repository.get_inactive_user(command.username)
@@ -151,7 +157,7 @@ def handle_resend_activation_code(
     )
 
 
-def handle_deactivate_user(command: DeactivateUser, uow: UnitOfWork):
+def handle_deactivate_user(command: DeactivateUser, uow: FromDishka[UnitOfWork]):
     with uow:
         user = uow.user_repository.get(command.username)
         user.deactivate()
