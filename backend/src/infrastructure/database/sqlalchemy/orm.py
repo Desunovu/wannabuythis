@@ -67,6 +67,8 @@ def add_events_field_listener(aggregate):
 
 
 def start_sqlalchemy_mappers():
+    if mapper_registry.mappers:
+        return
     # Users context
     mapper_registry.map_imperatively(user_domain_model.User, users)
 
