@@ -19,15 +19,16 @@ dependencies = [
     "pydantic-settings>=2.11.0,<3",
     "passlib[argon2]>=1.7.4,<2",
     "zxcvbn>=4.5.0,<5",
+    "dishka>=1.10.1,<2",
 ]
 
 [dependency-groups]
 dev = [
     "setuptools>=69.5.1,<70",
-    "ruff>=0.5.1,<0.6",
     "isort>=5.13.2,<6",
     "ssort>=0.13.0,<0.14",
     "pydeps>=3.0.1,<4",
+    "ruff~=0.15.14",
 ]
 
 [tool.uv]
