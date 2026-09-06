@@ -1,4 +1,4 @@
-from src.config import settings
+from src.config import Settings
 from src.modules.users.domain.model import User
 from src.shared.application.exceptions import UserInvalidName
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
@@ -10,12 +10,12 @@ from src.shared.utils.notifications.notificator import Notificator
 
 
 class NameValidator:
-    min_length = settings.users_name_min_length
-    max_length = settings.users_name_max_length
-    forbidden_names = settings.users_forbidden_names
+    def __init__(self, settings: Settings):
+        self.min_length = settings.users_name_min_length
+        self.max_length = settings.users_name_max_length
+        self.forbidden_names = settings.users_forbidden_names
 
-    @classmethod
-    def validate(cls, name: str):
+    def validate(self, name: str):
         """Validates the name and raises a UserInvalidName if any rule is violated"""
         if not isinstance(name, str):
             raise UserInvalidName("Name must be a string")
@@ -29,19 +29,19 @@ class NameValidator:
             raise UserInvalidName("Name must contain at least one letter.")
 
         # Rule: Check length (too short)
-        if len(name) < cls.min_length:
+        if len(name) < self.min_length:
             raise UserInvalidName(
-                f"Name is too short. Must be at least {cls.min_length} characters long."
+                f"Name is too short. Must be at least {self.min_length} characters long."
             )
 
         # Rule: Check length (too long)
-        if len(name) > cls.max_length:
+        if len(name) > self.max_length:
             raise UserInvalidName(
-                f"Name is too long. Must be no more than {cls.max_length} characters long."
+                f"Name is too long. Must be no more than {self.max_length} characters long."
             )
 
         # Rule: Check for forbidden names
-        if name.lower() in cls.forbidden_names:
+        if name.lower() in self.forbidden_names:
             raise UserInvalidName(
                 f"The name {name} is forbidden. Please choose a different name."
             )

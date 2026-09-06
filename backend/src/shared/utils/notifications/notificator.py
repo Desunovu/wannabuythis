@@ -1,8 +1,11 @@
 import abc
+import logging
 from smtplib import SMTP
 
-from src.config import settings
+from src.config import Settings
 from src.modules.users.domain.model import User
+
+logger = logging.getLogger(__name__)
 
 
 class Notificator(abc.ABC):
@@ -20,10 +23,25 @@ class Notificator(abc.ABC):
 
 
 class EmailNotificator(Notificator):
-    def send_notification(self, recipient: "User", subject: str, message: str) -> None:
-        with SMTP(settings.smtp_host) as smtp:
+    def __init__(self, settings: Settings):
+        self._smtp_host = settings.smtp_host
+        self._smtp_sender = settings.smtp_sender
+
+    def send_notification(self, recipient, subject, message):
+        with SMTP(self._smtp_host) as smtp:
             smtp.sendmail(
-                from_addr=settings.smtp_sender,
+                from_addr=self._smtp_sender,
                 to_addrs=[recipient.email],
                 msg=f"Subject: {subject}\n\n{message}".encode(),
             )
+
+
+class FakeNotificator(Notificator):
+    def send_notification(self, recipient: "User", subject: str, message: str) -> None:
+        logger.info(
+            "Fake notificator: %s (%s), %s, %s",
+            recipient.username,
+            recipient.email,
+            subject,
+            message,
+        )
