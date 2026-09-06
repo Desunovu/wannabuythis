@@ -1,9 +1,9 @@
-from sqlalchemy import text
-from src.infrastructure.database.sqlalchemy.unit_of_work import SQLAlchemyUnitOfWork
+from dishka import FromDishka
+from dishka.integrations.fastapi import inject
+from fastapi import APIRouter
+from sqlalchemy import Engine, text
 from starlette import status
 from starlette.responses import JSONResponse
-
-from fastapi import APIRouter
 
 health_router = APIRouter(prefix="/health", tags=["health"])
 
@@ -15,10 +15,9 @@ async def liveness():
 
 
 @health_router.get("/ready")
-async def readiness():
-    """Application is ready to serve requests."""
+@inject
+async def readiness(engine: FromDishka[Engine]):
     try:
-        engine = SQLAlchemyUnitOfWork.get_engine()
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
             return {"status": "ready"}
