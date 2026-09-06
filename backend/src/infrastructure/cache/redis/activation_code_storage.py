@@ -1,25 +1,27 @@
-import redis
+from typing import Protocol
 
-from src.config import settings
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
 
 
-class RedisActivationCodeStorage(ActivationCodeStorage):
-    def __init__(self, redis_client: redis.Redis = None):
-        if redis_client:
-            self.redis_client = redis_client
-        else:
-            self.redis_client = redis.Redis(
-                host=settings.redis_host,
-                port=settings.redis_port,
-                db=settings.redis_activation_codes_db,
-            )
+class RedisClient(Protocol):
+    def get(self, key: str) -> bytes | None: ...
 
-    def get_activation_code(self, username: str) -> None | str:
+    def set(self, key: str, value: str) -> None: ...
+
+
+class RedisActivationCodeStorage(ActivationCodeStorage):
+    """Хранилище активационных кодов поверх redis-клиента.
+
+    Redis-клиент инжектируется извне (реальный ``redis.Redis`` или
+    ``fakeredis.FakeRedis``), поэтому класс не зависит от окружения.
+    """
+
+    def __init__(self, redis_client: RedisClient):
+        self.redis_client = redis_client
+
+    def get_activation_code(self, username: str) -> str | None:
         code = self.redis_client.get(username)
-        if code is None:
-            return None
-        return code.decode()
+        return code.decode() if code else None
 
     def save_activation_code(self, username: str, code: str) -> None:
         self.redis_client.set(username, code)
