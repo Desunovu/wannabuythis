@@ -1,41 +1,58 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from src.config import settings
 from src.infrastructure.entrypoints.fastapi.app import create_app
-from src.shared.utils.auth.token_manager import JWTManager
+from src.shared.application.uow import UnitOfWork
+from src.shared.utils.auth.token_manager import TokenManager
+from tests.di.container import create_integration_test_container
 
 
 def add_authorization_header_to_client(client: TestClient, user) -> None:
-    token = JWTManager.generate_token(username=user.username)
+    container = client.app.state.dishka_container
+    token_manager = container.get(TokenManager)
+    token = token_manager.generate_token(username=user.username)
     client.headers = {"Authorization": f"Bearer {token}"}
 
 
 def add_user_to_db(client: TestClient, user) -> None:
-    with client.app.state.messagebus.uow as uow:
-        uow.user_repository.add(user)
-        uow.commit()
+    container = client.app.state.dishka_container
+    with container() as request_container:
+        uow = request_container.get(UnitOfWork)
+        with uow:
+            uow.user_repository.add(user)
+            uow.commit()
 
 
 def add_wishlist_to_db(client: TestClient, wishlist) -> None:
-    with client.app.state.messagebus.uow as uow:
-        uow.wishlist_repository.add(wishlist)
-        uow.commit()
-
-
-@pytest.fixture(scope="session")
-def fastapi_app():
-    return create_app()
+    container = client.app.state.dishka_container
+    with container() as request_container:
+        uow = request_container.get(UnitOfWork)
+        with uow:
+            uow.wishlist_repository.add(wishlist)
+            uow.commit()
 
 
 @pytest.fixture
-def fastapi_app_with_test_database(fastapi_app, sqlite_session_factory):
-    fastapi_app.state.messagebus.uow.session_factory = sqlite_session_factory
-    return fastapi_app
+def fastapi_app_with_test_database(monkeypatch):
+    """
+    Создает приложение с тестовым контейнером (SQLite, FakeRedis).
+
+    env=testing заставляет lifespan пропустить wait_for_database/run_migrations.
+    """
+    monkeypatch.setattr(settings, "env", "testing")
+    test_container = create_integration_test_container()
+    app = create_app(container=test_container)
+
+    yield app
+
+    test_container.close()
 
 
 @pytest.fixture
 def client(fastapi_app_with_test_database) -> TestClient:
-    return TestClient(fastapi_app_with_test_database)
+    with TestClient(fastapi_app_with_test_database) as test_client:
+        yield test_client
 
 
 @pytest.fixture

@@ -1,6 +1,8 @@
 import datetime
+import logging
 
 import pytest
+
 from src.modules.users.domain.commands import (
     ActivateUser,
     ActivateUserWithCode,
@@ -21,13 +23,12 @@ from src.shared.application.exceptions import (
     UserAlreadyDeactivated,
     UserExists,
     UserInvalidName,
-    UserNotActive,
     UserNotFound,
 )
 
 
 class TestCreateUser:
-    def test_create_user(self, messagebus, valid_password):
+    def test_create_user(self, messagebus, uow, valid_password):
         messagebus.handle(
             CreateUser(
                 username="testuser",
@@ -35,7 +36,7 @@ class TestCreateUser:
                 password=valid_password,
             )
         )
-        assert messagebus.uow.user_repository.get("testuser") is not None
+        assert uow.user_repository.get("testuser") is not None
 
     def test_create_user_invalid_password(self, messagebus, invalid_password):
         with pytest.raises(PasswordValidationError):
@@ -47,8 +48,10 @@ class TestCreateUser:
                 )
             )
 
-    def test_create_user_with_existing_username(self, messagebus, user, valid_password):
-        messagebus.uow.user_repository.add(user)
+    def test_create_user_with_existing_username(
+        self, messagebus, uow, user, valid_password
+    ):
+        uow.user_repository.add(user)
         with pytest.raises(UserExists):
             messagebus.handle(
                 CreateUser(
@@ -83,9 +86,9 @@ class TestCreateUser:
 
 class TestGenerateAuthToken:
     def test_generate_auth_token_and_get_username(
-        self, messagebus, user, valid_password
+        self, messagebus, uow, user, valid_password
     ):
-        messagebus.uow.user_repository.add(user)
+        uow.user_repository.add(user)
         token = messagebus.handle(
             GenerateAuthToken(
                 username=user.username,
@@ -96,9 +99,9 @@ class TestGenerateAuthToken:
         assert token
 
     def test_inactive_user_allowed_to_generate_auth_token(
-        self, messagebus, deactivated_user, valid_password
+        self, messagebus, uow, deactivated_user, valid_password
     ):
-        messagebus.uow.user_repository.add(deactivated_user)
+        uow.user_repository.add(deactivated_user)
         command = GenerateAuthToken(
             username=deactivated_user.username,
             password=valid_password,
@@ -119,8 +122,8 @@ class TestGenerateAuthToken:
                 )
             )
 
-    def test_generate_auth_token_wrong_password(self, messagebus, user):
-        messagebus.uow.user_repository.add(user)
+    def test_generate_auth_token_wrong_password(self, messagebus, uow, user):
+        uow.user_repository.add(user)
         with pytest.raises(PasswordVerificationError):
             messagebus.handle(
                 GenerateAuthToken(
@@ -132,8 +135,8 @@ class TestGenerateAuthToken:
 
 
 class TestChangePassword:
-    def test_change_password_by_admin(self, messagebus, user, valid_new_password):
-        messagebus.uow.user_repository.add(user)
+    def test_change_password_by_admin(self, messagebus, uow, user, valid_new_password):
+        uow.user_repository.add(user)
         old_password_hash = user.password_hash
         command = ChangePasswordWithoutOldPassword(
             username=user.username,
@@ -145,9 +148,9 @@ class TestChangePassword:
         assert user.password_hash != old_password_hash
 
     def test_change_password_by_user(
-        self, messagebus, user, valid_password, valid_new_password
+        self, messagebus, uow, user, valid_password, valid_new_password
     ):
-        messagebus.uow.user_repository.add(user)
+        uow.user_repository.add(user)
         old_password_hash = user.password_hash
         command = ChangePasswordWithOldPassword(
             username=user.username,
@@ -177,9 +180,9 @@ class TestChangePassword:
                 messagebus.handle(command)
 
     def test_change_password_wrong_old_password(
-        self, messagebus, user, invalid_password, valid_new_password
+        self, messagebus, uow, user, invalid_password, valid_new_password
     ):
-        messagebus.uow.user_repository.add(user)
+        uow.user_repository.add(user)
         command = ChangePasswordWithOldPassword(
             username=user.username,
             new_password=valid_new_password,
@@ -190,9 +193,9 @@ class TestChangePassword:
             messagebus.handle(command)
 
     def test_change_password_invalid_password(
-        self, messagebus, user, invalid_password, valid_password
+        self, messagebus, uow, user, invalid_password, valid_password
     ):
-        messagebus.uow.user_repository.add(user)
+        uow.user_repository.add(user)
         command_for_admin = ChangePasswordWithoutOldPassword(
             username=user.username,
             new_password=invalid_password,
@@ -209,8 +212,8 @@ class TestChangePassword:
 
 
 class TestChangeEmail:
-    def test_update_email(self, messagebus, user, new_email):
-        messagebus.uow.user_repository.add(user)
+    def test_update_email(self, messagebus, uow, user, new_email):
+        uow.user_repository.add(user)
         messagebus.handle(ChangeEmail(username=user.username, new_email=new_email))
         assert user.email == new_email
 
@@ -222,8 +225,8 @@ class TestChangeEmail:
 
 
 class TestActivateUser:
-    def test_activate_user(self, messagebus, deactivated_user):
-        messagebus.uow.user_repository.add(deactivated_user)
+    def test_activate_user(self, messagebus, uow, deactivated_user):
+        uow.user_repository.add(deactivated_user)
         messagebus.handle(ActivateUser(username=deactivated_user.username))
         assert deactivated_user.is_active is True
 
@@ -231,26 +234,31 @@ class TestActivateUser:
         with pytest.raises(UserNotFound):
             messagebus.handle(ActivateUser(username="non-existing-user"))
 
-    def test_activate_already_active_user(self, messagebus, activated_user):
-        messagebus.uow.user_repository.add(activated_user)
+    def test_activate_already_active_user(self, messagebus, uow, activated_user):
+        uow.user_repository.add(activated_user)
         with pytest.raises(UserAlreadyActive):
             messagebus.handle(ActivateUser(username=activated_user.username))
 
 
 class TestActivateUserWithCode:
     @staticmethod
-    def _create_code(messagebus, user):
-        generator = messagebus.dependencies["activation_code_generator"]
-        storage = messagebus.dependencies["activation_code_storage"]
-        code = generator.create_code()
-        storage.save_activation_code(username=user.username, code=code)
+    def _create_code(user, activation_code_generator, activation_code_storage):
+        code = activation_code_generator.create_code()
+        activation_code_storage.save_activation_code(username=user.username, code=code)
         return code
 
     def test_activate_user_with_code(
-        self, messagebus, deactivated_user, valid_password
+        self,
+        messagebus,
+        uow,
+        deactivated_user,
+        activation_code_generator,
+        activation_code_storage,
     ):
-        messagebus.uow.user_repository.add(deactivated_user)
-        code = self._create_code(messagebus, deactivated_user)
+        uow.user_repository.add(deactivated_user)
+        code = self._create_code(
+            deactivated_user, activation_code_generator, activation_code_storage
+        )
 
         messagebus.handle(
             ActivateUserWithCode(username=deactivated_user.username, code=code)
@@ -258,8 +266,8 @@ class TestActivateUserWithCode:
 
         assert deactivated_user.is_active
 
-    def test_wrong_code(self, messagebus, deactivated_user):
-        messagebus.uow.user_repository.add(deactivated_user)
+    def test_wrong_code(self, messagebus, uow, deactivated_user):
+        uow.user_repository.add(deactivated_user)
         code = "wrong-token"
 
         with pytest.raises(CodeVerificationError):
@@ -267,9 +275,19 @@ class TestActivateUserWithCode:
                 ActivateUserWithCode(username=deactivated_user.username, code=code)
             )
 
-    def test_already_active_user(self, messagebus, activated_user, valid_password):
-        messagebus.uow.user_repository.add(activated_user)
-        code = self._create_code(messagebus, activated_user)
+    def test_already_active_user(
+        self,
+        messagebus,
+        uow,
+        activated_user,
+        valid_password,
+        activation_code_generator,
+        activation_code_storage,
+    ):
+        uow.user_repository.add(activated_user)
+        code = self._create_code(
+            activated_user, activation_code_generator, activation_code_storage
+        )
 
         with pytest.raises(UserAlreadyActive):
             messagebus.handle(
@@ -279,27 +297,31 @@ class TestActivateUserWithCode:
 
 class TestResendActivationCode:
     def test_resend_activation_code(
-        self, capsys, messagebus, deactivated_user, valid_password
+        self, caplog, messagebus, uow, deactivated_user, valid_password
     ):
-        messagebus.uow.user_repository.add(deactivated_user)
+        caplog.set_level(logging.INFO)
+        uow.user_repository.add(deactivated_user)
 
         command = ResendActivationCode(
             username=deactivated_user.username, password=valid_password
         )
         messagebus.handle(command)
 
-        captured = capsys.readouterr()
-        assert deactivated_user.email in captured.out
+        assert deactivated_user.email in caplog.text
 
-    def test_resend_activation_code_non_existing_user(self, messagebus, valid_password):
+    def test_resend_activation_code_non_existing_user(
+        self, messagebus, uow, valid_password
+    ):
         command = ResendActivationCode(
             username="non-existing-user", password=valid_password
         )
         with pytest.raises(UserNotFound):
             messagebus.handle(command)
 
-    def test_resend_activation_code_wrong_password(self, messagebus, deactivated_user):
-        messagebus.uow.user_repository.add(deactivated_user)
+    def test_resend_activation_code_wrong_password(
+        self, messagebus, uow, deactivated_user
+    ):
+        uow.user_repository.add(deactivated_user)
 
         command = ResendActivationCode(
             username=deactivated_user.username, password="wrong-password"
@@ -308,9 +330,9 @@ class TestResendActivationCode:
             messagebus.handle(command)
 
     def test_resend_activation_code_already_active(
-        self, messagebus, activated_user, valid_password
+        self, messagebus, uow, activated_user, valid_password
     ):
-        messagebus.uow.user_repository.add(activated_user)
+        uow.user_repository.add(activated_user)
 
         command = ResendActivationCode(
             username=activated_user.username, password=valid_password
@@ -320,8 +342,8 @@ class TestResendActivationCode:
 
 
 class TestDeactivateUser:
-    def test_deactivate_user(self, messagebus, activated_user):
-        messagebus.uow.user_repository.add(activated_user)
+    def test_deactivate_user(self, messagebus, uow, activated_user):
+        uow.user_repository.add(activated_user)
         messagebus.handle(DeactivateUser(username=activated_user.username))
         assert activated_user.is_active is False
 
@@ -329,7 +351,7 @@ class TestDeactivateUser:
         with pytest.raises(UserNotFound):
             messagebus.handle(DeactivateUser(username="non-existing-user"))
 
-    def test_deactivate_non_active_user(self, messagebus, deactivated_user):
-        messagebus.uow.user_repository.add(deactivated_user)
+    def test_deactivate_non_active_user(self, messagebus, uow, deactivated_user):
+        uow.user_repository.add(deactivated_user)
         with pytest.raises(UserAlreadyDeactivated):
             messagebus.handle(DeactivateUser(username=deactivated_user.username))
