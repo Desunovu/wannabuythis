@@ -161,4 +161,3 @@ cython_debug/
 
 # Kubernetes
 secret.yaml
-AGENTS.MD
