@@ -17,8 +17,38 @@ A web application for creating, managing, and sharing wishlists with others.
 - **Frontend**: [Nuxt.js](https://nuxt.com/) (Vue-based framework)
 - **Backend**: [FastAPI](https://fastapi.tiangolo.com/) with [SQLAlchemy](https://www.sqlalchemy.org/)
 - **Database**: [PostgreSQL 16](https://www.postgresql.org/)
+- **Cache**: Redis
 - **Proxy**: [Traefik v3](https://traefik.io/)
 - **Deployment**: [Docker](https://www.docker.com/), [Kubernetes (K3s)](https://k3s.io/)
+
+---
+
+## Architecture
+
+The backend is built on **Domain-Driven Design (DDD)** with a **hexagonal / ports-and-adapters** style architecture and **CQRS**. Code is split into a shared kernel and self-contained business modules.
+
+### Folder structure
+
+```
+backend/src/
+├── shared/           # Shared kernel: DDD building blocks, mediator,
+│                     #   UnitOfWork, ports, utils
+├── modules/          # Business modules (users, wishlists, ...), one per
+│   └── <module>/     #   aggregate: domain, application (handlers), queries,
+│                     #   infrastructure (repos), entrypoints (FastAPI)
+└── infrastructure/   # Adapters (SQLAlchemy ORM, Redis, JWT, Argon2, email,
+                      #   ...), DI container, FastAPI app assembly
+```
+
+### Key principles
+
+- **Domain layer is storage-agnostic**: domain models are plain dataclasses with no ORM imports; mapping is done imperatively.
+- **Ports and adapters**: external dependencies sit behind an abstract port with a concrete adapter and an in-memory fake for tests, applied only where needed (e.g., for a database, cache, or mail service, so they can be swapped or faked in tests).
+- **Mediator**: commands and domain events flow through registered handlers, with a queue that chains newly raised events.
+- **Unit of Work**: commits or rolls back a transaction and collects new domain events.
+- **CQRS**: write side uses commands + handlers; read side uses dedicated query functions.
+- **Dependency Injection**: environment-aware containers for production, development, and tests.
+- **Layered tests**: unit, integration, and end-to-end.
 
 ---
 
@@ -26,8 +56,10 @@ A web application for creating, managing, and sharing wishlists with others.
 
 ### Requirements
 
-- [Docker](https://www.docker.com/) and Docker Compose
 - Git
+- **Docker** (`docker`)
+- **Docker Compose** (`docker-compose`)
+- **Docker BuildKit** (`docker-buildx`)
 
 ### Setup
 
@@ -123,6 +155,7 @@ The application is available via standard HTTP (Port 80): http://localhost/
 - **Private Wishlists**: Create private wishlists visible only to you
 - **Enhanced Priority System**: Advanced prioritization with multiple criteria
 - **Gift Reservation**: Reserve gifts to prevent duplicate purchases
+- **Reliable Event Processing**: Persist domain events (outbox) and process them asynchronously instead of in-process
 
 ---
 
