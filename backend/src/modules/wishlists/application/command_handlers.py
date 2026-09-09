@@ -38,7 +38,9 @@ def handle_create_wishlist(
         uow.commit()
 
 
-def handle_change_wishlist_name(command: ChangeWishlistName, uow: FromDishka[UnitOfWork]):
+def handle_change_wishlist_name(
+    command: ChangeWishlistName, uow: FromDishka[UnitOfWork]
+):
     with uow:
         wishlist = uow.wishlist_repository.get(command.uuid)
         wishlist.change_name(command.new_name)
@@ -64,7 +66,9 @@ def handle_add_wishlist_item(
         uow.commit()
 
 
-def handle_remove_wishlist_item(command: RemoveWishlistItem, uow: FromDishka[UnitOfWork]):
+def handle_remove_wishlist_item(
+    command: RemoveWishlistItem, uow: FromDishka[UnitOfWork]
+):
     with uow:
         wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
         wishlist.remove_item(command.item_uuid)
