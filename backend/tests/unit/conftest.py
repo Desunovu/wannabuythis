@@ -23,7 +23,7 @@ def unit_test_request_container(unit_test_container):
 
 
 @pytest.fixture
-def messagebus(unit_test_request_container) -> Mediator:
+def mediator(unit_test_request_container) -> Mediator:
     return unit_test_request_container.get(Mediator)
 
 

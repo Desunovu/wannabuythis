@@ -25,41 +25,41 @@ from tests.unit.wishlists.helpers import find_not_purchased_item, find_purchased
 
 
 class TestCreateWishlist:
-    def test_create_wishlist(self, messagebus, uow, user, wishlist_name):
+    def test_create_wishlist(self, mediator, uow, user, wishlist_name):
         uow.user_repository.add(user)
-        messagebus.handle(
+        mediator.handle(
             CreateWishlist(owner_username=user.username, name=wishlist_name)
         )
         assert len(uow.wishlist_repository.list_all()) == 1
 
-    def test_create_wishlist_with_invalid_user(self, messagebus, wishlist_name):
+    def test_create_wishlist_with_invalid_user(self, mediator, wishlist_name):
         with pytest.raises(UserNotFound):
-            messagebus.handle(
+            mediator.handle(
                 CreateWishlist(owner_username="non-existing-user", name=wishlist_name)
             )
 
 
 class TestChangeWishlistName:
-    def test_change_wishlist_name(self, messagebus, uow, wishlist, wishlist_new_name):
+    def test_change_wishlist_name(self, mediator, uow, wishlist, wishlist_new_name):
         uow.wishlist_repository.add(wishlist)
-        messagebus.handle(
+        mediator.handle(
             ChangeWishlistName(uuid=wishlist.uuid, new_name=wishlist_new_name)
         )
         assert wishlist.name == wishlist_new_name
 
     def test_change_wishlist_name_non_existing_wishlist(
-        self, messagebus, uow, wishlist_new_name
+        self, mediator, uow, wishlist_new_name
     ):
         with pytest.raises(WishlistNotFound):
-            messagebus.handle(
+            mediator.handle(
                 ChangeWishlistName(uuid=uuid.uuid4(), new_name=wishlist_new_name)
             )
 
 
 class TestAddWishlistItem:
-    def test_add_wishlist_item(self, messagebus, uow, wishlist):
+    def test_add_wishlist_item(self, mediator, uow, wishlist):
         uow.wishlist_repository.add(wishlist)
-        messagebus.handle(
+        mediator.handle(
             AddWishlistItem(
                 wishlist_uuid=wishlist.uuid,
                 name="Apple",
@@ -70,9 +70,9 @@ class TestAddWishlistItem:
         )
         assert len(wishlist.items) == 1
 
-    def test_add_wishlist_item_non_existing_wishlist(self, messagebus, uow):
+    def test_add_wishlist_item_non_existing_wishlist(self, mediator, uow):
         with pytest.raises(WishlistNotFound):
-            messagebus.handle(
+            mediator.handle(
                 AddWishlistItem(
                     wishlist_uuid=uuid.uuid4(),
                     name="Apple",
@@ -84,10 +84,10 @@ class TestAddWishlistItem:
 
 
 class TestRemoveWishlistItem:
-    def test_remove_wishlist_item(self, messagebus, uow, populated_wishlist):
+    def test_remove_wishlist_item(self, mediator, uow, populated_wishlist):
         uow.wishlist_repository.add(populated_wishlist)
         item_to_remove = populated_wishlist.items[0]
-        messagebus.handle(
+        mediator.handle(
             RemoveWishlistItem(
                 wishlist_uuid=populated_wishlist.uuid, item_uuid=item_to_remove.uuid
             )
@@ -95,21 +95,21 @@ class TestRemoveWishlistItem:
         assert item_to_remove not in populated_wishlist.items
 
     def test_remove_wishlist_item_non_existing_wishlist(
-        self, messagebus, uow, apple_item
+        self, mediator, uow, apple_item
     ):
         with pytest.raises(WishlistNotFound):
-            messagebus.handle(
+            mediator.handle(
                 RemoveWishlistItem(
                     wishlist_uuid=uuid.uuid4(), item_uuid=apple_item.uuid
                 )
             )
 
     def test_remove_wishlist_item_non_existing_wishlist_item(
-        self, populated_wishlist, messagebus, uow
+        self, populated_wishlist, mediator, uow
     ):
         uow.wishlist_repository.add(populated_wishlist)
         with pytest.raises(WishlistItemNotFound):
-            messagebus.handle(
+            mediator.handle(
                 RemoveWishlistItem(
                     wishlist_uuid=populated_wishlist.uuid, item_uuid=uuid.uuid4()
                 )
@@ -117,7 +117,7 @@ class TestRemoveWishlistItem:
 
 
 class TestMarkWishlistItemAsPurchased:
-    def test_mark_wishlist_item_as_purchased(self, messagebus, uow, populated_wishlist):
+    def test_mark_wishlist_item_as_purchased(self, mediator, uow, populated_wishlist):
         uow.wishlist_repository.add(populated_wishlist)
         item = find_not_purchased_item(populated_wishlist)
         command = MarkWishlistItemAsPurchased(
@@ -125,11 +125,11 @@ class TestMarkWishlistItemAsPurchased:
             item_uuid=item.uuid,
         )
 
-        messagebus.handle(command)
+        mediator.handle(command)
 
         assert item.is_purchased is True
 
-    def test_already_purchased_wishlist_item(self, messagebus, uow, populated_wishlist):
+    def test_already_purchased_wishlist_item(self, mediator, uow, populated_wishlist):
         uow.wishlist_repository.add(populated_wishlist)
         item = find_purchased_item(populated_wishlist)
         command = MarkWishlistItemAsPurchased(
@@ -138,21 +138,21 @@ class TestMarkWishlistItemAsPurchased:
         )
 
         with pytest.raises(WishlistItemAlreadyPurchased):
-            messagebus.handle(command)
+            mediator.handle(command)
 
-    def test_non_existing_wishlist(self, messagebus, uow, apple_item):
+    def test_non_existing_wishlist(self, mediator, uow, apple_item):
         with pytest.raises(WishlistNotFound):
-            messagebus.handle(
+            mediator.handle(
                 MarkWishlistItemAsPurchased(
                     wishlist_uuid=uuid.uuid4(),
                     item_uuid=apple_item.uuid,
                 )
             )
 
-    def test_non_existing_wishlist_item(self, messagebus, uow, populated_wishlist):
+    def test_non_existing_wishlist_item(self, mediator, uow, populated_wishlist):
         uow.wishlist_repository.add(populated_wishlist)
         with pytest.raises(WishlistItemNotFound):
-            messagebus.handle(
+            mediator.handle(
                 MarkWishlistItemAsPurchased(
                     wishlist_uuid=populated_wishlist.uuid,
                     item_uuid=uuid.uuid4(),
@@ -162,7 +162,7 @@ class TestMarkWishlistItemAsPurchased:
 
 class TestMarkWishlistItemAsNotPurchased:
     def test_mark_wishlist_item_as_not_purchased(
-        self, messagebus, uow, populated_wishlist
+        self, mediator, uow, populated_wishlist
     ):
         uow.wishlist_repository.add(populated_wishlist)
         item = find_purchased_item(populated_wishlist)
@@ -171,11 +171,11 @@ class TestMarkWishlistItemAsNotPurchased:
             item_uuid=item.uuid,
         )
 
-        messagebus.handle(command)
+        mediator.handle(command)
 
         assert item.is_purchased is False
 
-    def test_not_purchased_wishlist_item(self, messagebus, uow, populated_wishlist):
+    def test_not_purchased_wishlist_item(self, mediator, uow, populated_wishlist):
         uow.wishlist_repository.add(populated_wishlist)
         item = find_not_purchased_item(populated_wishlist)
         command = MarkWishlistItemAsNotPurchased(
@@ -184,18 +184,18 @@ class TestMarkWishlistItemAsNotPurchased:
         )
 
         with pytest.raises(WishlistItemNotPurchased):
-            messagebus.handle(command)
+            mediator.handle(command)
 
-    def test_non_existing_wishlist(self, messagebus, uow, apple_item):
+    def test_non_existing_wishlist(self, mediator, uow, apple_item):
         with pytest.raises(WishlistNotFound):
-            messagebus.handle(
+            mediator.handle(
                 MarkWishlistItemAsNotPurchased(
                     wishlist_uuid=uuid.uuid4(),
                     item_uuid=apple_item.uuid,
                 )
             )
 
-    def test_non_existing_wishlist_item(self, messagebus, uow, populated_wishlist):
+    def test_non_existing_wishlist_item(self, mediator, uow, populated_wishlist):
         uow.wishlist_repository.add(populated_wishlist)
         command = MarkWishlistItemAsNotPurchased(
             wishlist_uuid=populated_wishlist.uuid,
@@ -203,38 +203,38 @@ class TestMarkWishlistItemAsNotPurchased:
         )
 
         with pytest.raises(WishlistItemNotFound):
-            messagebus.handle(command)
+            mediator.handle(command)
 
 
 class TestArchiveWishlist:
-    def test_archive_wishlist(self, messagebus, uow, wishlist):
+    def test_archive_wishlist(self, mediator, uow, wishlist):
         uow.wishlist_repository.add(wishlist)
-        messagebus.handle(ArchiveWishlist(uuid=wishlist.uuid))
+        mediator.handle(ArchiveWishlist(uuid=wishlist.uuid))
         assert wishlist.is_archived is True
 
-    def test_archive_wishlist_non_existing_wishlist(self, messagebus):
+    def test_archive_wishlist_non_existing_wishlist(self, mediator):
         with pytest.raises(WishlistNotFound):
-            messagebus.handle(ArchiveWishlist(uuid=uuid.uuid4()))
+            mediator.handle(ArchiveWishlist(uuid=uuid.uuid4()))
 
     def test_archive_wishlist_already_archived(
-        self, messagebus, uow, archived_wishlist
+        self, mediator, uow, archived_wishlist
     ):
         uow.wishlist_repository.add(archived_wishlist)
         with pytest.raises(WishlistAlreadyArchived):
-            messagebus.handle(ArchiveWishlist(uuid=archived_wishlist.uuid))
+            mediator.handle(ArchiveWishlist(uuid=archived_wishlist.uuid))
 
 
 class TestUnarchiveWishlist:
-    def test_unarchive_wishlist(self, messagebus, uow, archived_wishlist):
+    def test_unarchive_wishlist(self, mediator, uow, archived_wishlist):
         uow.wishlist_repository.add(archived_wishlist)
-        messagebus.handle(UnarchiveWishlist(uuid=archived_wishlist.uuid))
+        mediator.handle(UnarchiveWishlist(uuid=archived_wishlist.uuid))
         assert archived_wishlist.is_archived is False
 
-    def test_unarchive_wishlist_non_existing_wishlist(self, messagebus):
+    def test_unarchive_wishlist_non_existing_wishlist(self, mediator):
         with pytest.raises(WishlistNotFound):
-            messagebus.handle(UnarchiveWishlist(uuid=uuid.uuid4()))
+            mediator.handle(UnarchiveWishlist(uuid=uuid.uuid4()))
 
-    def test_unarchive_wishlist_not_archived(self, messagebus, uow, wishlist):
+    def test_unarchive_wishlist_not_archived(self, mediator, uow, wishlist):
         uow.wishlist_repository.add(wishlist)
         with pytest.raises(WishlistNotArchived):
-            messagebus.handle(UnarchiveWishlist(uuid=wishlist.uuid))
+            mediator.handle(UnarchiveWishlist(uuid=wishlist.uuid))

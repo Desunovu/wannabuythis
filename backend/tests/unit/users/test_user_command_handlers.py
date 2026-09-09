@@ -28,8 +28,8 @@ from src.shared.application.exceptions import (
 
 
 class TestCreateUser:
-    def test_create_user(self, messagebus, uow, valid_password):
-        messagebus.handle(
+    def test_create_user(self, mediator, uow, valid_password):
+        mediator.handle(
             CreateUser(
                 username="testuser",
                 email="testemail@example.com",
@@ -38,9 +38,9 @@ class TestCreateUser:
         )
         assert uow.user_repository.get("testuser") is not None
 
-    def test_create_user_invalid_password(self, messagebus, invalid_password):
+    def test_create_user_invalid_password(self, mediator, invalid_password):
         with pytest.raises(PasswordValidationError):
-            messagebus.handle(
+            mediator.handle(
                 CreateUser(
                     username="testuser",
                     email="testemail@example.com",
@@ -49,11 +49,11 @@ class TestCreateUser:
             )
 
     def test_create_user_with_existing_username(
-        self, messagebus, uow, user, valid_password
+        self, mediator, uow, user, valid_password
     ):
         uow.user_repository.add(user)
         with pytest.raises(UserExists):
-            messagebus.handle(
+            mediator.handle(
                 CreateUser(
                     username=user.username,
                     email="testemail@example.com",
@@ -72,10 +72,10 @@ class TestCreateUser:
         ],
     )
     def test_create_user_invalid_username(
-        self, messagebus, forbidden_username, valid_password
+        self, mediator, forbidden_username, valid_password
     ):
         with pytest.raises(UserInvalidName):
-            messagebus.handle(
+            mediator.handle(
                 CreateUser(
                     username=forbidden_username,
                     email="testemail@example.com",
@@ -86,10 +86,10 @@ class TestCreateUser:
 
 class TestGenerateAuthToken:
     def test_generate_auth_token_and_get_username(
-        self, messagebus, uow, user, valid_password
+        self, mediator, uow, user, valid_password
     ):
         uow.user_repository.add(user)
-        token = messagebus.handle(
+        token = mediator.handle(
             GenerateAuthToken(
                 username=user.username,
                 password=valid_password,
@@ -99,7 +99,7 @@ class TestGenerateAuthToken:
         assert token
 
     def test_inactive_user_allowed_to_generate_auth_token(
-        self, messagebus, uow, deactivated_user, valid_password
+        self, mediator, uow, deactivated_user, valid_password
     ):
         uow.user_repository.add(deactivated_user)
         command = GenerateAuthToken(
@@ -108,13 +108,13 @@ class TestGenerateAuthToken:
             token_lifetime=datetime.timedelta(minutes=1),
         )
 
-        token = messagebus.handle(command)
+        token = mediator.handle(command)
 
         assert token
 
-    def test_generate_auth_token_wrong_username(self, messagebus):
+    def test_generate_auth_token_wrong_username(self, mediator):
         with pytest.raises(UserNotFound):
-            messagebus.handle(
+            mediator.handle(
                 GenerateAuthToken(
                     username="non-existing-user",
                     password="password",
@@ -122,10 +122,10 @@ class TestGenerateAuthToken:
                 )
             )
 
-    def test_generate_auth_token_wrong_password(self, messagebus, uow, user):
+    def test_generate_auth_token_wrong_password(self, mediator, uow, user):
         uow.user_repository.add(user)
         with pytest.raises(PasswordVerificationError):
-            messagebus.handle(
+            mediator.handle(
                 GenerateAuthToken(
                     username=user.username,
                     password="wrong-password",
@@ -135,7 +135,7 @@ class TestGenerateAuthToken:
 
 
 class TestChangePassword:
-    def test_change_password_by_admin(self, messagebus, uow, user, valid_new_password):
+    def test_change_password_by_admin(self, mediator, uow, user, valid_new_password):
         uow.user_repository.add(user)
         old_password_hash = user.password_hash
         command = ChangePasswordWithoutOldPassword(
@@ -143,12 +143,12 @@ class TestChangePassword:
             new_password=valid_new_password,
         )
 
-        messagebus.handle(command)
+        mediator.handle(command)
 
         assert user.password_hash != old_password_hash
 
     def test_change_password_by_user(
-        self, messagebus, uow, user, valid_password, valid_new_password
+        self, mediator, uow, user, valid_password, valid_new_password
     ):
         uow.user_repository.add(user)
         old_password_hash = user.password_hash
@@ -158,12 +158,12 @@ class TestChangePassword:
             old_password=valid_password,
         )
 
-        messagebus.handle(command)
+        mediator.handle(command)
 
         assert user.password_hash != old_password_hash
 
     def test_change_password_non_existing_user(
-        self, messagebus, valid_password, valid_new_password
+        self, mediator, valid_password, valid_new_password
     ):
         command_for_admin = ChangePasswordWithoutOldPassword(
             username="non-existing-user",
@@ -177,10 +177,10 @@ class TestChangePassword:
 
         for command in [command_for_admin, command_for_user]:
             with pytest.raises(UserNotFound):
-                messagebus.handle(command)
+                mediator.handle(command)
 
     def test_change_password_wrong_old_password(
-        self, messagebus, uow, user, invalid_password, valid_new_password
+        self, mediator, uow, user, invalid_password, valid_new_password
     ):
         uow.user_repository.add(user)
         command = ChangePasswordWithOldPassword(
@@ -190,10 +190,10 @@ class TestChangePassword:
         )
 
         with pytest.raises(PasswordVerificationError):
-            messagebus.handle(command)
+            mediator.handle(command)
 
     def test_change_password_invalid_password(
-        self, messagebus, uow, user, invalid_password, valid_password
+        self, mediator, uow, user, invalid_password, valid_password
     ):
         uow.user_repository.add(user)
         command_for_admin = ChangePasswordWithoutOldPassword(
@@ -208,36 +208,36 @@ class TestChangePassword:
 
         for command in [command_for_admin, command_for_user]:
             with pytest.raises(PasswordValidationError):
-                messagebus.handle(command)
+                mediator.handle(command)
 
 
 class TestChangeEmail:
-    def test_update_email(self, messagebus, uow, user, new_email):
+    def test_update_email(self, mediator, uow, user, new_email):
         uow.user_repository.add(user)
-        messagebus.handle(ChangeEmail(username=user.username, new_email=new_email))
+        mediator.handle(ChangeEmail(username=user.username, new_email=new_email))
         assert user.email == new_email
 
-    def test_update_email_non_existing_user(self, messagebus, new_email):
+    def test_update_email_non_existing_user(self, mediator, new_email):
         with pytest.raises(UserNotFound):
-            messagebus.handle(
+            mediator.handle(
                 ChangeEmail(username="non-existing-user", new_email=new_email)
             )
 
 
 class TestActivateUser:
-    def test_activate_user(self, messagebus, uow, deactivated_user):
+    def test_activate_user(self, mediator, uow, deactivated_user):
         uow.user_repository.add(deactivated_user)
-        messagebus.handle(ActivateUser(username=deactivated_user.username))
+        mediator.handle(ActivateUser(username=deactivated_user.username))
         assert deactivated_user.is_active is True
 
-    def test_activate_non_existing_user(self, messagebus):
+    def test_activate_non_existing_user(self, mediator):
         with pytest.raises(UserNotFound):
-            messagebus.handle(ActivateUser(username="non-existing-user"))
+            mediator.handle(ActivateUser(username="non-existing-user"))
 
-    def test_activate_already_active_user(self, messagebus, uow, activated_user):
+    def test_activate_already_active_user(self, mediator, uow, activated_user):
         uow.user_repository.add(activated_user)
         with pytest.raises(UserAlreadyActive):
-            messagebus.handle(ActivateUser(username=activated_user.username))
+            mediator.handle(ActivateUser(username=activated_user.username))
 
 
 class TestActivateUserWithCode:
@@ -249,7 +249,7 @@ class TestActivateUserWithCode:
 
     def test_activate_user_with_code(
         self,
-        messagebus,
+        mediator,
         uow,
         deactivated_user,
         activation_code_generator,
@@ -260,24 +260,24 @@ class TestActivateUserWithCode:
             deactivated_user, activation_code_generator, activation_code_storage
         )
 
-        messagebus.handle(
+        mediator.handle(
             ActivateUserWithCode(username=deactivated_user.username, code=code)
         )
 
         assert deactivated_user.is_active
 
-    def test_wrong_code(self, messagebus, uow, deactivated_user):
+    def test_wrong_code(self, mediator, uow, deactivated_user):
         uow.user_repository.add(deactivated_user)
         code = "wrong-token"
 
         with pytest.raises(CodeVerificationError):
-            messagebus.handle(
+            mediator.handle(
                 ActivateUserWithCode(username=deactivated_user.username, code=code)
             )
 
     def test_already_active_user(
         self,
-        messagebus,
+        mediator,
         uow,
         activated_user,
         valid_password,
@@ -290,14 +290,14 @@ class TestActivateUserWithCode:
         )
 
         with pytest.raises(UserAlreadyActive):
-            messagebus.handle(
+            mediator.handle(
                 ActivateUserWithCode(username=activated_user.username, code=code)
             )
 
 
 class TestResendActivationCode:
     def test_resend_activation_code(
-        self, caplog, messagebus, uow, deactivated_user, valid_password
+        self, caplog, mediator, uow, deactivated_user, valid_password
     ):
         caplog.set_level(logging.INFO)
         uow.user_repository.add(deactivated_user)
@@ -305,21 +305,21 @@ class TestResendActivationCode:
         command = ResendActivationCode(
             username=deactivated_user.username, password=valid_password
         )
-        messagebus.handle(command)
+        mediator.handle(command)
 
         assert deactivated_user.email in caplog.text
 
     def test_resend_activation_code_non_existing_user(
-        self, messagebus, uow, valid_password
+        self, mediator, uow, valid_password
     ):
         command = ResendActivationCode(
             username="non-existing-user", password=valid_password
         )
         with pytest.raises(UserNotFound):
-            messagebus.handle(command)
+            mediator.handle(command)
 
     def test_resend_activation_code_wrong_password(
-        self, messagebus, uow, deactivated_user
+        self, mediator, uow, deactivated_user
     ):
         uow.user_repository.add(deactivated_user)
 
@@ -327,10 +327,10 @@ class TestResendActivationCode:
             username=deactivated_user.username, password="wrong-password"
         )
         with pytest.raises(PasswordVerificationError):
-            messagebus.handle(command)
+            mediator.handle(command)
 
     def test_resend_activation_code_already_active(
-        self, messagebus, uow, activated_user, valid_password
+        self, mediator, uow, activated_user, valid_password
     ):
         uow.user_repository.add(activated_user)
 
@@ -338,20 +338,20 @@ class TestResendActivationCode:
             username=activated_user.username, password=valid_password
         )
         with pytest.raises(UserActive):
-            messagebus.handle(command)
+            mediator.handle(command)
 
 
 class TestDeactivateUser:
-    def test_deactivate_user(self, messagebus, uow, activated_user):
+    def test_deactivate_user(self, mediator, uow, activated_user):
         uow.user_repository.add(activated_user)
-        messagebus.handle(DeactivateUser(username=activated_user.username))
+        mediator.handle(DeactivateUser(username=activated_user.username))
         assert activated_user.is_active is False
 
-    def test_deactivate_non_existing_user(self, messagebus):
+    def test_deactivate_non_existing_user(self, mediator):
         with pytest.raises(UserNotFound):
-            messagebus.handle(DeactivateUser(username="non-existing-user"))
+            mediator.handle(DeactivateUser(username="non-existing-user"))
 
-    def test_deactivate_non_active_user(self, messagebus, uow, deactivated_user):
+    def test_deactivate_non_active_user(self, mediator, uow, deactivated_user):
         uow.user_repository.add(deactivated_user)
         with pytest.raises(UserAlreadyDeactivated):
-            messagebus.handle(DeactivateUser(username=deactivated_user.username))
+            mediator.handle(DeactivateUser(username=deactivated_user.username))
