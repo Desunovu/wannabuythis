@@ -11,7 +11,7 @@ def setup_logging(name) -> None:
     logger.setLevel(logging.DEBUG)
 
     # Create logs folder if it doesn't exist
-    log_dir = f'{os.path.dirname(__file__) + "/../../logs"}'
+    log_dir = f"{os.path.dirname(__file__) + '/../../logs'}"
     try:
         os.mkdir(log_dir)
     except FileExistsError:
