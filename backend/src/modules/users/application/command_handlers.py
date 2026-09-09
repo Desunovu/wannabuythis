@@ -2,10 +2,8 @@ from dishka import FromDishka
 
 from src.config import Settings
 from src.modules.users.application import handler_utils
-from src.modules.users.application.handler_utils import (
-    NameValidator,
-    send_new_activation_code,
-)
+from src.modules.users.application.handler_utils import send_new_activation_code
+from src.modules.users.application.validation import validate_username
 from src.modules.users.domain.commands import (
     ActivateUser,
     ActivateUserWithCode,
@@ -41,7 +39,12 @@ def handle_create_user(
         PasswordManager.assert_password_valid(
             command.password, user_inputs=[command.username, command.email]
         )
-        NameValidator(settings).validate(command.username)
+        validate_username(
+            command.username,
+            min_length=settings.users_name_min_length,
+            max_length=settings.users_name_max_length,
+            forbidden_names=settings.users_forbidden_names,
+        )
 
         user = User(
             username=command.username.lower(),
