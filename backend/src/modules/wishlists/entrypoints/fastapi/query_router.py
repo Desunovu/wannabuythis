@@ -15,7 +15,7 @@ wishlists_query_router = APIRouter(prefix="/wishlists", tags=["wishlist_queries"
 @inject_sync
 def get_current_user_wishlists(
     current_user: CurrentUserDependency,
-    session: FromDishka[Session],  # сессия с гарантированным close()
+    session: FromDishka[Session],
 ) -> list[WishlistResponse]:
     wishlists = wishlist_queries.get_wishlists_owned_by(
         session=session, username=current_user.username

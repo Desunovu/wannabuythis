@@ -12,8 +12,6 @@ class ActivationCodeStorage(abc.ABC):
 
 
 class FakeActivationCodeStorage(ActivationCodeStorage):
-    """In-memory implementation for tests and local development."""
-
     def __init__(self):
         self._activation_codes: dict[str, str] = {}
 

@@ -10,8 +10,6 @@ from src.shared.utils.notifications.notificator import FakeNotificator, Notifica
 
 
 class UnitTestInfrastructureProvider(Provider):
-    """Fake provider for unit tests"""
-
     @provide(scope=Scope.REQUEST)
     def get_uow(self) -> UnitOfWork:
         return FakeUnitOfWork()

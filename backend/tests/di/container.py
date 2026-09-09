@@ -15,7 +15,7 @@ def create_unit_test_container():
     return make_container(
         DatabaseProvider(),
         InfrastructureProvider(),
-        UnitTestInfrastructureProvider(),  # Override
+        UnitTestInfrastructureProvider(),
         MediatorProvider(),
         SettingsProvider(),
     )
@@ -24,9 +24,9 @@ def create_unit_test_container():
 def create_integration_test_container():
     return make_container(
         DatabaseProvider(),
-        TestDatabaseProvider(),  # Override
+        TestDatabaseProvider(),
         InfrastructureProvider(),
-        IntegrationTestInfrastructureProvider(),  # Override
+        IntegrationTestInfrastructureProvider(),
         MediatorProvider(),
         SettingsProvider(),
     )

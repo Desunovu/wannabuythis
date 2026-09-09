@@ -18,8 +18,6 @@ def create_test_sqlite_engine() -> Engine:
 
 
 class TestDatabaseProvider(Provider):
-    """SQLite in-memory database for tests."""
-
     @provide(scope=Scope.APP)
     def get_engine(self) -> Engine:
         return create_test_sqlite_engine()
