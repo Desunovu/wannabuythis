@@ -29,8 +29,7 @@ class TestDatabaseProvider(Provider):
         return sessionmaker(bind=engine, expire_on_commit=False)
 
     @provide(scope=Scope.REQUEST)
-    def get_session(self, engine: Engine) -> Iterator[Session]:
-        session_factory = sessionmaker(bind=engine, expire_on_commit=False)
+    def get_session(self, session_factory: sessionmaker) -> Iterator[Session]:
         session = session_factory()
         try:
             yield session

@@ -16,7 +16,9 @@ from tests.di.container import create_unit_test_container
 
 @pytest.fixture
 def unit_test_container():
-    return create_unit_test_container()
+    container = create_unit_test_container()
+    yield container
+    container.close()
 
 
 @pytest.fixture
