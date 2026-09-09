@@ -12,8 +12,7 @@ class SQLAlchemyUserRepository(UserRepository):
 
     def _get(self, username: str) -> User:
         user = (
-            self.session
-            .query(User)
+            self.session.query(User)
             .filter_by(username=username)
             .with_for_update()
             .first()

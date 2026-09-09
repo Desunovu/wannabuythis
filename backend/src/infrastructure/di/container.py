@@ -20,7 +20,6 @@ def create_production_container() -> Container:
 
 
 def create_development_container() -> Container:
-    """Stuff like FakeRedis, FakeNotificator, real DB"""
     return make_container(
         DatabaseProvider(),
         InfrastructureProvider(),

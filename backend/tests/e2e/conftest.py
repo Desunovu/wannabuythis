@@ -35,11 +35,7 @@ def add_wishlist_to_db(client: TestClient, wishlist) -> None:
 
 @pytest.fixture
 def fastapi_app_with_test_database(monkeypatch):
-    """
-    Создает приложение с тестовым контейнером (SQLite, FakeRedis).
-
-    env=testing заставляет lifespan пропустить wait_for_database/run_migrations.
-    """
+    # TODO: remove monkeypatch
     monkeypatch.setattr(settings, "env", "testing")
     test_container = create_integration_test_container()
     app = create_app(container=test_container)

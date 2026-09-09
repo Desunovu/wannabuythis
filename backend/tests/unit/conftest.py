@@ -9,11 +9,6 @@ from src.shared.utils.activation_codes.activation_code_generator import (
 from tests.di.container import create_unit_test_container
 
 
-# ---------------------------------------------------------------------------
-# Dishka unit-test container fixtures
-# ---------------------------------------------------------------------------
-
-
 @pytest.fixture
 def unit_test_container():
     container = create_unit_test_container()
