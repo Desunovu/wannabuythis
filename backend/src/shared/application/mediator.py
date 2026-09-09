@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable
 
 from dishka import Container
 from dishka.integrations.base import wrap_injection
@@ -11,12 +11,9 @@ from src.shared.domain.events import DomainEvent
 
 logger = logging.getLogger(__name__)
 
-C = TypeVar("C", bound=Command)
-E = TypeVar("E", bound=DomainEvent)
-
 
 class Mediator:
-    """Dispatchs commands and domain events within the current REQUEST scope.
+    """Dispatches commands and domain events within the current REQUEST scope.
 
     Handler dependencies are declared with ``FromDishka[...]`` and injected by
     the container via ``wrap_injection`` — no manual signature introspection.
@@ -45,10 +42,10 @@ class Mediator:
             container_getter=lambda *args, **kwargs: self._container,
         )
 
-    def register_command(self, command_type: type[C], handler: Callable) -> None:
+    def register_command(self, command_type: type[Command], handler: Callable) -> None:
         self._command_handlers[command_type] = self._inject(handler)
 
-    def register_event(self, event_type: type[E], handler: Callable) -> None:
+    def register_event(self, event_type: type[DomainEvent], handler: Callable) -> None:
         self._event_handlers.setdefault(event_type, []).append(self._inject(handler))
 
     def _handle_command(
