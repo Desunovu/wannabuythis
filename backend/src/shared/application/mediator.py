@@ -1,11 +1,8 @@
 import logging
+from collections.abc import Iterable
 from typing import Any, Callable
 
-from dishka import Container
-from dishka.integrations.base import wrap_injection
-
 from src.shared.application.exceptions import ApplicationException
-from src.shared.application.uow import UnitOfWork
 from src.shared.domain.commands import Command
 from src.shared.domain.events import DomainEvent
 
@@ -15,17 +12,17 @@ logger = logging.getLogger(__name__)
 class Mediator:
     """Dispatches commands and domain events within the current REQUEST scope.
 
-    Handler dependencies are declared with ``FromDishka[...]`` and injected by
-    the container via ``wrap_injection`` — no manual signature introspection.
+    Handlers arrive *already wrapped* for dependency injection — the mediator
+    calls them as plain callables without knowing about any DI framework.
     """
 
     def __init__(
         self,
-        container: Container,
+        collect_events: Callable[[], Iterable[DomainEvent]],
         command_handlers: dict[type[Command], Callable] | None = None,
         event_handlers: dict[type[DomainEvent], list[Callable]] | None = None,
     ):
-        self._container = container
+        self._collect_events = collect_events
         self._command_handlers: dict[type[Command], Callable] = {}
         self._event_handlers: dict[type[DomainEvent], list[Callable]] = {}
         if command_handlers:
@@ -36,17 +33,11 @@ class Mediator:
                 for handler in handlers:
                     self.register_event(event_type, handler)
 
-    def _inject(self, handler: Callable) -> Callable:
-        return wrap_injection(
-            func=handler,
-            container_getter=lambda *args, **kwargs: self._container,
-        )
-
     def register_command(self, command_type: type[Command], handler: Callable) -> None:
-        self._command_handlers[command_type] = self._inject(handler)
+        self._command_handlers[command_type] = handler
 
     def register_event(self, event_type: type[DomainEvent], handler: Callable) -> None:
-        self._event_handlers.setdefault(event_type, []).append(self._inject(handler))
+        self._event_handlers.setdefault(event_type, []).append(handler)
 
     def _handle_command(
         self,
@@ -56,14 +47,14 @@ class Mediator:
         try:
             handler = self._command_handlers[type(command)]
             result = handler(command)
-            queue.extend(self._container.get(UnitOfWork).collect_new_events())
-            logger.info("Command %s handled by %s", command, handler.__name__)
+            queue.extend(self._collect_events())
+            logger.info(f"Command {command} handled by {handler.__name__}")
             return result
         except ApplicationException as e:
-            logger.error("Failed to handle command %s: %s", command, e)
+            logger.error(f"Failed to handle command {command}: {e}")
             raise
         except Exception as e:
-            logger.exception("Unexpected error handling command %s: %s", command, e)
+            logger.exception(f"Unexpected error handling command {command}: {e}")
             raise
 
     def _handle_event(
@@ -74,21 +65,15 @@ class Mediator:
         for handler in self._event_handlers.get(type(event), []):
             try:
                 handler(event)
-                queue.extend(self._container.get(UnitOfWork).collect_new_events())
-                logger.info("Event %s handled by %s", event, handler.__name__)
+                queue.extend(self._collect_events())
+                logger.info(f"Event {event} handled by {handler.__name__}")
             except ApplicationException as e:
                 logger.warning(
-                    "Failed to handle event %s by %s: %s",
-                    event,
-                    handler.__name__,
-                    e,
+                    f"Failed to handle event {event} by {handler.__name__}: {e}",
                 )
             except Exception as e:
                 logger.exception(
-                    "Unexpected error handling event %s by %s: %s",
-                    event,
-                    handler.__name__,
-                    e,
+                    f"Unexpected error handling event {event} by {handler.__name__}: {e}",
                 )
 
     def handle(self, message: Command | DomainEvent) -> Any:
