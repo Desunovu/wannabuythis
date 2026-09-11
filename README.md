@@ -163,9 +163,9 @@ The application is available via standard HTTP (Port 80): http://localhost/
 
 The project uses GitHub Actions for automated workflows:
 
-- **Test Backend**: Runs backend tests on pull requests
-- **Build & Push**: Builds Docker images and pushes to GitHub Container Registry
-- **OpenAPI Generation**: Auto-generates OpenAPI specs from backend code
+- **Test Backend**: Runs backend tests and ruff lint on pull requests touching `backend/**`
+- **Build & Push**: Manual-only trigger; builds Docker images and pushes to GitHub Container Registry
+- **Verify OpenAPI Specs**: Verifies `frontend/openapi.json` is up to date on pull requests touching `backend/**`
 - **Release Management**: Creates GitHub releases from VERSION file updates
 
 ---
