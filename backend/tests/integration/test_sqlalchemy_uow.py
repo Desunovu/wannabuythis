@@ -31,3 +31,21 @@ class TestSQLAlchemyUnitOfWork:
 
         with pytest.raises(UserNotFound):
             _user = sqlalchemy_uow.user_repository.get(user.username)
+
+    def test_session_closed_on_success(self, sqlalchemy_uow, user):
+        closed = []
+        with sqlalchemy_uow as uow:
+            real_close = uow.session.close
+            uow.session.close = lambda: closed.append(True) or real_close()
+
+        assert closed == [True]
+
+    def test_session_closed_on_error(self, sqlalchemy_uow, user):
+        closed = []
+        with pytest.raises(Exception):
+            with sqlalchemy_uow as uow:
+                real_close = uow.session.close
+                uow.session.close = lambda: closed.append(True) or real_close()
+                raise Exception
+
+        assert closed == [True]
