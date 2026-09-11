@@ -124,3 +124,10 @@ def client_with_deactivated_user(client: TestClient, deactivated_user) -> TestCl
     """Test client containing a deactivated user in the database."""
     add_user_to_db(client, deactivated_user)
     return client
+
+
+@pytest.fixture
+def client_with_deactivated_user_token(client_with_deactivated_user, deactivated_user) -> TestClient:
+    """Test client bearing a token issued to a deactivated user."""
+    add_authorization_header_to_client(client_with_deactivated_user, deactivated_user)
+    return client_with_deactivated_user

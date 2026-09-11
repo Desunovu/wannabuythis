@@ -23,6 +23,7 @@ from src.shared.application.exceptions import (
     UserAlreadyDeactivated,
     UserExists,
     UserInvalidName,
+    UserNotActive,
     UserNotFound,
 )
 
@@ -98,7 +99,7 @@ class TestGenerateAuthToken:
         )
         assert token
 
-    def test_inactive_user_allowed_to_generate_auth_token(
+    def test_inactive_user_not_allowed_to_generate_auth_token(
         self, mediator, uow, deactivated_user, valid_password
     ):
         uow.user_repository.add(deactivated_user)
@@ -108,9 +109,8 @@ class TestGenerateAuthToken:
             token_lifetime=datetime.timedelta(minutes=1),
         )
 
-        token = mediator.handle(command)
-
-        assert token
+        with pytest.raises(UserNotActive):
+            mediator.handle(command)
 
     def test_generate_auth_token_wrong_username(self, mediator):
         with pytest.raises(UserNotFound):

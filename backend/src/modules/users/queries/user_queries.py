@@ -15,7 +15,7 @@ def get_user_by_username(session: Session, username: str) -> User:
     user = session.get(
         User,
         username,
-        options=[load_only(User.username)],
+        options=[load_only(User.username, User.is_active)],
     )
     if user is None:
         raise UserNotFound(username)
