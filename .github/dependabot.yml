@@ -9,11 +9,11 @@ updates:
         update-types:
           - "patch"
 
-  - package-ecosystem: "npm"
-    directory: "/frontend"
-    schedule:
-      interval: "monthly"
-    groups:
-      patch-updates:
-        update-types:
-          - "patch"
+  # - package-ecosystem: "npm"
+  #   directory: "/frontend"
+  #   schedule:
+  #     interval: "monthly"
+  #   groups:
+  #     patch-updates:
+  #       update-types:
+  #         - "patch"
