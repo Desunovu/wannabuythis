@@ -7,7 +7,7 @@ requires-python = ">=3.12,<3.13"
 readme = "../README.md"
 license = "AGPL-3.0"
 dependencies = [
-    "fastapi>=0.111.0,<0.112",
+    "fastapi>=0.111.0,<0.142",
     "SQLAlchemy>=2.0.30,<3",
     "pytest>=8.2.0,<9",
     "psycopg2-binary>=2.9.9,<3",
