@@ -24,7 +24,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "setuptools>=69.5.1,<70",
+    "setuptools>=69.5.1,<85",
     "isort>=5.13.2,<6",
     "ssort>=0.13.0,<0.14",
     "pydeps>=3.0.1,<4",
