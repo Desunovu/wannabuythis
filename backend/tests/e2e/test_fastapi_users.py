@@ -71,6 +71,24 @@ class TestFastAPIUsersAuthRoutes:
         response = user_client.post(url=self.AUTH_LOGIN_URL, data=form_data)
         assert response.status_code == 200
 
+    def test_login_deactivated_user_rejected(
+        self, client_with_deactivated_user, deactivated_user, valid_password
+    ):
+        form_data = {
+            "username": deactivated_user.username,
+            "password": valid_password,
+        }
+        response = client_with_deactivated_user.post(
+            url=self.AUTH_LOGIN_URL, data=form_data
+        )
+        assert response.status_code == 403
+
+    def test_deactivated_user_rejected_on_protected_route(
+        self, client_with_deactivated_user_token
+    ):
+        response = client_with_deactivated_user_token.get("/users/me")
+        assert response.status_code == 403
+
     def test_activate(self, client_with_deactivated_user, deactivated_user):
         code = self._create_code(
             client=client_with_deactivated_user,
