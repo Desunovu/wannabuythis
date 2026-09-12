@@ -22,18 +22,23 @@ Built on **onion/hexagonal architecture + DDD + CQRS**. Detailed tree and princi
 - `/src/shared` — shared kernel: DDD building blocks, mediator + UnitOfWork, abstract ports, utils, logger.
 - `/src/modules` — isolated business modules (`users`, `wishlists`, ...), one per aggregate, each a vertical slice: `domain`, `application` (handlers), `infrastructure` (repo), `queries` (read side), `entrypoints/fastapi` (routers, schemas).
 - `/src/infrastructure` — concrete adapters and app assembly: SQLAlchemy ORM, Redis, dishka container, FastAPI app.
-- `/tests` — pytest by levels: `unit`, `integration` (incl. `api`), plus test DI wiring in `di`.
+- `/tests` — pytest by levels: `unit`, `integration`, plus test DI wiring in `di`.
 
 ### Backend app commands
 
-  - Install dependencies:
-    ```bash
-    uv sync
-    ```
+- Install dependencies:
+  ```bash
+  uv sync
+  ```
 
 - Run tests:
   ```bash
   uv run pytest
+  ```
+
+- Format code:
+  ```bash
+  uv run ruff format
   ```
 
 ## Commit conventions
@@ -42,4 +47,4 @@ Conventional Commits: `<type>(<scope>): <description>`.
 
 Types: `feat`, `fix`, `refactor`, `style`, `chore`, `test`, `docs`, `build`, `ci`, `perf`.
 
-Main scopes: `backend`, `frontend`.
+Scopes: `backend`, `frontend`.
