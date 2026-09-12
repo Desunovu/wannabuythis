@@ -216,9 +216,7 @@ class TestArchiveWishlist:
         with pytest.raises(WishlistNotFound):
             mediator.handle(ArchiveWishlist(uuid=uuid.uuid4()))
 
-    def test_archive_wishlist_already_archived(
-        self, mediator, uow, archived_wishlist
-    ):
+    def test_archive_wishlist_already_archived(self, mediator, uow, archived_wishlist):
         uow.wishlist_repository.add(archived_wishlist)
         with pytest.raises(WishlistAlreadyArchived):
             mediator.handle(ArchiveWishlist(uuid=archived_wishlist.uuid))

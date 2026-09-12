@@ -3,32 +3,36 @@ from src.shared.utils.activation_codes.activation_code_generator import (
     ActivationCodeGenerator,
 )
 
+ADMIN_USERS_URL = "/admin/users"
+AUTH_REGISTER_URL = "/auth/register"
+AUTH_LOGIN_URL = "/auth/login"
+AUTH_ACTIVATE_URL = "/auth/activate"
+AUTH_RESEND_ACTIVATION_URL = "/auth/resend-activation"
+CHANGE_EMAIL_URL = "/users/me/email"
+CHANGE_PASSWORD_URL = "/users/me/password"
+GET_CURRENT_USER_URL = "/users/me"
+GET_USERS_URL = "/users"
+
 
 class TestFastAPIUsersAdminRoutes:
-    ADMIN_PATH = "/admin/users"
-    ACTIVATE = "activate"
-    DEACTIVATE = "deactivate"
-    CHANGE_PASSWORD = "password"
-    CHANGE_EMAIL = "email"
-
     def test_activate_user(
         self, admin_client_contains_deactivated_user, deactivated_user
     ):
-        url = f"{self.ADMIN_PATH}/{deactivated_user.username}/{self.ACTIVATE}"
+        url = f"{ADMIN_USERS_URL}/{deactivated_user.username}/activate"
         response = admin_client_contains_deactivated_user.patch(url)
         assert response.status_code == 200
 
     def test_deactivate_user(
         self, admin_client_contains_activated_user, activated_user
     ):
-        url = f"{self.ADMIN_PATH}/{activated_user.username}/{self.DEACTIVATE}"
+        url = f"{ADMIN_USERS_URL}/{activated_user.username}/deactivate"
         response = admin_client_contains_activated_user.patch(url=url)
         assert response.status_code == 200
 
     def test_change_password(
         self, admin_client_contains_activated_user, activated_user, valid_new_password
     ):
-        url = f"{self.ADMIN_PATH}/{activated_user.username}/{self.CHANGE_PASSWORD}"
+        url = f"{ADMIN_USERS_URL}/{activated_user.username}/password"
         body = {"new_password": valid_new_password}
         response = admin_client_contains_activated_user.patch(url=url, json=body)
         assert response.status_code == 200
@@ -36,18 +40,13 @@ class TestFastAPIUsersAdminRoutes:
     def test_change_email(
         self, admin_client_contains_activated_user, activated_user, new_email
     ):
-        url = f"{self.ADMIN_PATH}/{activated_user.username}/{self.CHANGE_EMAIL}"
+        url = f"{ADMIN_USERS_URL}/{activated_user.username}/email"
         body = {"new_email": new_email}
         response = admin_client_contains_activated_user.patch(url=url, json=body)
         assert response.status_code == 200
 
 
 class TestFastAPIUsersAuthRoutes:
-    AUTH_REGISTER_URL = "/auth/register"
-    AUTH_LOGIN_URL = "/auth/login"
-    AUTH_ACTIVATE_URL = "/auth/activate"
-    AUTH_RESEND_ACTIVATION_URL = "/auth/resend-activation"
-
     @staticmethod
     def _create_code(client, user):
         container = client.app.state.dishka_container
@@ -63,12 +62,12 @@ class TestFastAPIUsersAuthRoutes:
             "email": "email",
             "password": valid_password,
         }
-        response = client.post(url=self.AUTH_REGISTER_URL, data=form_data)
+        response = client.post(url=AUTH_REGISTER_URL, data=form_data)
         assert response.status_code == 200
 
     def test_login(self, user_client, user, valid_password):
         form_data = {"username": user.username, "password": valid_password}
-        response = user_client.post(url=self.AUTH_LOGIN_URL, data=form_data)
+        response = user_client.post(url=AUTH_LOGIN_URL, data=form_data)
         assert response.status_code == 200
 
     def test_login_deactivated_user_rejected(
@@ -78,15 +77,13 @@ class TestFastAPIUsersAuthRoutes:
             "username": deactivated_user.username,
             "password": valid_password,
         }
-        response = client_with_deactivated_user.post(
-            url=self.AUTH_LOGIN_URL, data=form_data
-        )
+        response = client_with_deactivated_user.post(url=AUTH_LOGIN_URL, data=form_data)
         assert response.status_code == 403
 
     def test_deactivated_user_rejected_on_protected_route(
         self, client_with_deactivated_user_token
     ):
-        response = client_with_deactivated_user_token.get("/users/me")
+        response = client_with_deactivated_user_token.get(GET_CURRENT_USER_URL)
         assert response.status_code == 403
 
     def test_activate(self, client_with_deactivated_user, deactivated_user):
@@ -95,9 +92,7 @@ class TestFastAPIUsersAuthRoutes:
             user=deactivated_user,
         )
         body = {"username": deactivated_user.username, "code": code}
-        response = client_with_deactivated_user.post(
-            url=self.AUTH_ACTIVATE_URL, json=body
-        )
+        response = client_with_deactivated_user.post(url=AUTH_ACTIVATE_URL, json=body)
         assert response.status_code == 200
 
     def test_resend_activation_link(
@@ -105,15 +100,12 @@ class TestFastAPIUsersAuthRoutes:
     ):
         form_data = {"username": deactivated_user.username, "password": valid_password}
         response = client_with_deactivated_user.post(
-            url=self.AUTH_RESEND_ACTIVATION_URL, data=form_data
+            url=AUTH_RESEND_ACTIVATION_URL, data=form_data
         )
         assert response.status_code == 200
 
 
 class TestFastAPIUsersCommandRoutes:
-    CHANGE_EMAIL_URL = "/users/me/email"
-    CHANGE_PASSWORD_URL = "/users/me/password"
-
     def test_change_password(
         self, user_client, user, valid_password, valid_new_password
     ):
@@ -122,31 +114,28 @@ class TestFastAPIUsersCommandRoutes:
             "old_password": valid_password,
             "new_password": valid_new_password,
         }
-        response = user_client.patch(url=self.CHANGE_PASSWORD_URL, json=body)
+        response = user_client.patch(url=CHANGE_PASSWORD_URL, json=body)
         assert response.status_code == 200
 
     def test_change_email(self, user_client, user, new_email):
         body = {"username": user.username, "new_email": new_email}
-        response = user_client.patch(url=self.CHANGE_EMAIL_URL, json=body)
+        response = user_client.patch(url=CHANGE_EMAIL_URL, json=body)
         assert response.status_code == 200
 
 
 class TestFastAPIUsersQueryRoutes:
-    GET_CURRENT_USER_URL = "/users/me"
-    GET_USERS_URL = "/users"
-
     def test_get_me(self, user_client, user):
-        response = user_client.get(self.GET_CURRENT_USER_URL)
+        response = user_client.get(GET_CURRENT_USER_URL)
         assert response.status_code == 200
         assert response.json()["username"] == user.username
 
     def test_get_users(self, user_client):
-        response = user_client.get(self.GET_USERS_URL)
+        response = user_client.get(GET_USERS_URL)
         assert response.status_code == 200
         assert len(response.json()) > 0
 
     def test_get_user(self, client_with_user, user):
-        url = f"{self.GET_USERS_URL}/{user.username}"
+        url = f"{GET_USERS_URL}/{user.username}"
         response = client_with_user.get(url)
         assert response.status_code == 200
         assert response.json()["username"] == user.username

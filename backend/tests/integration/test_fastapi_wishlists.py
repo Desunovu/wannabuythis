@@ -4,13 +4,13 @@ GET_WISHLIST_URL = "/wishlists"
 GET_CURRENT_USER_WISHLISTS_URL = "/wishlists"
 GET_WISHLIST_BY_USERNAME_URL = "/wishlists/user"
 CREATE_WISHLIST_URL = "/wishlists/create"
-CHANGE_WISHLIST_NAME_PATH = "/wishlists/change-name/"
-ARCHIVE_WISHLIST_PATH = "/wishlists/archive/"
-UNARCHIVE_WISHLIST_PATH = "/wishlists/unarchive/"
-ADD_WISHLIST_ITEM_PATH = "/wishlists/add-item/"
-REMOVE_WISHLIST_ITEM_PATH = "/wishlists/remove-item/"
-MARK_WISHLIST_ITEM_AS_PURCHASED = "/wishlists/mark-item-as-purchased/"
-MARK_WISHLIST_ITEM_AS_NOT_PURCHASED = "/wishlists/mark-item-as-not-purchased/"
+CHANGE_WISHLIST_NAME_URL = "/wishlists/change-name"
+ARCHIVE_WISHLIST_URL = "/wishlists/archive"
+UNARCHIVE_WISHLIST_URL = "/wishlists/unarchive"
+ADD_WISHLIST_ITEM_URL = "/wishlists/add-item"
+REMOVE_WISHLIST_ITEM_URL = "/wishlists/remove-item"
+MARK_WISHLIST_ITEM_AS_PURCHASED_URL = "/wishlists/mark-item-as-purchased"
+MARK_WISHLIST_ITEM_AS_NOT_PURCHASED_URL = "/wishlists/mark-item-as-not-purchased"
 
 
 class TestFastAPIWishlistsCommandRoutes:
@@ -22,7 +22,7 @@ class TestFastAPIWishlistsCommandRoutes:
     def test_change_wishlist_name(
         self, user_with_populated_wishlist_client, populated_wishlist
     ):
-        url = f"{CHANGE_WISHLIST_NAME_PATH}{populated_wishlist.uuid}"
+        url = f"{CHANGE_WISHLIST_NAME_URL}/{populated_wishlist.uuid}"
         body = {"new_name": "new test wishlist"}
         response = user_with_populated_wishlist_client.post(url=url, json=body)
         assert response.status_code == 200
@@ -30,21 +30,21 @@ class TestFastAPIWishlistsCommandRoutes:
     def test_archive_wishlist(
         self, user_with_populated_wishlist_client, populated_wishlist
     ):
-        url = f"{ARCHIVE_WISHLIST_PATH}{populated_wishlist.uuid}"
+        url = f"{ARCHIVE_WISHLIST_URL}/{populated_wishlist.uuid}"
         response = user_with_populated_wishlist_client.post(url=url)
         assert response.status_code == 200
 
     def test_unarchive_wishlist(
         self, user_with_archived_wishlist_client, archived_wishlist
     ):
-        url = f"{UNARCHIVE_WISHLIST_PATH}{archived_wishlist.uuid}"
+        url = f"{UNARCHIVE_WISHLIST_URL}/{archived_wishlist.uuid}"
         response = user_with_archived_wishlist_client.post(url=url)
         assert response.status_code == 200
 
     def test_add_wishlist_item(
         self, user_with_populated_wishlist_client, populated_wishlist
     ):
-        url = f"{ADD_WISHLIST_ITEM_PATH}{populated_wishlist.uuid}"
+        url = f"{ADD_WISHLIST_ITEM_URL}/{populated_wishlist.uuid}"
         body = {
             "name": "test item",
             "quantity": 1,
@@ -57,7 +57,7 @@ class TestFastAPIWishlistsCommandRoutes:
     def test_remove_wishlist_item(
         self, user_with_populated_wishlist_client, populated_wishlist, apple_item
     ):
-        url = f"{REMOVE_WISHLIST_ITEM_PATH}{populated_wishlist.uuid}"
+        url = f"{REMOVE_WISHLIST_ITEM_URL}/{populated_wishlist.uuid}"
         body = {"item_uuid": apple_item.uuid.hex}
         response = user_with_populated_wishlist_client.post(url=url, json=body)
         assert response.status_code == 200
@@ -65,7 +65,7 @@ class TestFastAPIWishlistsCommandRoutes:
     def test_mark_wishlist_item_as_purchased(
         self, user_with_populated_wishlist_client, populated_wishlist, apple_item
     ):
-        url = f"{MARK_WISHLIST_ITEM_AS_PURCHASED}{populated_wishlist.uuid}"
+        url = f"{MARK_WISHLIST_ITEM_AS_PURCHASED_URL}/{populated_wishlist.uuid}"
         body = {"item_uuid": apple_item.uuid.hex}
         response = user_with_populated_wishlist_client.post(url=url, json=body)
         assert response.status_code == 200
@@ -75,7 +75,7 @@ class TestFastAPIWishlistsCommandRoutes:
         user_with_populated_wishlist_client,
         purchased_banana_item,
     ):
-        url = f"{MARK_WISHLIST_ITEM_AS_NOT_PURCHASED}{purchased_banana_item.wishlist_uuid}"
+        url = f"{MARK_WISHLIST_ITEM_AS_NOT_PURCHASED_URL}/{purchased_banana_item.wishlist_uuid}"
         body = {"item_uuid": purchased_banana_item.uuid.hex}
         response = user_with_populated_wishlist_client.post(url=url, json=body)
         assert response.status_code == 200
