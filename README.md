@@ -48,7 +48,7 @@ backend/src/
 - **Unit of Work**: commits or rolls back a transaction and collects new domain events.
 - **CQRS**: write side uses commands + handlers; read side uses dedicated query functions.
 - **Dependency Injection**: environment-aware containers for production, development, and tests.
-- **Layered tests**: unit, integration, and end-to-end.
+- **Layered tests**: unit and integration (infrastructure + HTTP API level).
 
 ---
 
