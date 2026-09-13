@@ -20,7 +20,7 @@ class TokenManager(abc.ABC):
 
 class JWTManager(TokenManager):
     def __init__(self, settings: Settings):
-        self._secret_key: str = settings.secret_key
+        self._secret_key: str = settings.jwt_secret_key
 
     @override
     def generate_token(

@@ -39,6 +39,8 @@ services:
       postgres:
         condition: service_healthy
     environment:
+      ENV: production
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY must be set}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_HOST: postgres

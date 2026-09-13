@@ -1,8 +1,9 @@
 import datetime
+import secrets
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -30,10 +31,13 @@ class Settings(BaseSettings):
     postgres_db: str = Field(default="postgres", description="PostgreSQL database name")
 
     # Security
-    secret_key: str = Field(
-        default="dev-secret-key",
-        min_length=14,
-        description="Secret key for JWT authentication",
+    secret_key: str | None = Field(
+        default=None,
+        min_length=32,
+        description=(
+            "Secret key for JWT authentication. Required in production; "
+            "generated randomly in development."
+        ),
     )
 
     # SMTP configuration
@@ -138,15 +142,22 @@ class Settings(BaseSettings):
         """Check if running in testing environment."""
         return self.env == "testing"
 
-    @field_validator("secret_key")
-    @classmethod
-    def validate_secret_key(cls, v: str, info) -> str:
-        """Validate secret key in production."""
-        if info.data.get("env") == "production" and v == "dev-secret-key":
-            raise ValueError(
-                "SECRET_KEY must be set to a secure value in production environment"
-            )
-        return v
+    @property
+    def jwt_secret_key(self) -> str:
+        """Resolved JWT signing key, never None after validation."""
+        assert self.secret_key is not None
+        return self.secret_key
+
+    @model_validator(mode="after")
+    def ensure_secret_key(self) -> "Settings":
+        """Require an explicit key in production, generate a random one otherwise."""
+        if self.secret_key is None:
+            if self.env == "production":
+                raise ValueError(
+                    "SECRET_KEY must be set to a secure value in production environment"
+                )
+            self.secret_key = secrets.token_urlsafe(48)
+        return self
 
     @field_validator("base_url")
     @classmethod
