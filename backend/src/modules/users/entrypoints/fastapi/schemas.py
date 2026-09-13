@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class LoginUserResponse(BaseModel):
@@ -24,7 +24,7 @@ class ResendActivationCodeRequest(BaseModel):
 
 class ActivateUserWithCodeRequest(BaseModel):
     username: str
-    code: str
+    code: str = Field(pattern=r"^\d{8}$")
 
 
 class ChangePasswordByUserRequest(BaseModel):

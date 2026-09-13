@@ -95,6 +95,26 @@ class TestFastAPIUsersAuthRoutes:
         response = client_with_deactivated_user.post(url=AUTH_ACTIVATE_URL, json=body)
         assert response.status_code == 200
 
+    def test_activate_with_wrong_code(
+        self, client_with_deactivated_user, deactivated_user
+    ):
+        body = {"username": deactivated_user.username, "code": "00000000"}
+        response = client_with_deactivated_user.post(url=AUTH_ACTIVATE_URL, json=body)
+        assert response.status_code == 401
+
+    def test_activation_code_is_single_use(
+        self, client_with_deactivated_user, deactivated_user
+    ):
+        code = self._create_code(
+            client=client_with_deactivated_user,
+            user=deactivated_user,
+        )
+        body = {"username": deactivated_user.username, "code": code}
+        first = client_with_deactivated_user.post(url=AUTH_ACTIVATE_URL, json=body)
+        second = client_with_deactivated_user.post(url=AUTH_ACTIVATE_URL, json=body)
+        assert first.status_code == 200
+        assert second.status_code == 401
+
     def test_resend_activation_link(
         self, client_with_deactivated_user, deactivated_user, valid_password
     ):

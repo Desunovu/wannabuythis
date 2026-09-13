@@ -119,8 +119,8 @@ class Settings(BaseSettings):
         return datetime.timedelta(hours=self.token_lifetime_in_hours)
 
     @property
-    def activation_token_lifetime(self) -> datetime.timedelta:
-        """Get activation token lifetime as timedelta."""
+    def activation_code_lifetime(self) -> datetime.timedelta:
+        """Get activation code lifetime as timedelta."""
         return datetime.timedelta(hours=self.activation_token_lifetime_in_hours)
 
     @property

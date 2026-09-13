@@ -128,16 +128,16 @@ def handle_activate_user_with_code(
 ):
     with uow:
         user = uow.user_repository.get(command.username)
-        stored_code = activation_code_storage.get_activation_code(
+        expected_code = activation_code_storage.get_activation_code(
             username=user.username
         )
-        if stored_code is None or command.code != stored_code:
+        if expected_code is None or command.code != expected_code:
             raise CodeVerificationError
 
-        activation_code_storage.save_activation_code(username=user.username, code="")
         user.activate()
-
         uow.commit()
+
+        activation_code_storage.delete_activation_code(username=user.username)
 
 
 def handle_resend_activation_code(

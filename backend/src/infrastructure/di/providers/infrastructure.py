@@ -56,9 +56,12 @@ class InfrastructureProvider(Provider):
 
     @provide(scope=Scope.APP)
     def get_activation_code_storage(
-        self, redis_client: redis.Redis
+        self, redis_client: redis.Redis, settings: Settings
     ) -> ActivationCodeStorage:
-        return RedisActivationCodeStorage(redis_client=redis_client)
+        return RedisActivationCodeStorage(
+            redis_client=redis_client,
+            activation_code_lifetime=settings.activation_code_lifetime,
+        )
 
     @provide(scope=Scope.APP)
     def get_notificator(self, settings: Settings) -> Notificator:
