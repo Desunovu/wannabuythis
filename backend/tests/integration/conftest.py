@@ -94,6 +94,14 @@ def admin_client(client: TestClient, admin_user) -> TestClient:
 
 
 @pytest.fixture
+def second_user_client(client: TestClient, second_user) -> TestClient:
+    """Test client with a signed-in second user."""
+    add_user_to_db(client, second_user)
+    add_authorization_header_to_client(client, second_user)
+    return client
+
+
+@pytest.fixture
 def client_with_user(client: TestClient, user) -> TestClient:
     """Test client containing a user in the database."""
     add_user_to_db(client, user)
@@ -106,6 +114,24 @@ def client_with_populated_wishlist(
 ) -> TestClient:
     """Test client containing a user and their populated wishlist in the database."""
     add_wishlist_to_db(client_with_user, populated_wishlist)
+    return client_with_user
+
+
+@pytest.fixture
+def client_with_public_wishlist(
+    client_with_user: TestClient, public_wishlist
+) -> TestClient:
+    """Test client containing a user and their public wishlist in the database."""
+    add_wishlist_to_db(client_with_user, public_wishlist)
+    return client_with_user
+
+
+@pytest.fixture
+def client_with_archived_wishlist(
+    client_with_user: TestClient, archived_wishlist
+) -> TestClient:
+    """Test client containing a user and their archived wishlist in the database."""
+    add_wishlist_to_db(client_with_user, archived_wishlist)
     return client_with_user
 
 

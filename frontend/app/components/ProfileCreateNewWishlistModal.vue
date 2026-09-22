@@ -2,12 +2,14 @@
 const overlay = useOverlay();
 
 const newWishlistName = ref("");
+const isPublic = ref(false);
 
 const createNewWishlist = async () => {
   await useBackend("/wishlists/create", {
     method: "POST",
     body: {
       wishlist_name: newWishlistName.value,
+      is_public: isPublic.value,
     },
   });
 
@@ -28,6 +30,7 @@ const createNewWishlist = async () => {
             v-model="newWishlistName"
             placeholder="New wishlist name"
           />
+          <UCheckbox v-model="isPublic" label="Public wishlist" />
           <UButton block @click="createNewWishlist">
             Create new wishlist
           </UButton>

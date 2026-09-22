@@ -39,6 +39,7 @@ wishlists = Table(
     ),
     Column("name", String),
     Column("is_archived", Boolean),
+    Column("is_public", Boolean),
     Column("created_at", DateTime),
 )
 

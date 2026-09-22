@@ -12,6 +12,7 @@ from src.modules.wishlists.domain.commands import (
     AddWishlistItem,
     ArchiveWishlist,
     ChangeWishlistName,
+    ChangeWishlistVisibility,
     CreateWishlist,
     MarkWishlistItemAsNotPurchased,
     MarkWishlistItemAsPurchased,
@@ -21,6 +22,7 @@ from src.modules.wishlists.domain.commands import (
 from src.modules.wishlists.entrypoints.fastapi.schemas import (
     AddWishlistItemRequest,
     ChangeWishlistNameRequest,
+    ChangeWishlistVisibilityRequest,
     CreateWishlistRequest,
     RemoveWishlistItemRequest,
     SetWishlistItemStatusRequest,
@@ -41,6 +43,7 @@ def create_wishlist(
         CreateWishlist(
             owner_username=current_user.username,
             name=wishlist_data.wishlist_name,
+            is_public=wishlist_data.is_public,
         )
     )
 
@@ -76,6 +79,21 @@ def unarchive_wishlist(
     mediator: FromDishka[Mediator],
 ):
     mediator.handle(UnarchiveWishlist(uuid=wishlist_uuid))
+
+
+@wishlists_command_router.post(
+    "/set-visibility/{wishlist_uuid}", status_code=HTTP_200_OK
+)
+@inject_sync
+def set_wishlist_visibility(
+    wishlist_uuid: UUID,
+    wishlist_data: ChangeWishlistVisibilityRequest,
+    _wishlist_owner: WishlistOwnerDependency,
+    mediator: FromDishka[Mediator],
+):
+    mediator.handle(
+        ChangeWishlistVisibility(uuid=wishlist_uuid, is_public=wishlist_data.is_public)
+    )
 
 
 @wishlists_command_router.post("/add-item/{wishlist_uuid}", status_code=HTTP_200_OK)
