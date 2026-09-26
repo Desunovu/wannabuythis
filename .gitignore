@@ -161,3 +161,6 @@ cython_debug/
 
 # Kubernetes
 secret.yaml
+
+# Agent workspace (plans, todos, ideas)
+.agent/
