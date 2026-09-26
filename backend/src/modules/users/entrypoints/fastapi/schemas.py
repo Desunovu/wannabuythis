@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 
 
 class LoginUserResponse(BaseModel):
@@ -33,7 +33,7 @@ class ChangePasswordByUserRequest(BaseModel):
 
 
 class ChangeEmailRequest(BaseModel):
-    new_email: str
+    new_email: EmailStr
 
 
 class ChangePasswordWithoutOldPasswordRequest(BaseModel):
