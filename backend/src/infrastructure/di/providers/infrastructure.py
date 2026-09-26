@@ -52,6 +52,7 @@ class InfrastructureProvider(Provider):
             host=settings.redis_host,
             port=settings.redis_port,
             db=settings.redis_activation_codes_db,
+            password=settings.redis_password,
         )
 
     @provide(scope=Scope.APP)
