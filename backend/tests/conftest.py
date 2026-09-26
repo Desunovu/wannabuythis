@@ -44,6 +44,11 @@ def admin_email():
 
 
 @pytest.fixture
+def second_user_email():
+    return "seconduser@example.com"
+
+
+@pytest.fixture
 def wishlist_name():
     return "My wishlist"
 
@@ -72,6 +77,16 @@ def admin_user(admin_email, valid_password):
         password_hash=Argon2PasswordManager().hash_password(valid_password),
         is_active=True,
         is_superuser=True,
+    )
+
+
+@pytest.fixture
+def second_user(second_user_email, valid_password):
+    return User(
+        username="seconduser",
+        email=second_user_email,
+        password_hash=Argon2PasswordManager().hash_password(valid_password),
+        is_active=True,
     )
 
 
@@ -128,6 +143,12 @@ def wishlist(user, wishlist_name):
     return Wishlist(
         uuid=uuid4(), owner_username=user.username, name=wishlist_name, items=[]
     )
+
+
+@pytest.fixture
+def public_wishlist(wishlist):
+    wishlist.is_public = True
+    return wishlist
 
 
 @pytest.fixture

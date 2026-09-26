@@ -8,6 +8,7 @@ from src.shared.domain.commands import Command
 class CreateWishlist(Command):
     owner_username: str
     name: str
+    is_public: bool
 
 
 @dataclass(frozen=True)
@@ -24,6 +25,12 @@ class ArchiveWishlist(Command):
 @dataclass(frozen=True)
 class UnarchiveWishlist(Command):
     uuid: UUID
+
+
+@dataclass(frozen=True)
+class ChangeWishlistVisibility(Command):
+    uuid: UUID
+    is_public: bool
 
 
 @dataclass(frozen=True)

@@ -27,6 +27,12 @@ class WishlistUnarchived(DomainEvent):
 
 
 @dataclass
+class WishlistVisibilityChanged(DomainEvent):
+    uuid: UUID
+    is_public: bool
+
+
+@dataclass
 class WishlistItemAdded(DomainEvent):
     item_uuid: UUID
     wishlist_uuid: UUID

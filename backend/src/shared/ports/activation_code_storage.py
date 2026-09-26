@@ -10,6 +10,10 @@ class ActivationCodeStorage(abc.ABC):
     def save_activation_code(self, username: str, code: str) -> None:
         pass
 
+    @abc.abstractmethod
+    def delete_activation_code(self, username: str) -> None:
+        pass
+
 
 class FakeActivationCodeStorage(ActivationCodeStorage):
     def __init__(self):
@@ -20,3 +24,6 @@ class FakeActivationCodeStorage(ActivationCodeStorage):
 
     def save_activation_code(self, username: str, code: str) -> None:
         self._activation_codes[username] = code
+
+    def delete_activation_code(self, username: str) -> None:
+        self._activation_codes.pop(username, None)
