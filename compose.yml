@@ -59,6 +59,12 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-wannabuythis}
       REDIS_HOST: redis
       REDIS_PORT: "6379"
+      SMTP_HOST: ${SMTP_HOST:-localhost}
+      SMTP_PORT: ${SMTP_PORT:-25}
+      SMTP_SENDER: ${SMTP_SENDER:-admin@localhost}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_USE_TLS: ${SMTP_USE_TLS:-false}
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
