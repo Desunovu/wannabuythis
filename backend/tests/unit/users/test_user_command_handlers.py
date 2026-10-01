@@ -133,6 +133,22 @@ class TestGenerateAuthToken:
                 )
             )
 
+    def test_login_does_not_log_password(
+        self, caplog, mediator, uow, user, valid_password
+    ):
+        caplog.set_level(logging.INFO)
+        uow.user_repository.add(user)
+
+        mediator.handle(
+            GenerateAuthToken(
+                username=user.username,
+                password=valid_password,
+                token_lifetime=datetime.timedelta(minutes=1),
+            )
+        )
+
+        assert valid_password not in caplog.text
+
 
 class TestChangePassword:
     def test_change_password_by_admin(self, mediator, uow, user, valid_new_password):
