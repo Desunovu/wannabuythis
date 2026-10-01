@@ -80,3 +80,5 @@ Conventional Commits: `<type>(<scope>): <description>`.
 Types: `feat`, `fix`, `refactor`, `style`, `chore`, `test`, `docs`, `build`, `ci`, `perf`.
 
 Scopes: `backend`, `frontend`.
+
+Subject only, no body. Add a body (max 3 lines) only when the diff cannot speak for itself; never narrate what changed.
