@@ -44,7 +44,7 @@ def register(
 
 
 @users_auth_router.post("/login", response_model=LoginUserResponse)
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 @inject_sync
 def login(
     request: Request,
@@ -64,7 +64,7 @@ def login(
 
 
 @users_auth_router.post("/activate", status_code=HTTP_200_OK)
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 @inject_sync
 def activate_user(
     request: Request,
@@ -77,7 +77,7 @@ def activate_user(
 
 
 @users_auth_router.post("/resend-activation", status_code=HTTP_200_OK)
-@limiter.limit("5/minute")
+@limiter.limit("3/minute")
 @inject_sync
 def resend_activation_code(
     request: Request,

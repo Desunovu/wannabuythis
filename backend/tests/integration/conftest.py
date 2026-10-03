@@ -7,6 +7,7 @@ from src.infrastructure.database.sqlalchemy.orm import (
     start_sqlalchemy_mappers,
 )
 from src.infrastructure.entrypoints.fastapi.app import create_app
+from src.infrastructure.entrypoints.fastapi.limiter import limiter
 from src.shared.application.uow import UnitOfWork
 from src.shared.utils.auth.token_manager import TokenManager
 from tests.di.container import create_integration_test_container
@@ -57,6 +58,16 @@ def prepare_mappers():
     start_sqlalchemy_mappers()
     yield
     clear_mappers()
+
+
+@pytest.fixture(autouse=True)
+def reset_rate_limiter():
+    """Clear the limiter's counters, which live in a module-level singleton.
+
+    TestClient always reports the same remote address, so limits would
+    otherwise leak between tests.
+    """
+    limiter.reset()
 
 
 @pytest.fixture

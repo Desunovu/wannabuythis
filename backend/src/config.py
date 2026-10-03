@@ -85,6 +85,11 @@ class Settings(BaseSettings):
     )
     redis_password: str | None = Field(default=None, description="Redis password")
 
+    # Rate limiting
+    rate_limit_storage_uri: str | None = Field(
+        default=None, description="Rate limiter storage URI; null means in-memory"
+    )
+
     # User name validation
     users_name_min_length: int = Field(
         default=3, description="Minimum length of username"
