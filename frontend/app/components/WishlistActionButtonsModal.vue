@@ -5,6 +5,7 @@ import WishlistChangeNameModal from "./WishlistChangeNameModal.vue";
 const props = defineProps<{
   wishlistUuid: string;
   isArchived: boolean | undefined;
+  isPublic: boolean | undefined;
 }>();
 
 const overlay = useOverlay();
@@ -50,6 +51,21 @@ const unarchiveWishlist = async () => {
   overlay.closeAll();
   reloadNuxtApp();
 };
+
+const changeWishlistVisibility = async () => {
+  await useBackend("/wishlists/set-visibility/{wishlist_uuid}", {
+    method: "POST",
+    path: {
+      wishlist_uuid: props.wishlistUuid,
+    },
+    body: {
+      is_public: !props.isPublic,
+    },
+  });
+
+  overlay.closeAll();
+  reloadNuxtApp();
+};
 </script>
 
 <template>
@@ -80,6 +96,14 @@ const unarchiveWishlist = async () => {
           @click="unarchiveWishlist"
         >
           Unarchive
+        </UButton>
+
+        <UButton
+          v-if="!isArchived"
+          class="justify-center"
+          @click="changeWishlistVisibility"
+        >
+          {{ isPublic ? "Make private" : "Make public" }}
         </UButton>
       </div>
     </UCard>

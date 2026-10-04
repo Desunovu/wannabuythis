@@ -1,9 +1,11 @@
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject_sync
 from fastapi import APIRouter
+from starlette.requests import Request
 from starlette.status import HTTP_200_OK
 
 from src.infrastructure.entrypoints.fastapi.dependencies import CurrentUserDependency
+from src.infrastructure.entrypoints.fastapi.limiter import limiter
 from src.modules.users.domain.commands import ChangeEmail, ChangePasswordWithOldPassword
 from src.modules.users.entrypoints.fastapi.schemas import (
     ChangeEmailRequest,
@@ -15,8 +17,10 @@ users_command_router = APIRouter(prefix="/users/me", tags=["user_commands"])
 
 
 @users_command_router.patch("/password", status_code=HTTP_200_OK)
+@limiter.limit("5/minute")
 @inject_sync
 def change_password(
+    request: Request,
     password_data: ChangePasswordByUserRequest,
     current_user: CurrentUserDependency,
     mediator: FromDishka[Mediator],
@@ -31,8 +35,10 @@ def change_password(
 
 
 @users_command_router.patch("/email", status_code=HTTP_200_OK)
+@limiter.limit("5/minute")
 @inject_sync
 def change_email(
+    request: Request,
     email_data: ChangeEmailRequest,
     current_user: CurrentUserDependency,
     mediator: FromDishka[Mediator],

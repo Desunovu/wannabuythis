@@ -21,5 +21,11 @@ class SQLAlchemyUserRepository(UserRepository):
             raise UserNotFound(username=username)
         return user
 
+    def _get_by_email(self, email: str) -> User:
+        user = self.session.query(User).filter_by(email=email).first()
+        if not user:
+            raise UserNotFound(username=email)
+        return user
+
     def _add(self, user: User):
         self.session.add(user)

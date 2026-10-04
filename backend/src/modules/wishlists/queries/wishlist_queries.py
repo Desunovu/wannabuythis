@@ -16,14 +16,15 @@ def get_wishlist_by_uuid(session: Session, uuid: UUID) -> Wishlist:
     return wishlist
 
 
-def get_wishlists_owned_by(session: Session, username: str) -> list[Wishlist]:
+def get_wishlists_owned_by(
+    session: Session, username: str, public_only: bool = False
+) -> list[Wishlist]:
     """SQLAlchemy query to get all unarchived wishlists owned by a user."""
 
-    wishlists = session.scalars(
-        select(Wishlist)
-        .filter_by(owner_username=username, is_archived=False)
-        .order_by(Wishlist.created_at.desc())
-    ).all()
+    query = select(Wishlist).filter_by(owner_username=username, is_archived=False)
+    if public_only:
+        query = query.filter_by(is_public=True)
+    wishlists = session.scalars(query.order_by(Wishlist.created_at.desc())).all()
     return wishlists
 
 

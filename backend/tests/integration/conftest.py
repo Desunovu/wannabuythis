@@ -7,6 +7,7 @@ from src.infrastructure.database.sqlalchemy.orm import (
     start_sqlalchemy_mappers,
 )
 from src.infrastructure.entrypoints.fastapi.app import create_app
+from src.infrastructure.entrypoints.fastapi.limiter import limiter
 from src.shared.application.uow import UnitOfWork
 from src.shared.utils.auth.token_manager import TokenManager
 from tests.di.container import create_integration_test_container
@@ -59,6 +60,16 @@ def prepare_mappers():
     clear_mappers()
 
 
+@pytest.fixture(autouse=True)
+def reset_rate_limiter():
+    """Clear the limiter's counters, which live in a module-level singleton.
+
+    TestClient always reports the same remote address, so limits would
+    otherwise leak between tests.
+    """
+    limiter.reset()
+
+
 @pytest.fixture
 def fastapi_app_with_test_database(monkeypatch):
     # TODO: remove monkeypatch
@@ -94,6 +105,14 @@ def admin_client(client: TestClient, admin_user) -> TestClient:
 
 
 @pytest.fixture
+def second_user_client(client: TestClient, second_user) -> TestClient:
+    """Test client with a signed-in second user."""
+    add_user_to_db(client, second_user)
+    add_authorization_header_to_client(client, second_user)
+    return client
+
+
+@pytest.fixture
 def client_with_user(client: TestClient, user) -> TestClient:
     """Test client containing a user in the database."""
     add_user_to_db(client, user)
@@ -106,6 +125,24 @@ def client_with_populated_wishlist(
 ) -> TestClient:
     """Test client containing a user and their populated wishlist in the database."""
     add_wishlist_to_db(client_with_user, populated_wishlist)
+    return client_with_user
+
+
+@pytest.fixture
+def client_with_public_wishlist(
+    client_with_user: TestClient, public_wishlist
+) -> TestClient:
+    """Test client containing a user and their public wishlist in the database."""
+    add_wishlist_to_db(client_with_user, public_wishlist)
+    return client_with_user
+
+
+@pytest.fixture
+def client_with_archived_wishlist(
+    client_with_user: TestClient, archived_wishlist
+) -> TestClient:
+    """Test client containing a user and their archived wishlist in the database."""
+    add_wishlist_to_db(client_with_user, archived_wishlist)
     return client_with_user
 
 

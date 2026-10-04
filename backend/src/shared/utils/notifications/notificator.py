@@ -25,10 +25,18 @@ class Notificator(abc.ABC):
 class EmailNotificator(Notificator):
     def __init__(self, settings: Settings):
         self._smtp_host = settings.smtp_host
+        self._smtp_port = settings.smtp_port
         self._smtp_sender = settings.smtp_sender
+        self._smtp_username = settings.smtp_username
+        self._smtp_password = settings.smtp_password
+        self._smtp_use_tls = settings.smtp_use_tls
 
     def send_notification(self, recipient, subject, message):
-        with SMTP(self._smtp_host) as smtp:
+        with SMTP(self._smtp_host, self._smtp_port) as smtp:
+            if self._smtp_use_tls:
+                smtp.starttls()
+            if self._smtp_username:
+                smtp.login(self._smtp_username, self._smtp_password or "")
             smtp.sendmail(
                 from_addr=self._smtp_sender,
                 to_addrs=[recipient.email],

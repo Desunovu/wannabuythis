@@ -4,6 +4,7 @@ from dishka import FromDishka
 from dishka.integrations.fastapi import inject_sync
 from fastapi import APIRouter, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import EmailStr
 from starlette.requests import Request
 from starlette.status import HTTP_200_OK
 
@@ -30,7 +31,7 @@ users_auth_router = APIRouter(prefix="/auth", tags=["auth"])
 def register(
     request: Request,
     username: Annotated[str, Form()],
-    email: Annotated[str, Form()],
+    email: Annotated[EmailStr, Form()],
     password: Annotated[str, Form()],
     mediator: FromDishka[Mediator],
 ):
@@ -44,7 +45,7 @@ def register(
 
 
 @users_auth_router.post("/login", response_model=LoginUserResponse)
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 @inject_sync
 def login(
     request: Request,
@@ -64,7 +65,7 @@ def login(
 
 
 @users_auth_router.post("/activate", status_code=HTTP_200_OK)
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 @inject_sync
 def activate_user(
     request: Request,
@@ -77,7 +78,7 @@ def activate_user(
 
 
 @users_auth_router.post("/resend-activation", status_code=HTTP_200_OK)
-@limiter.limit("5/minute")
+@limiter.limit("3/minute")
 @inject_sync
 def resend_activation_code(
     request: Request,
