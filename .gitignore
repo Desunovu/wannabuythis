@@ -164,3 +164,4 @@ secret.yaml
 
 # Agent workspace (plans, todos, ideas)
 .agent/
+graphify-out/
