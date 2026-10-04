@@ -59,11 +59,20 @@ class TestFastAPIUsersAuthRoutes:
     def test_register(self, client, valid_password):
         form_data = {
             "username": "username",
-            "email": "email",
+            "email": "username@example.com",
             "password": valid_password,
         }
         response = client.post(url=AUTH_REGISTER_URL, data=form_data)
         assert response.status_code == 200
+
+    def test_register_invalid_email(self, client, valid_password):
+        form_data = {
+            "username": "username",
+            "email": "not-an-email",
+            "password": valid_password,
+        }
+        response = client.post(url=AUTH_REGISTER_URL, data=form_data)
+        assert response.status_code == 422
 
     def test_login(self, user_client, user, valid_password):
         form_data = {"username": user.username, "password": valid_password}

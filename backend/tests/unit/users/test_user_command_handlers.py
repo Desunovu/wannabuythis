@@ -21,6 +21,7 @@ from src.shared.application.exceptions import (
     UserActive,
     UserAlreadyActive,
     UserAlreadyDeactivated,
+    UserEmailExists,
     UserExists,
     UserInvalidName,
     UserNotActive,
@@ -80,6 +81,29 @@ class TestCreateUser:
                 CreateUser(
                     username=forbidden_username,
                     email="testemail@example.com",
+                    password=valid_password,
+                )
+            )
+
+    def test_create_user_canonicalizes_email(self, mediator, uow, valid_password):
+        mediator.handle(
+            CreateUser(
+                username="testuser",
+                email="  Foo.Bar@Example.COM  ",
+                password=valid_password,
+            )
+        )
+        assert uow.user_repository.get("testuser").email == "foo.bar@example.com"
+
+    def test_create_user_with_existing_email_ignoring_case(
+        self, mediator, uow, user, valid_password
+    ):
+        uow.user_repository.add(user)
+        with pytest.raises(UserEmailExists):
+            mediator.handle(
+                CreateUser(
+                    username="anotheruser",
+                    email="  TESTEMAIL@Example.com  ",
                     password=valid_password,
                 )
             )
@@ -238,6 +262,28 @@ class TestChangeEmail:
             mediator.handle(
                 ChangeEmail(username="non-existing-user", new_email=new_email)
             )
+
+    def test_update_email_canonicalizes(self, mediator, uow, user):
+        uow.user_repository.add(user)
+        mediator.handle(
+            ChangeEmail(username=user.username, new_email=" NEW@Example.COM ")
+        )
+        assert user.email == "new@example.com"
+
+    def test_update_email_to_existing_email_ignoring_case(
+        self, mediator, uow, user, second_user
+    ):
+        uow.user_repository.add(user)
+        uow.user_repository.add(second_user)
+        with pytest.raises(UserEmailExists):
+            mediator.handle(
+                ChangeEmail(username=user.username, new_email="SECONDUSER@example.com")
+            )
+
+    def test_update_email_to_own_email_ignoring_case(self, mediator, uow, user, email):
+        uow.user_repository.add(user)
+        mediator.handle(ChangeEmail(username=user.username, new_email=email.upper()))
+        assert user.email == email
 
 
 class TestActivateUser:

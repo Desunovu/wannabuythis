@@ -4,6 +4,7 @@ from dishka import FromDishka
 from dishka.integrations.fastapi import inject_sync
 from fastapi import APIRouter, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import EmailStr
 from starlette.requests import Request
 from starlette.status import HTTP_200_OK
 
@@ -30,7 +31,7 @@ users_auth_router = APIRouter(prefix="/auth", tags=["auth"])
 def register(
     request: Request,
     username: Annotated[str, Form()],
-    email: Annotated[str, Form()],
+    email: Annotated[EmailStr, Form()],
     password: Annotated[str, Form()],
     mediator: FromDishka[Mediator],
 ):
