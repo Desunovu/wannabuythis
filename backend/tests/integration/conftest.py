@@ -16,7 +16,9 @@ from tests.di.container import create_integration_test_container
 def add_authorization_header_to_client(client: TestClient, user) -> None:
     container = client.app.state.dishka_container
     token_manager = container.get(TokenManager)
-    token = token_manager.generate_token(username=user.username)
+    token = token_manager.create_access_token(
+        username=user.username, token_lifetime=settings.access_token_lifetime
+    )
     client.headers = {"Authorization": f"Bearer {token}"}
 
 

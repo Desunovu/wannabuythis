@@ -64,14 +64,15 @@ def handle_generate_auth_token(
     uow: FromDishka[UnitOfWork],
     password_manager: FromDishka[PasswordManager],
     token_manager: FromDishka[TokenManager],
+    settings: FromDishka[Settings],
 ):
     with uow:
         user = uow.user_repository.get_active_user(command.username.lower())
     password_manager.assert_passwords_match(command.password, user.password_hash)
 
-    token = token_manager.generate_token(
+    token = token_manager.create_access_token(
         username=user.username,
-        token_lifetime=command.token_lifetime,
+        token_lifetime=settings.access_token_lifetime,
     )
 
     return token

@@ -13,7 +13,7 @@ def rate_limit_key(request: Request) -> str:
     (NAT, office, CGNAT) do not share a single bucket. Falls back to the IP."""
     try:
         token = request.headers.get("Authorization", "").removeprefix("Bearer ")
-        return f"user:{_token_manager.get_username_from_token(token)}"
+        return f"user:{_token_manager.decode_token(token).username}"
     except (TokenException, KeyError):
         client = request.client
         return f"ip:{client.host if client else 'unknown'}"

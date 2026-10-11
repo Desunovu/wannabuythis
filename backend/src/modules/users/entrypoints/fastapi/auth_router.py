@@ -8,7 +8,6 @@ from pydantic import EmailStr
 from starlette.requests import Request
 from starlette.status import HTTP_200_OK
 
-from src.config import Settings
 from src.infrastructure.entrypoints.fastapi.limiter import limiter
 from src.modules.users.domain.commands import (
     ActivateUserWithCode,
@@ -51,13 +50,11 @@ def login(
     request: Request,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     mediator: FromDishka[Mediator],
-    settings: FromDishka[Settings],
 ):
     auth_token = mediator.handle(
         GenerateAuthToken(
             username=form_data.username,
             password=form_data.password,
-            token_lifetime=settings.auth_token_lifetime,
         )
     )
 

@@ -1,4 +1,3 @@
-import datetime
 from dataclasses import dataclass
 
 from src.shared.domain.commands import Command
@@ -15,7 +14,6 @@ class CreateUser(Command):
 class GenerateAuthToken(Command):
     username: str
     password: str
-    token_lifetime: None | datetime.timedelta
 
 
 @dataclass(frozen=True)

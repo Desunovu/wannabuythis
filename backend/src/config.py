@@ -61,11 +61,17 @@ class Settings(BaseSettings):
     )
 
     # Token lifetimes
-    token_lifetime_in_hours: int = Field(
-        default=24,
+    access_token_lifetime_in_minutes: int = Field(
+        default=15,
         ge=1,
-        le=720,
-        description="Auth token lifetime in hours",
+        le=60,
+        description="Access token lifetime in minutes",
+    )
+    refresh_token_lifetime_in_days: int = Field(
+        default=30,
+        ge=1,
+        le=365,
+        description="Refresh token lifetime in days",
     )
     activation_token_lifetime_in_hours: int = Field(
         default=24,
@@ -123,9 +129,14 @@ class Settings(BaseSettings):
         )
 
     @property
-    def auth_token_lifetime(self) -> datetime.timedelta:
-        """Get auth token lifetime as timedelta."""
-        return datetime.timedelta(hours=self.token_lifetime_in_hours)
+    def access_token_lifetime(self) -> datetime.timedelta:
+        """Get access token lifetime as timedelta."""
+        return datetime.timedelta(minutes=self.access_token_lifetime_in_minutes)
+
+    @property
+    def refresh_token_lifetime(self) -> datetime.timedelta:
+        """Get refresh token lifetime as timedelta."""
+        return datetime.timedelta(days=self.refresh_token_lifetime_in_days)
 
     @property
     def activation_code_lifetime(self) -> datetime.timedelta:

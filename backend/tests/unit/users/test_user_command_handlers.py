@@ -1,4 +1,3 @@
-import datetime
 import logging
 
 import pytest
@@ -118,7 +117,6 @@ class TestGenerateAuthToken:
             GenerateAuthToken(
                 username=user.username,
                 password=valid_password,
-                token_lifetime=datetime.timedelta(minutes=1),
             )
         )
         assert token
@@ -130,7 +128,6 @@ class TestGenerateAuthToken:
         command = GenerateAuthToken(
             username=deactivated_user.username,
             password=valid_password,
-            token_lifetime=datetime.timedelta(minutes=1),
         )
 
         with pytest.raises(UserNotActive):
@@ -142,7 +139,6 @@ class TestGenerateAuthToken:
                 GenerateAuthToken(
                     username="non-existing-user",
                     password="password",
-                    token_lifetime=datetime.timedelta(minutes=1),
                 )
             )
 
@@ -153,7 +149,6 @@ class TestGenerateAuthToken:
                 GenerateAuthToken(
                     username=user.username,
                     password="wrong-password",
-                    token_lifetime=datetime.timedelta(minutes=1),
                 )
             )
 
@@ -167,7 +162,6 @@ class TestGenerateAuthToken:
             GenerateAuthToken(
                 username=user.username,
                 password=valid_password,
-                token_lifetime=datetime.timedelta(minutes=1),
             )
         )
 
