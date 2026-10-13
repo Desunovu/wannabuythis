@@ -63,9 +63,11 @@ Built on **onion/hexagonal architecture + DDD + CQRS**.
   uv run ruff format
   ```
 
-- Lint code:
+- Lint and typecheck (basedpyright is a stricter pyright; run only on changed
+  files when needed, not routinely):
   ```bash
-  uv run ruff check .
+  uv run ruff check <path>
+  uv run basedpyright <path>
   ```
 
 - After changing any HTTP endpoint, regenerate the OpenAPI spec
