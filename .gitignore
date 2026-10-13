@@ -162,6 +162,7 @@ cython_debug/
 # Kubernetes
 secret.yaml
 
-# Agent workspace (plans, todos, ideas)
+# AI / IDE tooling (local state, not part of the source tree)
 .agent/
+.qoder/
 graphify-out/
