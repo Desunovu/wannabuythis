@@ -1,5 +1,5 @@
 import abc
-from random import random
+import secrets
 
 
 class ActivationCodeGenerator(abc.ABC):
@@ -9,5 +9,8 @@ class ActivationCodeGenerator(abc.ABC):
 
 
 class RandomActivationCodeGenerator(ActivationCodeGenerator):
+    length: int = 8
+
     def create_code(self) -> str:
-        return str(10000000 + int(1000000000 * random()))
+        # Generate a random zero-padded numeric activation code of the specified length
+        return f"{secrets.randbelow(10**self.length):0{self.length}d}"

@@ -6,7 +6,6 @@ const getArchivedWishlists = async () => {
     method: "GET",
   });
   wishlistsArchivedData.value = response.data;
-  console.log(wishlistsArchivedData.value);
 };
 </script>
 

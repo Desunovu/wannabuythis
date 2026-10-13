@@ -26,6 +26,7 @@ from src.shared.utils.activation_codes.activation_code_generator import (
 from src.shared.utils.auth.password_manager import PasswordManager
 from src.shared.utils.auth.token_manager import TokenManager
 from src.shared.utils.notifications.notificator import Notificator
+from src.shared.utils.text import canonicalize
 
 
 def handle_create_user(
@@ -36,8 +37,10 @@ def handle_create_user(
 ):
     with uow:
         uow.user_repository.assert_user_does_not_exist(command.username)
+        email_normalized = canonicalize(command.email)
+        uow.user_repository.assert_email_does_not_exist(email_normalized)
         PasswordManager.assert_password_valid(
-            command.password, user_inputs=[command.username, command.email]
+            command.password, user_inputs=[command.username, email_normalized]
         )
         validate_username(
             command.username,
@@ -48,7 +51,7 @@ def handle_create_user(
 
         user = User(
             username=command.username.lower(),
-            email=command.email.lower(),
+            email=email_normalized,
             password_hash=password_manager.hash_password(command.password),
         )
         uow.user_repository.add(user)
@@ -61,14 +64,15 @@ def handle_generate_auth_token(
     uow: FromDishka[UnitOfWork],
     password_manager: FromDishka[PasswordManager],
     token_manager: FromDishka[TokenManager],
+    settings: FromDishka[Settings],
 ):
     with uow:
         user = uow.user_repository.get_active_user(command.username.lower())
     password_manager.assert_passwords_match(command.password, user.password_hash)
 
-    token = token_manager.generate_token(
+    token = token_manager.create_access_token(
         username=user.username,
-        token_lifetime=command.token_lifetime,
+        token_lifetime=settings.access_token_lifetime,
     )
 
     return token
@@ -110,7 +114,10 @@ def handle_change_password_with_old_password(
 def handle_change_user_email(command: ChangeEmail, uow: FromDishka[UnitOfWork]):
     with uow:
         user = uow.user_repository.get(command.username)
-        user.change_email(command.new_email)
+        new_email = canonicalize(command.new_email)
+        if new_email != user.email:
+            uow.user_repository.assert_email_does_not_exist(new_email)
+        user.change_email(new_email)
         uow.commit()
 
 
@@ -128,16 +135,16 @@ def handle_activate_user_with_code(
 ):
     with uow:
         user = uow.user_repository.get(command.username)
-        stored_code = activation_code_storage.get_activation_code(
+        expected_code = activation_code_storage.get_activation_code(
             username=user.username
         )
-        if stored_code is None or command.code != stored_code:
+        if expected_code is None or command.code != expected_code:
             raise CodeVerificationError
 
-        activation_code_storage.save_activation_code(username=user.username, code="")
         user.activate()
-
         uow.commit()
+
+        activation_code_storage.delete_activation_code(username=user.username)
 
 
 def handle_resend_activation_code(

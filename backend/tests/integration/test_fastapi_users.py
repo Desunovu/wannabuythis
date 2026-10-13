@@ -59,11 +59,20 @@ class TestFastAPIUsersAuthRoutes:
     def test_register(self, client, valid_password):
         form_data = {
             "username": "username",
-            "email": "email",
+            "email": "username@example.com",
             "password": valid_password,
         }
         response = client.post(url=AUTH_REGISTER_URL, data=form_data)
         assert response.status_code == 200
+
+    def test_register_invalid_email(self, client, valid_password):
+        form_data = {
+            "username": "username",
+            "email": "not-an-email",
+            "password": valid_password,
+        }
+        response = client.post(url=AUTH_REGISTER_URL, data=form_data)
+        assert response.status_code == 422
 
     def test_login(self, user_client, user, valid_password):
         form_data = {"username": user.username, "password": valid_password}
@@ -94,6 +103,26 @@ class TestFastAPIUsersAuthRoutes:
         body = {"username": deactivated_user.username, "code": code}
         response = client_with_deactivated_user.post(url=AUTH_ACTIVATE_URL, json=body)
         assert response.status_code == 200
+
+    def test_activate_with_wrong_code(
+        self, client_with_deactivated_user, deactivated_user
+    ):
+        body = {"username": deactivated_user.username, "code": "00000000"}
+        response = client_with_deactivated_user.post(url=AUTH_ACTIVATE_URL, json=body)
+        assert response.status_code == 401
+
+    def test_activation_code_is_single_use(
+        self, client_with_deactivated_user, deactivated_user
+    ):
+        code = self._create_code(
+            client=client_with_deactivated_user,
+            user=deactivated_user,
+        )
+        body = {"username": deactivated_user.username, "code": code}
+        first = client_with_deactivated_user.post(url=AUTH_ACTIVATE_URL, json=body)
+        second = client_with_deactivated_user.post(url=AUTH_ACTIVATE_URL, json=body)
+        assert first.status_code == 200
+        assert second.status_code == 401
 
     def test_resend_activation_link(
         self, client_with_deactivated_user, deactivated_user, valid_password

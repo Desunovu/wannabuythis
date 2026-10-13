@@ -1,12 +1,7 @@
 <script setup lang="ts">
 const { data: userData } = useAuth();
-const username = ref(userData.value?.username ?? "");
 
-const { data: wishlistsData } = await useBackend("/wishlists/user/{username}", {
-  path: {
-    username: username.value,
-  },
-});
+const { data: wishlistsData } = await useBackend("/wishlists/");
 </script>
 
 <template>
