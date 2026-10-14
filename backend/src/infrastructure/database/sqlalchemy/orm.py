@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy import (
     Boolean,
     Column,
@@ -7,6 +9,7 @@ from sqlalchemy import (
     Integer,
     String,
     Table,
+    TypeDecorator,
     Uuid,
     event,
 )
@@ -17,6 +20,28 @@ from src.modules.wishlists.domain import model as wishlist_domain_model
 
 mapper_registry = registry()
 
+
+class UTCDateTime(TypeDecorator):
+    """Store datetimes as UTC and restore tzinfo dropped by some backends (SQLite)."""
+
+    impl = DateTime(timezone=True)
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return None
+        if value.tzinfo is None:
+            return value.replace(tzinfo=datetime.UTC)
+        return value.astimezone(datetime.UTC)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return None
+        if value.tzinfo is None:
+            return value.replace(tzinfo=datetime.UTC)
+        return value.astimezone(datetime.UTC)
+
+
 users = Table(
     "users",
     mapper_registry.metadata,
@@ -26,6 +51,23 @@ users = Table(
     Column("is_active", Boolean),
     Column("is_superuser", Boolean, default=False),
 )
+
+refresh_tokens = Table(
+    "refresh_tokens",
+    mapper_registry.metadata,
+    Column("token_hash", String, primary_key=True),
+    Column(
+        "username",
+        String,
+        ForeignKey("users.username", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    ),
+    Column("created_at", UTCDateTime, nullable=False),
+    Column("expires_at", UTCDateTime, nullable=False),
+    Column("revoked_at", UTCDateTime, nullable=True),
+)
+
 
 wishlists = Table(
     "wishlists",
@@ -40,7 +82,7 @@ wishlists = Table(
     Column("name", String),
     Column("is_archived", Boolean),
     Column("is_public", Boolean),
-    Column("created_at", DateTime),
+    Column("created_at", DateTime),  # TODO: use UTCDateTime for consistency
 )
 
 wishlist_items = Table(
