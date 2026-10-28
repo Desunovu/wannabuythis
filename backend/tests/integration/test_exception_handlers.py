@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from src.infrastructure.entrypoints.fastapi.exception_handlers import (
     handle_sqlalchemy_integrity_error,
 )
-from tests.integration.conftest import (
+from tests.integration.helpers import (
     add_authorization_header_to_client,
     add_user_to_db,
     add_wishlist_to_db,

@@ -1,5 +1,5 @@
 from src.modules.wishlists.domain.model import MeasurementUnit, Priority
-from tests.integration.conftest import add_wishlist_to_db
+from tests.integration.helpers import add_wishlist_to_db
 
 WISHLISTS_BASE_URL = "/wishlists"
 

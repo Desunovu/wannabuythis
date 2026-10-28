@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from tests.integration.conftest import (
+from tests.integration.helpers import (
     add_authorization_header_to_client,
     add_user_to_db,
 )

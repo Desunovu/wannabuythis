@@ -9,35 +9,12 @@ from src.infrastructure.database.sqlalchemy.orm import (
 from src.infrastructure.entrypoints.fastapi.app import create_app
 from src.infrastructure.entrypoints.fastapi.limiter import limiter
 from src.shared.application.uow import UnitOfWork
-from src.shared.utils.auth.token_manager import TokenManager
 from tests.di.container import create_integration_test_container
-
-
-def add_authorization_header_to_client(client: TestClient, user) -> None:
-    container = client.app.state.dishka_container
-    token_manager = container.get(TokenManager)
-    token = token_manager.create_access_token(
-        username=user.username, token_lifetime=settings.access_token_lifetime
-    )
-    client.headers = {"Authorization": f"Bearer {token}"}
-
-
-def add_user_to_db(client: TestClient, user) -> None:
-    container = client.app.state.dishka_container
-    with container() as request_container:
-        uow = request_container.get(UnitOfWork)
-        with uow:
-            uow.user_repository.add(user)
-            uow.commit()
-
-
-def add_wishlist_to_db(client: TestClient, wishlist) -> None:
-    container = client.app.state.dishka_container
-    with container() as request_container:
-        uow = request_container.get(UnitOfWork)
-        with uow:
-            uow.wishlist_repository.add(wishlist)
-            uow.commit()
+from tests.integration.helpers import (
+    add_authorization_header_to_client,
+    add_user_to_db,
+    add_wishlist_to_db,
+)
 
 
 @pytest.fixture
