@@ -17,7 +17,7 @@ from src.modules.users.domain.commands import (
 )
 from src.modules.users.entrypoints.fastapi.schemas import (
     ActivateUserWithCodeRequest,
-    LoginUserResponse,
+    TokenPairResponse,
 )
 from src.shared.application.mediator import Mediator
 
@@ -43,7 +43,7 @@ def register(
     )
 
 
-@users_auth_router.post("/login", response_model=LoginUserResponse)
+@users_auth_router.post("/login", response_model=TokenPairResponse)
 @limiter.limit("10/minute")
 @inject_sync
 def login(
@@ -51,14 +51,18 @@ def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     mediator: FromDishka[Mediator],
 ):
-    auth_token = mediator.handle(
+    token_pair = mediator.handle(
         GenerateAuthToken(
             username=form_data.username,
             password=form_data.password,
         )
     )
 
-    return {"access_token": auth_token, "token_type": "bearer"}
+    return {
+        "access_token": token_pair.access_token,
+        "refresh_token": token_pair.refresh_token,
+        "token_type": "bearer",
+    }
 
 
 @users_auth_router.post("/activate", status_code=HTTP_200_OK)

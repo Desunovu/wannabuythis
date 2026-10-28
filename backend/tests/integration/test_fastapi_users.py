@@ -1,7 +1,9 @@
+from src.modules.users.application.refresh_token_service import RefreshTokenService
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
 from src.shared.utils.activation_codes.activation_code_generator import (
     ActivationCodeGenerator,
 )
+from tests.integration.helpers import app_uow
 
 ADMIN_USERS_URL = "/admin/users"
 AUTH_REGISTER_URL = "/auth/register"
@@ -78,6 +80,18 @@ class TestFastAPIUsersAuthRoutes:
         form_data = {"username": user.username, "password": valid_password}
         response = user_client.post(url=AUTH_LOGIN_URL, data=form_data)
         assert response.status_code == 200
+        token_pair = response.json()
+        assert token_pair["access_token"]
+        assert token_pair["refresh_token"]
+        assert token_pair["token_type"] == "bearer"
+
+        with app_uow(user_client) as uow:
+            stored_refresh_token = uow.refresh_token_repository.get_by_hash(
+                RefreshTokenService.hash_token(token_pair["refresh_token"])
+            )
+
+        assert stored_refresh_token is not None
+        assert stored_refresh_token.username == user.username
 
     def test_login_deactivated_user_rejected(
         self, client_with_deactivated_user, deactivated_user, valid_password

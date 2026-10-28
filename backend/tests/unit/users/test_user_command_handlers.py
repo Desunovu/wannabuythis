@@ -2,6 +2,7 @@ import logging
 
 import pytest
 
+from src.modules.users.application.refresh_token_service import RefreshTokenService
 from src.modules.users.domain.commands import (
     ActivateUser,
     ActivateUserWithCode,
@@ -113,13 +114,19 @@ class TestGenerateAuthToken:
         self, mediator, uow, user, valid_password
     ):
         uow.user_repository.add(user)
-        token = mediator.handle(
+        token_pair = mediator.handle(
             GenerateAuthToken(
                 username=user.username,
                 password=valid_password,
             )
         )
-        assert token
+        assert token_pair.access_token
+        assert token_pair.refresh_token
+        stored_refresh_token = uow.refresh_token_repository.get_by_hash(
+            RefreshTokenService.hash_token(token_pair.refresh_token)
+        )
+        assert stored_refresh_token is not None
+        assert stored_refresh_token.username == user.username
 
     def test_inactive_user_not_allowed_to_generate_auth_token(
         self, mediator, uow, deactivated_user, valid_password

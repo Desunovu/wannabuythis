@@ -2,7 +2,9 @@ from dishka import FromDishka
 
 from src.config import Settings
 from src.modules.users.application import handler_utils
+from src.modules.users.application.dto import TokenPair
 from src.modules.users.application.handler_utils import send_new_activation_code
+from src.modules.users.application.refresh_token_service import RefreshTokenService
 from src.modules.users.application.validation import validate_username
 from src.modules.users.domain.commands import (
     ActivateUser,
@@ -64,18 +66,27 @@ def handle_generate_auth_token(
     uow: FromDishka[UnitOfWork],
     password_manager: FromDishka[PasswordManager],
     token_manager: FromDishka[TokenManager],
+    refresh_token_service: FromDishka[RefreshTokenService],
     settings: FromDishka[Settings],
 ):
     with uow:
         user = uow.user_repository.get_active_user(command.username.lower())
-    password_manager.assert_passwords_match(command.password, user.password_hash)
+        password_manager.assert_passwords_match(command.password, user.password_hash)
+        access_token = token_manager.create_access_token(
+            username=user.username,
+            token_lifetime=settings.access_token_lifetime,
+        )
+        issued_refresh_token = refresh_token_service.issue(
+            username=user.username,
+            lifetime=settings.refresh_token_lifetime,
+        )
+        uow.refresh_token_repository.add(issued_refresh_token.record)
+        uow.commit()
 
-    token = token_manager.create_access_token(
-        username=user.username,
-        token_lifetime=settings.access_token_lifetime,
+    return TokenPair(
+        access_token=access_token,
+        refresh_token=issued_refresh_token.raw_token,
     )
-
-    return token
 
 
 def handle_change_password_without_old_password(
