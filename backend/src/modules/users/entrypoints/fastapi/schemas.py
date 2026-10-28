@@ -23,6 +23,10 @@ class ResendActivationCodeRequest(BaseModel):
     password: str
 
 
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str = Field(min_length=1)
+
+
 class ActivateUserWithCodeRequest(BaseModel):
     username: str
     code: str = Field(pattern=r"^\d{8}$")

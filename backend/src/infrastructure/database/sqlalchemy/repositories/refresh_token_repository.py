@@ -62,6 +62,20 @@ class SQLAlchemyRefreshTokenRepository(RefreshTokenRepository):
         )
 
     @override
+    def revoke_if_active(self, token_hash: str, revoked_at: datetime.datetime) -> bool:
+        revoked = self.session.execute(
+            update(refresh_tokens)
+            .where(
+                refresh_tokens.c.token_hash == token_hash,
+                refresh_tokens.c.revoked_at.is_(None),
+                refresh_tokens.c.expires_at > revoked_at,
+            )
+            .values(revoked_at=revoked_at)
+            .returning(refresh_tokens.c.token_hash)
+        )
+        return revoked.first() is not None
+
+    @override
     def revoke_all_for_user(self, username: str, revoked_at: datetime.datetime) -> None:
         self.session.execute(
             update(refresh_tokens)

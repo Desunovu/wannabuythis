@@ -17,6 +17,11 @@ class GenerateAuthToken(Command):
 
 
 @dataclass(frozen=True)
+class RefreshAccessToken(Command):
+    refresh_token: str
+
+
+@dataclass(frozen=True)
 class ActivateUser(Command):
     username: str
 

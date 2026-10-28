@@ -8,6 +8,7 @@ from tests.integration.helpers import app_uow
 ADMIN_USERS_URL = "/admin/users"
 AUTH_REGISTER_URL = "/auth/register"
 AUTH_LOGIN_URL = "/auth/login"
+AUTH_REFRESH_URL = "/auth/refresh"
 AUTH_ACTIVATE_URL = "/auth/activate"
 AUTH_RESEND_ACTIVATION_URL = "/auth/resend-activation"
 CHANGE_EMAIL_URL = "/users/me/email"
@@ -92,6 +93,33 @@ class TestFastAPIUsersAuthRoutes:
 
         assert stored_refresh_token is not None
         assert stored_refresh_token.username == user.username
+
+    def test_refresh(self, client_with_user, user, valid_password):
+        form_data = {"username": user.username, "password": valid_password}
+        login_response = client_with_user.post(url=AUTH_LOGIN_URL, data=form_data)
+        old_token_pair = login_response.json()
+
+        response = client_with_user.post(
+            url=AUTH_REFRESH_URL,
+            json={"refresh_token": old_token_pair["refresh_token"]},
+        )
+
+        assert response.status_code == 200
+        new_token_pair = response.json()
+        assert new_token_pair["access_token"]
+        assert new_token_pair["refresh_token"] != old_token_pair["refresh_token"]
+
+        reuse_response = client_with_user.post(
+            url=AUTH_REFRESH_URL,
+            json={"refresh_token": old_token_pair["refresh_token"]},
+        )
+        assert reuse_response.status_code == 401
+
+        second_response = client_with_user.post(
+            url=AUTH_REFRESH_URL,
+            json={"refresh_token": new_token_pair["refresh_token"]},
+        )
+        assert second_response.status_code == 200
 
     def test_login_deactivated_user_rejected(
         self, client_with_deactivated_user, deactivated_user, valid_password

@@ -1,3 +1,5 @@
+import datetime
+
 from dishka import FromDishka
 
 from src.config import Settings
@@ -15,10 +17,11 @@ from src.modules.users.domain.commands import (
     CreateUser,
     DeactivateUser,
     GenerateAuthToken,
+    RefreshAccessToken,
     ResendActivationCode,
 )
 from src.modules.users.domain.model import User
-from src.shared.application.exceptions import CodeVerificationError
+from src.shared.application.exceptions import CodeVerificationError, TokenException
 from src.shared.application.uow import UnitOfWork
 from src.shared.domain.commands import Command
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
@@ -72,6 +75,48 @@ def handle_generate_auth_token(
     with uow:
         user = uow.user_repository.get_active_user(command.username.lower())
         password_manager.assert_passwords_match(command.password, user.password_hash)
+        access_token = token_manager.create_access_token(
+            username=user.username,
+            token_lifetime=settings.access_token_lifetime,
+        )
+        issued_refresh_token = refresh_token_service.issue(
+            username=user.username,
+            lifetime=settings.refresh_token_lifetime,
+        )
+        uow.refresh_token_repository.add(issued_refresh_token.record)
+        uow.commit()
+
+    return TokenPair(
+        access_token=access_token,
+        refresh_token=issued_refresh_token.raw_token,
+    )
+
+
+def handle_refresh_access_token(
+    command: RefreshAccessToken,
+    uow: FromDishka[UnitOfWork],
+    token_manager: FromDishka[TokenManager],
+    refresh_token_service: FromDishka[RefreshTokenService],
+    settings: FromDishka[Settings],
+):
+    with uow:
+        now = datetime.datetime.now(datetime.UTC)
+        token_hash = refresh_token_service.hash_token(command.refresh_token)
+        stored_refresh_token = uow.refresh_token_repository.get_by_hash(token_hash)
+        if (
+            stored_refresh_token is None
+            or stored_refresh_token.is_revoked()
+            or stored_refresh_token.is_expired(now)
+        ):
+            raise TokenException("Invalid refresh token")
+
+        user = uow.user_repository.get_active_user(stored_refresh_token.username)
+
+        if not uow.refresh_token_repository.revoke_if_active(
+            token_hash, revoked_at=now
+        ):
+            raise TokenException("Invalid refresh token")
+
         access_token = token_manager.create_access_token(
             username=user.username,
             token_lifetime=settings.access_token_lifetime,
@@ -188,6 +233,7 @@ def handle_deactivate_user(command: DeactivateUser, uow: FromDishka[UnitOfWork])
 USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     CreateUser: handle_create_user,
     GenerateAuthToken: handle_generate_auth_token,
+    RefreshAccessToken: handle_refresh_access_token,
     ActivateUserWithCode: handle_activate_user_with_code,
     ChangePasswordWithoutOldPassword: handle_change_password_without_old_password,
     ChangePasswordWithOldPassword: handle_change_password_with_old_password,

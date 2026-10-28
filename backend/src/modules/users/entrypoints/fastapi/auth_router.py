@@ -13,10 +13,12 @@ from src.modules.users.domain.commands import (
     ActivateUserWithCode,
     CreateUser,
     GenerateAuthToken,
+    RefreshAccessToken,
     ResendActivationCode,
 )
 from src.modules.users.entrypoints.fastapi.schemas import (
     ActivateUserWithCodeRequest,
+    RefreshTokenRequest,
     TokenPairResponse,
 )
 from src.shared.application.mediator import Mediator
@@ -56,6 +58,25 @@ def login(
             username=form_data.username,
             password=form_data.password,
         )
+    )
+
+    return {
+        "access_token": token_pair.access_token,
+        "refresh_token": token_pair.refresh_token,
+        "token_type": "bearer",
+    }
+
+
+@users_auth_router.post("/refresh", response_model=TokenPairResponse)
+@limiter.limit("10/minute")
+@inject_sync
+def refresh_access_token(
+    request: Request,
+    body_data: RefreshTokenRequest,
+    mediator: FromDishka[Mediator],
+):
+    token_pair = mediator.handle(
+        RefreshAccessToken(refresh_token=body_data.refresh_token)
     )
 
     return {
