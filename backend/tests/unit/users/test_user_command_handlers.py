@@ -15,6 +15,7 @@ from src.modules.users.domain.commands import (
     GenerateAuthToken,
     RefreshAccessToken,
     ResendActivationCode,
+    RevokeRefreshToken,
 )
 from src.modules.users.domain.tokens import RefreshToken
 from src.shared.application.exceptions import (
@@ -31,6 +32,18 @@ from src.shared.application.exceptions import (
     UserNotActive,
     UserNotFound,
 )
+
+
+def _store_refresh_token(uow, username, token, expires_in):
+    now = datetime.datetime.now(datetime.UTC)
+    uow.refresh_token_repository.add(
+        RefreshToken(
+            username=username,
+            token_hash=RefreshTokenService.hash_token(token),
+            created_at=now,
+            expires_at=now + expires_in,
+        )
+    )
 
 
 class TestCreateUser:
@@ -220,7 +233,7 @@ class TestRefreshAccessToken:
             mediator.handle(RefreshAccessToken(refresh_token="unknown-token"))
 
     def test_refresh_access_token_with_expired_token(self, mediator, uow, user):
-        self._store_refresh_token(
+        _store_refresh_token(
             uow=uow,
             username=user.username,
             token="expired-token",
@@ -234,7 +247,7 @@ class TestRefreshAccessToken:
     def test_refresh_access_token_of_inactive_user(
         self, mediator, uow, deactivated_user
     ):
-        self._store_refresh_token(
+        _store_refresh_token(
             uow=uow,
             username=deactivated_user.username,
             token="deactivated-user-token",
@@ -248,7 +261,7 @@ class TestRefreshAccessToken:
     def test_refresh_access_token_of_inactive_user_with_revoked_token(
         self, mediator, uow, deactivated_user
     ):
-        self._store_refresh_token(
+        _store_refresh_token(
             uow=uow,
             username=deactivated_user.username,
             token="revoked-token",
@@ -263,17 +276,77 @@ class TestRefreshAccessToken:
         with pytest.raises(TokenException):
             mediator.handle(RefreshAccessToken(refresh_token="revoked-token"))
 
-    @staticmethod
-    def _store_refresh_token(uow, username, token, expires_in):
-        now = datetime.datetime.now(datetime.UTC)
-        uow.refresh_token_repository.add(
-            RefreshToken(
-                username=username,
-                token_hash=RefreshTokenService.hash_token(token),
-                created_at=now,
-                expires_at=now + expires_in,
-            )
+class TestRevokeRefreshToken:
+    def test_revoke_refresh_token(self, mediator, uow, user, valid_password):
+        uow.user_repository.add(user)
+        token_pair = mediator.handle(
+            GenerateAuthToken(username=user.username, password=valid_password)
         )
+
+        mediator.handle(RevokeRefreshToken(refresh_token=token_pair.refresh_token))
+
+        stored_token = uow.refresh_token_repository.get_by_hash(
+            RefreshTokenService.hash_token(token_pair.refresh_token)
+        )
+        assert stored_token is not None
+        assert stored_token.is_revoked()
+
+    def test_revoke_refresh_token_is_idempotent(
+        self, mediator, uow, user, valid_password
+    ):
+        uow.user_repository.add(user)
+        token_pair = mediator.handle(
+            GenerateAuthToken(username=user.username, password=valid_password)
+        )
+        token_hash = RefreshTokenService.hash_token(token_pair.refresh_token)
+        mediator.handle(RevokeRefreshToken(refresh_token=token_pair.refresh_token))
+        revoked_at = uow.refresh_token_repository.get_by_hash(token_hash).revoked_at
+
+        mediator.handle(RevokeRefreshToken(refresh_token=token_pair.refresh_token))
+
+        assert (
+            uow.refresh_token_repository.get_by_hash(token_hash).revoked_at
+            == revoked_at
+        )
+
+    def test_revoke_unknown_refresh_token(self, mediator):
+        mediator.handle(RevokeRefreshToken(refresh_token="unknown-token"))
+
+    def test_revoke_expired_refresh_token(self, mediator, uow, user):
+        _store_refresh_token(
+            uow=uow,
+            username=user.username,
+            token="expired-token",
+            expires_in=-datetime.timedelta(days=1),
+        )
+
+        mediator.handle(RevokeRefreshToken(refresh_token="expired-token"))
+
+        stored_token = uow.refresh_token_repository.get_by_hash(
+            RefreshTokenService.hash_token("expired-token")
+        )
+        assert stored_token.is_revoked()
+
+    def test_revoke_refresh_token_revokes_only_supplied_session(
+        self, mediator, uow, user, valid_password
+    ):
+        uow.user_repository.add(user)
+        first_token_pair = mediator.handle(
+            GenerateAuthToken(username=user.username, password=valid_password)
+        )
+        second_token_pair = mediator.handle(
+            GenerateAuthToken(username=user.username, password=valid_password)
+        )
+
+        mediator.handle(
+            RevokeRefreshToken(refresh_token=first_token_pair.refresh_token)
+        )
+
+        second_token = uow.refresh_token_repository.get_by_hash(
+            RefreshTokenService.hash_token(second_token_pair.refresh_token)
+        )
+        assert second_token is not None
+        assert not second_token.is_revoked()
 
 
 class TestChangePassword:

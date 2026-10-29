@@ -15,6 +15,7 @@ from src.modules.users.domain.commands import (
     GenerateAuthToken,
     RefreshAccessToken,
     ResendActivationCode,
+    RevokeRefreshToken,
 )
 from src.modules.users.entrypoints.fastapi.schemas import (
     ActivateUserWithCodeRequest,
@@ -84,6 +85,17 @@ def refresh_access_token(
         "refresh_token": token_pair.refresh_token,
         "token_type": "bearer",
     }
+
+
+@users_auth_router.post("/logout", status_code=HTTP_200_OK)
+@limiter.limit("10/minute")
+@inject_sync
+def logout(
+    request: Request,
+    body_data: RefreshTokenRequest,
+    mediator: FromDishka[Mediator],
+):
+    mediator.handle(RevokeRefreshToken(refresh_token=body_data.refresh_token))
 
 
 @users_auth_router.post("/activate", status_code=HTTP_200_OK)

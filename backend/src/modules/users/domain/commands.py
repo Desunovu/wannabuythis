@@ -22,6 +22,11 @@ class RefreshAccessToken(Command):
 
 
 @dataclass(frozen=True)
+class RevokeRefreshToken(Command):
+    refresh_token: str
+
+
+@dataclass(frozen=True)
 class ActivateUser(Command):
     username: str
 

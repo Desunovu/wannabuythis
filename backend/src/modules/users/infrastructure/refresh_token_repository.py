@@ -39,7 +39,7 @@ class FakeRefreshTokenRepository(RefreshTokenRepository):
 
     def revoke(self, token_hash: str, revoked_at: datetime.datetime) -> None:
         refresh_token = self._tokens.get(token_hash)
-        if refresh_token is not None:
+        if refresh_token is not None and not refresh_token.is_revoked():
             refresh_token.revoked_at = revoked_at
 
     def revoke_if_active(self, token_hash: str, revoked_at: datetime.datetime) -> bool:

@@ -19,6 +19,7 @@ from src.modules.users.domain.commands import (
     GenerateAuthToken,
     RefreshAccessToken,
     ResendActivationCode,
+    RevokeRefreshToken,
 )
 from src.modules.users.domain.model import User
 from src.shared.application.exceptions import CodeVerificationError, TokenException
@@ -134,6 +135,19 @@ def handle_refresh_access_token(
     )
 
 
+def handle_revoke_refresh_token(
+    command: RevokeRefreshToken,
+    uow: FromDishka[UnitOfWork],
+    refresh_token_service: FromDishka[RefreshTokenService],
+):
+    with uow:
+        uow.refresh_token_repository.revoke(
+            token_hash=refresh_token_service.hash_token(command.refresh_token),
+            revoked_at=datetime.datetime.now(datetime.UTC),
+        )
+        uow.commit()
+
+
 def handle_change_password_without_old_password(
     command: ChangePasswordWithoutOldPassword,
     uow: FromDishka[UnitOfWork],
@@ -234,6 +248,7 @@ USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     CreateUser: handle_create_user,
     GenerateAuthToken: handle_generate_auth_token,
     RefreshAccessToken: handle_refresh_access_token,
+    RevokeRefreshToken: handle_revoke_refresh_token,
     ActivateUserWithCode: handle_activate_user_with_code,
     ChangePasswordWithoutOldPassword: handle_change_password_without_old_password,
     ChangePasswordWithOldPassword: handle_change_password_with_old_password,
