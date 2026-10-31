@@ -18,6 +18,15 @@ GET_CURRENT_USER_URL = "/users/me"
 GET_USERS_URL = "/users"
 
 
+def _login(client, username, password):
+    response = client.post(
+        url=AUTH_LOGIN_URL,
+        data={"username": username, "password": password},
+    )
+    assert response.status_code == 200
+    return response.json()
+
+
 class TestFastAPIUsersAdminRoutes:
     def test_activate_user(
         self, admin_client_contains_deactivated_user, deactivated_user
@@ -79,10 +88,7 @@ class TestFastAPIUsersAuthRoutes:
         assert response.status_code == 422
 
     def test_login(self, user_client, user, valid_password):
-        form_data = {"username": user.username, "password": valid_password}
-        response = user_client.post(url=AUTH_LOGIN_URL, data=form_data)
-        assert response.status_code == 200
-        token_pair = response.json()
+        token_pair = _login(user_client, user.username, valid_password)
         assert token_pair["access_token"]
         assert token_pair["refresh_token"]
         assert token_pair["token_type"] == "bearer"
@@ -96,9 +102,7 @@ class TestFastAPIUsersAuthRoutes:
         assert stored_refresh_token.username == user.username
 
     def test_refresh(self, client_with_user, user, valid_password):
-        form_data = {"username": user.username, "password": valid_password}
-        login_response = client_with_user.post(url=AUTH_LOGIN_URL, data=form_data)
-        old_token_pair = login_response.json()
+        old_token_pair = _login(client_with_user, user.username, valid_password)
 
         response = client_with_user.post(
             url=AUTH_REFRESH_URL,
@@ -123,9 +127,7 @@ class TestFastAPIUsersAuthRoutes:
         assert second_response.status_code == 200
 
     def test_logout(self, client_with_user, user, valid_password):
-        form_data = {"username": user.username, "password": valid_password}
-        login_response = client_with_user.post(url=AUTH_LOGIN_URL, data=form_data)
-        token_pair = login_response.json()
+        token_pair = _login(client_with_user, user.username, valid_password)
 
         logout_response = client_with_user.post(
             url=AUTH_LOGOUT_URL,
@@ -228,3 +230,70 @@ class TestFastAPIUsersQueryRoutes:
         response = client_with_user.get(url)
         assert response.status_code == 200
         assert response.json()["username"] == user.username
+
+
+class TestFastAPIUsersSessionRevocation:
+    def test_refresh_fails_after_user_changes_password(
+        self, user_client, user, valid_password, valid_new_password
+    ):
+        token_pair = _login(user_client, user.username, valid_password)
+
+        change_response = user_client.patch(
+            url=CHANGE_PASSWORD_URL,
+            json={
+                "old_password": valid_password,
+                "new_password": valid_new_password,
+            },
+        )
+        assert change_response.status_code == 200
+
+        refresh_response = user_client.post(
+            url=AUTH_REFRESH_URL,
+            json={"refresh_token": token_pair["refresh_token"]},
+        )
+        assert refresh_response.status_code == 401
+
+    def test_refresh_fails_after_admin_changes_password(
+        self,
+        admin_client_contains_activated_user,
+        activated_user,
+        valid_password,
+        valid_new_password,
+    ):
+        token_pair = _login(
+            admin_client_contains_activated_user,
+            activated_user.username,
+            valid_password,
+        )
+
+        change_response = admin_client_contains_activated_user.patch(
+            url=f"{ADMIN_USERS_URL}/{activated_user.username}/password",
+            json={"new_password": valid_new_password},
+        )
+        assert change_response.status_code == 200
+
+        refresh_response = admin_client_contains_activated_user.post(
+            url=AUTH_REFRESH_URL,
+            json={"refresh_token": token_pair["refresh_token"]},
+        )
+        assert refresh_response.status_code == 401
+
+    def test_refresh_fails_after_deactivation(
+        self, admin_client_contains_activated_user, activated_user, valid_password
+    ):
+        token_pair = _login(
+            admin_client_contains_activated_user,
+            activated_user.username,
+            valid_password,
+        )
+
+        deactivate_response = admin_client_contains_activated_user.patch(
+            url=f"{ADMIN_USERS_URL}/{activated_user.username}/deactivate"
+        )
+        assert deactivate_response.status_code == 200
+
+        refresh_response = admin_client_contains_activated_user.post(
+            url=AUTH_REFRESH_URL,
+            json={"refresh_token": token_pair["refresh_token"]},
+        )
+        assert refresh_response.status_code == 401

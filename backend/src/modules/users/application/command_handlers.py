@@ -22,7 +22,12 @@ from src.modules.users.domain.commands import (
     RevokeRefreshToken,
 )
 from src.modules.users.domain.model import User
-from src.shared.application.exceptions import CodeVerificationError, TokenException
+from src.shared.application.exceptions import (
+    CodeVerificationError,
+    TokenException,
+    UserNotActive,
+    UserNotFound,
+)
 from src.shared.application.uow import UnitOfWork
 from src.shared.domain.commands import Command
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
@@ -111,7 +116,10 @@ def handle_refresh_access_token(
         ):
             raise TokenException("Invalid refresh token")
 
-        user = uow.user_repository.get_active_user(stored_refresh_token.username)
+        try:
+            user = uow.user_repository.get_active_user(stored_refresh_token.username)
+        except (UserNotFound, UserNotActive) as exc:
+            raise TokenException("Invalid refresh token") from exc
 
         if not uow.refresh_token_repository.revoke_if_active(
             token_hash, revoked_at=now
@@ -160,6 +168,10 @@ def handle_change_password_without_old_password(
             password_manager=password_manager,
             new_password=command.new_password,
         )
+        uow.refresh_token_repository.revoke_all_for_user(
+            username=user.username,
+            revoked_at=datetime.datetime.now(datetime.UTC),
+        )
         uow.commit()
 
 
@@ -177,6 +189,10 @@ def handle_change_password_with_old_password(
             user=user,
             new_password=command.new_password,
             password_manager=password_manager,
+        )
+        uow.refresh_token_repository.revoke_all_for_user(
+            username=user.username,
+            revoked_at=datetime.datetime.now(datetime.UTC),
         )
         uow.commit()
 
@@ -241,6 +257,10 @@ def handle_deactivate_user(command: DeactivateUser, uow: FromDishka[UnitOfWork])
     with uow:
         user = uow.user_repository.get(command.username)
         user.deactivate()
+        uow.refresh_token_repository.revoke_all_for_user(
+            username=user.username,
+            revoked_at=datetime.datetime.now(datetime.UTC),
+        )
         uow.commit()
 
 

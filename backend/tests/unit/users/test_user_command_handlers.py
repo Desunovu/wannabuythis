@@ -46,6 +46,18 @@ def _store_refresh_token(uow, username, token, expires_in):
     )
 
 
+def _issue_token_pair(mediator, username, password):
+    return mediator.handle(GenerateAuthToken(username=username, password=password))
+
+
+def _assert_refresh_token_revoked(uow, raw_token):
+    stored = uow.refresh_token_repository.get_by_hash(
+        RefreshTokenService.hash_token(raw_token)
+    )
+    assert stored is not None
+    assert stored.is_revoked()
+
+
 class TestCreateUser:
     def test_create_user(self, mediator, uow, valid_password):
         mediator.handle(
@@ -255,7 +267,7 @@ class TestRefreshAccessToken:
         )
         uow.user_repository.add(deactivated_user)
 
-        with pytest.raises(UserNotActive):
+        with pytest.raises(TokenException):
             mediator.handle(RefreshAccessToken(refresh_token="deactivated-user-token"))
 
     def test_refresh_access_token_of_inactive_user_with_revoked_token(
@@ -275,6 +287,18 @@ class TestRefreshAccessToken:
 
         with pytest.raises(TokenException):
             mediator.handle(RefreshAccessToken(refresh_token="revoked-token"))
+
+    def test_refresh_access_token_of_deleted_user(self, mediator, uow):
+        _store_refresh_token(
+            uow=uow,
+            username="deleted-user",
+            token="deleted-user-token",
+            expires_in=datetime.timedelta(days=1),
+        )
+
+        with pytest.raises(TokenException):
+            mediator.handle(RefreshAccessToken(refresh_token="deleted-user-token"))
+
 
 class TestRevokeRefreshToken:
     def test_revoke_refresh_token(self, mediator, uow, user, valid_password):
@@ -376,6 +400,113 @@ class TestChangePassword:
         mediator.handle(command)
 
         assert user.password_hash != old_password_hash
+
+    def test_change_password_by_admin_revokes_all_refresh_tokens(
+        self, mediator, uow, user, valid_password, valid_new_password
+    ):
+        uow.user_repository.add(user)
+        first_token_pair = _issue_token_pair(mediator, user.username, valid_password)
+        second_token_pair = _issue_token_pair(mediator, user.username, valid_password)
+
+        mediator.handle(
+            ChangePasswordWithoutOldPassword(
+                username=user.username,
+                new_password=valid_new_password,
+            )
+        )
+
+        _assert_refresh_token_revoked(uow, first_token_pair.refresh_token)
+        _assert_refresh_token_revoked(uow, second_token_pair.refresh_token)
+
+    def test_change_password_by_user_revokes_all_refresh_tokens(
+        self, mediator, uow, user, valid_password, valid_new_password
+    ):
+        uow.user_repository.add(user)
+        first_token_pair = _issue_token_pair(mediator, user.username, valid_password)
+        second_token_pair = _issue_token_pair(mediator, user.username, valid_password)
+
+        mediator.handle(
+            ChangePasswordWithOldPassword(
+                username=user.username,
+                new_password=valid_new_password,
+                old_password=valid_password,
+            )
+        )
+
+        _assert_refresh_token_revoked(uow, first_token_pair.refresh_token)
+        _assert_refresh_token_revoked(uow, second_token_pair.refresh_token)
+
+    def test_change_password_revokes_only_target_user_tokens(
+        self,
+        mediator,
+        uow,
+        user,
+        second_user,
+        valid_password,
+        valid_new_password,
+    ):
+        uow.user_repository.add(user)
+        uow.user_repository.add(second_user)
+        target_token_pair = _issue_token_pair(mediator, user.username, valid_password)
+        other_token_pair = _issue_token_pair(
+            mediator, second_user.username, valid_password
+        )
+
+        mediator.handle(
+            ChangePasswordWithOldPassword(
+                username=user.username,
+                new_password=valid_new_password,
+                old_password=valid_password,
+            )
+        )
+
+        _assert_refresh_token_revoked(uow, target_token_pair.refresh_token)
+        other_token = uow.refresh_token_repository.get_by_hash(
+            RefreshTokenService.hash_token(other_token_pair.refresh_token)
+        )
+        assert other_token is not None
+        assert not other_token.is_revoked()
+
+    def test_failed_password_change_does_not_revoke_tokens(
+        self, mediator, uow, user, invalid_password, valid_password, valid_new_password
+    ):
+        uow.user_repository.add(user)
+        token_pair = _issue_token_pair(mediator, user.username, valid_password)
+
+        with pytest.raises(PasswordVerificationError):
+            mediator.handle(
+                ChangePasswordWithOldPassword(
+                    username=user.username,
+                    new_password=valid_new_password,
+                    old_password=invalid_password,
+                )
+            )
+
+        stored = uow.refresh_token_repository.get_by_hash(
+            RefreshTokenService.hash_token(token_pair.refresh_token)
+        )
+        assert stored is not None
+        assert not stored.is_revoked()
+
+    def test_invalid_new_password_does_not_revoke_tokens(
+        self, mediator, uow, user, invalid_password, valid_password
+    ):
+        uow.user_repository.add(user)
+        token_pair = _issue_token_pair(mediator, user.username, valid_password)
+
+        with pytest.raises(PasswordValidationError):
+            mediator.handle(
+                ChangePasswordWithoutOldPassword(
+                    username=user.username,
+                    new_password=invalid_password,
+                )
+            )
+
+        stored = uow.refresh_token_repository.get_by_hash(
+            RefreshTokenService.hash_token(token_pair.refresh_token)
+        )
+        assert stored is not None
+        assert not stored.is_revoked()
 
     def test_change_password_non_existing_user(
         self, mediator, valid_password, valid_new_password
@@ -583,6 +714,42 @@ class TestDeactivateUser:
         uow.user_repository.add(activated_user)
         mediator.handle(DeactivateUser(username=activated_user.username))
         assert activated_user.is_active is False
+
+    def test_deactivate_user_revokes_all_refresh_tokens(
+        self, mediator, uow, activated_user, valid_password
+    ):
+        uow.user_repository.add(activated_user)
+        first_token_pair = _issue_token_pair(
+            mediator, activated_user.username, valid_password
+        )
+        second_token_pair = _issue_token_pair(
+            mediator, activated_user.username, valid_password
+        )
+
+        mediator.handle(DeactivateUser(username=activated_user.username))
+
+        _assert_refresh_token_revoked(uow, first_token_pair.refresh_token)
+        _assert_refresh_token_revoked(uow, second_token_pair.refresh_token)
+
+    def test_deactivate_non_active_user_does_not_revoke_tokens(
+        self, mediator, uow, deactivated_user
+    ):
+        _store_refresh_token(
+            uow=uow,
+            username=deactivated_user.username,
+            token="inactive-user-token",
+            expires_in=datetime.timedelta(days=1),
+        )
+        uow.user_repository.add(deactivated_user)
+
+        with pytest.raises(UserAlreadyDeactivated):
+            mediator.handle(DeactivateUser(username=deactivated_user.username))
+
+        stored = uow.refresh_token_repository.get_by_hash(
+            RefreshTokenService.hash_token("inactive-user-token")
+        )
+        assert stored is not None
+        assert not stored.is_revoked()
 
     def test_deactivate_non_existing_user(self, mediator):
         with pytest.raises(UserNotFound):
