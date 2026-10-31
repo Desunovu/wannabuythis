@@ -26,6 +26,7 @@ class WishlistResponse(BaseModel):
     name: str
     items: list[WishlistItemResponse]
     is_archived: bool
+    is_public: bool
     created_at: str
 
     @classmethod
@@ -38,16 +39,22 @@ class WishlistResponse(BaseModel):
                 WishlistItemResponse.from_dataclass(item) for item in wishlist.items
             ],
             is_archived=wishlist.is_archived,
+            is_public=wishlist.is_public,
             created_at=wishlist.created_at.isoformat(),
         )
 
 
 class CreateWishlistRequest(BaseModel):
     wishlist_name: str
+    is_public: bool
 
 
 class ChangeWishlistNameRequest(BaseModel):
     new_name: str
+
+
+class ChangeWishlistVisibilityRequest(BaseModel):
+    is_public: bool
 
 
 class AddWishlistItemRequest(BaseModel):

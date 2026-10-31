@@ -20,6 +20,7 @@ const openWishlistActionsModal = (
     props: {
       wishlistUuid: props.wishlistData!.uuid,
       isArchived: props.wishlistData!.is_archived,
+      isPublic: props.wishlistData!.is_public,
     },
   });
   modal.open();
@@ -44,12 +45,29 @@ const openWishlistActionsModal = (
       </div>
     </div>
 
-    <!-- Only show actions if the user is the owner -->
-    <UButton
-      v-if="isOwner"
-      label="Edit wishlist"
-      @click="openWishlistActionsModal(wishlistData)"
-      class="self-start"
-    />
+    <div class="flex items-start gap-3">
+      <UBadge
+        v-if="wishlistData.is_public"
+        color="green"
+        variant="subtle"
+        label="Public"
+        class="self-start"
+      />
+      <UBadge
+        v-else
+        color="neutral"
+        variant="subtle"
+        label="Private"
+        class="self-start"
+      />
+
+      <!-- Only show actions if the user is the owner -->
+      <UButton
+        v-if="isOwner"
+        label="Edit wishlist"
+        @click="openWishlistActionsModal(wishlistData)"
+        class="self-start"
+      />
+    </div>
   </div>
 </template>

@@ -7,6 +7,7 @@ from src.modules.wishlists.domain.events import (
     WishlistItemRemoved,
     WishlistNameChanged,
     WishlistUnarchived,
+    WishlistVisibilityChanged,
 )
 from src.shared.domain.events import DomainEvent
 
@@ -19,4 +20,5 @@ WISHLIST_EVENT_HANDLERS: dict[type[DomainEvent], list[callable]] = {
     WishlistItemMarkedAsNotPurchased: [],
     WishlistArchived: [],
     WishlistUnarchived: [],
+    WishlistVisibilityChanged: [],
 }

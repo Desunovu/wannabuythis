@@ -1,8 +1,9 @@
 import datetime
+import secrets
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -30,10 +31,13 @@ class Settings(BaseSettings):
     postgres_db: str = Field(default="postgres", description="PostgreSQL database name")
 
     # Security
-    secret_key: str = Field(
-        default="dev-secret-key",
-        min_length=14,
-        description="Secret key for JWT authentication",
+    secret_key: str | None = Field(
+        default=None,
+        min_length=32,
+        description=(
+            "Secret key for JWT authentication. Required in production; "
+            "generated randomly in development."
+        ),
     )
 
     # SMTP configuration
@@ -57,11 +61,17 @@ class Settings(BaseSettings):
     )
 
     # Token lifetimes
-    token_lifetime_in_hours: int = Field(
-        default=24,
+    access_token_lifetime_in_minutes: int = Field(
+        default=15,
         ge=1,
-        le=720,
-        description="Auth token lifetime in hours",
+        le=60,
+        description="Access token lifetime in minutes",
+    )
+    refresh_token_lifetime_in_days: int = Field(
+        default=30,
+        ge=1,
+        le=365,
+        description="Refresh token lifetime in days",
     )
     activation_token_lifetime_in_hours: int = Field(
         default=24,
@@ -80,6 +90,11 @@ class Settings(BaseSettings):
         description="Redis activation codes database",
     )
     redis_password: str | None = Field(default=None, description="Redis password")
+
+    # Rate limiting
+    rate_limit_storage_uri: str | None = Field(
+        default=None, description="Rate limiter storage URI; null means in-memory"
+    )
 
     # User name validation
     users_name_min_length: int = Field(
@@ -114,13 +129,18 @@ class Settings(BaseSettings):
         )
 
     @property
-    def auth_token_lifetime(self) -> datetime.timedelta:
-        """Get auth token lifetime as timedelta."""
-        return datetime.timedelta(hours=self.token_lifetime_in_hours)
+    def access_token_lifetime(self) -> datetime.timedelta:
+        """Get access token lifetime as timedelta."""
+        return datetime.timedelta(minutes=self.access_token_lifetime_in_minutes)
 
     @property
-    def activation_token_lifetime(self) -> datetime.timedelta:
-        """Get activation token lifetime as timedelta."""
+    def refresh_token_lifetime(self) -> datetime.timedelta:
+        """Get refresh token lifetime as timedelta."""
+        return datetime.timedelta(days=self.refresh_token_lifetime_in_days)
+
+    @property
+    def activation_code_lifetime(self) -> datetime.timedelta:
+        """Get activation code lifetime as timedelta."""
         return datetime.timedelta(hours=self.activation_token_lifetime_in_hours)
 
     @property
@@ -138,15 +158,22 @@ class Settings(BaseSettings):
         """Check if running in testing environment."""
         return self.env == "testing"
 
-    @field_validator("secret_key")
-    @classmethod
-    def validate_secret_key(cls, v: str, info) -> str:
-        """Validate secret key in production."""
-        if info.data.get("env") == "production" and v == "dev-secret-key":
-            raise ValueError(
-                "SECRET_KEY must be set to a secure value in production environment"
-            )
-        return v
+    @property
+    def jwt_secret_key(self) -> str:
+        """Resolved JWT signing key, never None after validation."""
+        assert self.secret_key is not None
+        return self.secret_key
+
+    @model_validator(mode="after")
+    def ensure_secret_key(self) -> "Settings":
+        """Require an explicit key in production, generate a random one otherwise."""
+        if self.secret_key is None:
+            if self.env == "production":
+                raise ValueError(
+                    "SECRET_KEY must be set to a secure value in production environment"
+                )
+            self.secret_key = secrets.token_urlsafe(48)
+        return self
 
     @field_validator("base_url")
     @classmethod

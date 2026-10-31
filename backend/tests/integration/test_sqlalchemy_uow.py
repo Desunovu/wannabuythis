@@ -7,6 +7,7 @@ class TestSQLAlchemyUnitOfWork:
     def test_uow_can_use_repositories(self, sqlalchemy_uow):
         with sqlalchemy_uow:
             assert sqlalchemy_uow.user_repository
+            assert sqlalchemy_uow.refresh_token_repository
             assert sqlalchemy_uow.wishlist_repository
 
     def test_uow_can_commit(self, sqlalchemy_uow, user):
