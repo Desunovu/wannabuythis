@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class TokenPairResponse(BaseModel):
@@ -8,6 +8,8 @@ class TokenPairResponse(BaseModel):
 
 
 class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+
     username: str
     email: str
     is_active: bool
@@ -15,6 +17,8 @@ class UserResponse(BaseModel):
 
 
 class PublicUserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+
     username: str
 
 

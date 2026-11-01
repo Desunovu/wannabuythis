@@ -218,18 +218,22 @@ class TestFastAPIUsersQueryRoutes:
     def test_get_me(self, user_client, user):
         response = user_client.get(GET_CURRENT_USER_URL)
         assert response.status_code == 200
-        assert response.json()["username"] == user.username
+        body = response.json()
+        assert body["username"] == user.username
+        assert set(body) == {"username", "email", "is_active", "is_superuser"}
 
     def test_get_users(self, user_client):
         response = user_client.get(GET_USERS_URL)
         assert response.status_code == 200
         assert len(response.json()) > 0
+        assert set(response.json()[0]) == {"username"}
 
     def test_get_user(self, client_with_user, user):
         url = f"{GET_USERS_URL}/{user.username}"
         response = client_with_user.get(url)
         assert response.status_code == 200
         assert response.json()["username"] == user.username
+        assert set(response.json()) == {"username"}
 
 
 class TestFastAPIUsersSessionRevocation:
