@@ -1,12 +1,15 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
-class LoginUserResponse(BaseModel):
+class TokenPairResponse(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str
 
 
 class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+
     username: str
     email: str
     is_active: bool
@@ -14,6 +17,8 @@ class UserResponse(BaseModel):
 
 
 class PublicUserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+
     username: str
 
 
@@ -22,9 +27,13 @@ class ResendActivationCodeRequest(BaseModel):
     password: str
 
 
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str = Field(min_length=1)
+
+
 class ActivateUserWithCodeRequest(BaseModel):
     username: str
-    code: str
+    code: str = Field(pattern=r"^\d{8}$")
 
 
 class ChangePasswordByUserRequest(BaseModel):
@@ -33,7 +42,11 @@ class ChangePasswordByUserRequest(BaseModel):
 
 
 class ChangeEmailRequest(BaseModel):
-    new_email: str
+    new_email: EmailStr
+
+
+class ConfirmEmailChangeRequest(BaseModel):
+    code: str = Field(pattern=r"^\d{8}$")
 
 
 class ChangePasswordWithoutOldPasswordRequest(BaseModel):

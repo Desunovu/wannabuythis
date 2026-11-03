@@ -4,20 +4,23 @@ from dishka import FromDishka
 from dishka.integrations.fastapi import inject_sync
 from fastapi import APIRouter, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import EmailStr
 from starlette.requests import Request
 from starlette.status import HTTP_200_OK
 
-from src.config import Settings
 from src.infrastructure.entrypoints.fastapi.limiter import limiter
 from src.modules.users.domain.commands import (
     ActivateUserWithCode,
     CreateUser,
     GenerateAuthToken,
+    RefreshAccessToken,
     ResendActivationCode,
+    RevokeRefreshToken,
 )
 from src.modules.users.entrypoints.fastapi.schemas import (
     ActivateUserWithCodeRequest,
-    LoginUserResponse,
+    RefreshTokenRequest,
+    TokenPairResponse,
 )
 from src.shared.application.mediator import Mediator
 
@@ -30,7 +33,7 @@ users_auth_router = APIRouter(prefix="/auth", tags=["auth"])
 def register(
     request: Request,
     username: Annotated[str, Form()],
-    email: Annotated[str, Form()],
+    email: Annotated[EmailStr, Form()],
     password: Annotated[str, Form()],
     mediator: FromDishka[Mediator],
 ):
@@ -43,28 +46,60 @@ def register(
     )
 
 
-@users_auth_router.post("/login", response_model=LoginUserResponse)
-@limiter.limit("5/minute")
+@users_auth_router.post("/login", response_model=TokenPairResponse)
+@limiter.limit("10/minute")
 @inject_sync
 def login(
     request: Request,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     mediator: FromDishka[Mediator],
-    settings: FromDishka[Settings],
 ):
-    auth_token = mediator.handle(
+    token_pair = mediator.handle(
         GenerateAuthToken(
             username=form_data.username,
             password=form_data.password,
-            token_lifetime=settings.auth_token_lifetime,
         )
     )
 
-    return {"access_token": auth_token, "token_type": "bearer"}
+    return {
+        "access_token": token_pair.access_token,
+        "refresh_token": token_pair.refresh_token,
+        "token_type": "bearer",
+    }
+
+
+@users_auth_router.post("/refresh", response_model=TokenPairResponse)
+@limiter.limit("10/minute")
+@inject_sync
+def refresh_access_token(
+    request: Request,
+    body_data: RefreshTokenRequest,
+    mediator: FromDishka[Mediator],
+):
+    token_pair = mediator.handle(
+        RefreshAccessToken(refresh_token=body_data.refresh_token)
+    )
+
+    return {
+        "access_token": token_pair.access_token,
+        "refresh_token": token_pair.refresh_token,
+        "token_type": "bearer",
+    }
+
+
+@users_auth_router.post("/logout", status_code=HTTP_200_OK)
+@limiter.limit("10/minute")
+@inject_sync
+def logout(
+    request: Request,
+    body_data: RefreshTokenRequest,
+    mediator: FromDishka[Mediator],
+):
+    mediator.handle(RevokeRefreshToken(refresh_token=body_data.refresh_token))
 
 
 @users_auth_router.post("/activate", status_code=HTTP_200_OK)
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 @inject_sync
 def activate_user(
     request: Request,
@@ -77,7 +112,7 @@ def activate_user(
 
 
 @users_auth_router.post("/resend-activation", status_code=HTTP_200_OK)
-@limiter.limit("5/minute")
+@limiter.limit("3/minute")
 @inject_sync
 def resend_activation_code(
     request: Request,

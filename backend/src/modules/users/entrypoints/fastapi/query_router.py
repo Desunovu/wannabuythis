@@ -1,5 +1,3 @@
-from dataclasses import asdict
-
 from dishka.integrations.fastapi import FromDishka, inject_sync
 from fastapi import APIRouter
 from sqlalchemy.orm import Session
@@ -17,22 +15,23 @@ users_query_router = APIRouter(prefix="/users", tags=["user_queries"])
 
 
 @users_query_router.get("/me", response_model=UserResponse)
+@limiter.limit("120/minute")
 @inject_sync
-def get_me(current_user: CurrentUserDependency):
-    return UserResponse(**asdict(current_user))
+def get_me(request: Request, current_user: CurrentUserDependency):
+    return UserResponse.model_validate(current_user)
 
 
-@limiter.limit("5/minute")
 @users_query_router.get("/", response_model=list[PublicUserResponse])
+@limiter.limit("60/minute")
 @inject_sync
 def get_users(request: Request, session: FromDishka[Session]):
     users = user_queries.get_all_users(session=session)
 
-    return [PublicUserResponse(**asdict(user)) for user in users]
+    return [PublicUserResponse.model_validate(user) for user in users]
 
 
-@limiter.limit("5/minute")
 @users_query_router.get("/{username}", response_model=PublicUserResponse)
+@limiter.limit("60/minute")
 @inject_sync
 def get_user(
     request: Request,
@@ -41,4 +40,4 @@ def get_user(
 ):
     user = user_queries.get_user_by_username(session=session, username=username)
 
-    return PublicUserResponse(**asdict(user))
+    return PublicUserResponse.model_validate(user)

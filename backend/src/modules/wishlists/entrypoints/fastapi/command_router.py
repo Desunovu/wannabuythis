@@ -2,16 +2,19 @@ from uuid import UUID
 
 from dishka.integrations.fastapi import FromDishka, inject_sync
 from fastapi import APIRouter
+from starlette.requests import Request
 from starlette.status import HTTP_200_OK
 
 from src.infrastructure.entrypoints.fastapi.dependencies import (
     CurrentUserDependency,
     WishlistOwnerDependency,
 )
+from src.infrastructure.entrypoints.fastapi.limiter import limiter
 from src.modules.wishlists.domain.commands import (
     AddWishlistItem,
     ArchiveWishlist,
     ChangeWishlistName,
+    ChangeWishlistVisibility,
     CreateWishlist,
     MarkWishlistItemAsNotPurchased,
     MarkWishlistItemAsPurchased,
@@ -21,6 +24,7 @@ from src.modules.wishlists.domain.commands import (
 from src.modules.wishlists.entrypoints.fastapi.schemas import (
     AddWishlistItemRequest,
     ChangeWishlistNameRequest,
+    ChangeWishlistVisibilityRequest,
     CreateWishlistRequest,
     RemoveWishlistItemRequest,
     SetWishlistItemStatusRequest,
@@ -31,8 +35,10 @@ wishlists_command_router = APIRouter(prefix="/wishlists", tags=["wishlist_comman
 
 
 @wishlists_command_router.post("/create", status_code=HTTP_200_OK)
+@limiter.limit("10/minute")
 @inject_sync
 def create_wishlist(
+    request: Request,
     wishlist_data: CreateWishlistRequest,
     current_user: CurrentUserDependency,
     mediator: FromDishka[Mediator],
@@ -41,13 +47,16 @@ def create_wishlist(
         CreateWishlist(
             owner_username=current_user.username,
             name=wishlist_data.wishlist_name,
+            is_public=wishlist_data.is_public,
         )
     )
 
 
 @wishlists_command_router.post("/change-name/{wishlist_uuid}", status_code=HTTP_200_OK)
+@limiter.limit("20/minute")
 @inject_sync
 def change_wishlist_name(
+    request: Request,
     wishlist_uuid: UUID,
     wishlist_data: ChangeWishlistNameRequest,
     _wishlist_owner: WishlistOwnerDependency,
@@ -59,8 +68,10 @@ def change_wishlist_name(
 
 
 @wishlists_command_router.post("/archive/{wishlist_uuid}", status_code=HTTP_200_OK)
+@limiter.limit("20/minute")
 @inject_sync
 def archive_wishlist(
+    request: Request,
     wishlist_uuid: UUID,
     _wishlist_owner: WishlistOwnerDependency,
     mediator: FromDishka[Mediator],
@@ -69,8 +80,10 @@ def archive_wishlist(
 
 
 @wishlists_command_router.post("/unarchive/{wishlist_uuid}", status_code=HTTP_200_OK)
+@limiter.limit("20/minute")
 @inject_sync
 def unarchive_wishlist(
+    request: Request,
     wishlist_uuid: UUID,
     _wishlist_owner: WishlistOwnerDependency,
     mediator: FromDishka[Mediator],
@@ -78,9 +91,28 @@ def unarchive_wishlist(
     mediator.handle(UnarchiveWishlist(uuid=wishlist_uuid))
 
 
+@wishlists_command_router.post(
+    "/set-visibility/{wishlist_uuid}", status_code=HTTP_200_OK
+)
+@limiter.limit("20/minute")
+@inject_sync
+def set_wishlist_visibility(
+    request: Request,
+    wishlist_uuid: UUID,
+    wishlist_data: ChangeWishlistVisibilityRequest,
+    _wishlist_owner: WishlistOwnerDependency,
+    mediator: FromDishka[Mediator],
+):
+    mediator.handle(
+        ChangeWishlistVisibility(uuid=wishlist_uuid, is_public=wishlist_data.is_public)
+    )
+
+
 @wishlists_command_router.post("/add-item/{wishlist_uuid}", status_code=HTTP_200_OK)
+@limiter.limit("60/minute")
 @inject_sync
 def add_wishlist_item(
+    request: Request,
     wishlist_uuid: UUID,
     item_data: AddWishlistItemRequest,
     _wishlist_owner: WishlistOwnerDependency,
@@ -92,8 +124,10 @@ def add_wishlist_item(
 
 
 @wishlists_command_router.post("/remove-item/{wishlist_uuid}")
+@limiter.limit("60/minute")
 @inject_sync
 def remove_wishlist_item(
+    request: Request,
     wishlist_uuid: UUID,
     item_data: RemoveWishlistItemRequest,
     _wishlist_owner: WishlistOwnerDependency,
@@ -105,8 +139,10 @@ def remove_wishlist_item(
 
 
 @wishlists_command_router.post("/mark-item-as-purchased/{wishlist_uuid}")
+@limiter.limit("120/minute")
 @inject_sync
 def mark_item_as_purchased(
+    request: Request,
     wishlist_uuid: UUID,
     item_data: SetWishlistItemStatusRequest,
     _wishlist_owner: WishlistOwnerDependency,
@@ -121,8 +157,10 @@ def mark_item_as_purchased(
 
 
 @wishlists_command_router.post("/mark-item-as-not-purchased/{wishlist_uuid}")
+@limiter.limit("120/minute")
 @inject_sync
 def mark_item_as_not_purchased(
+    request: Request,
     wishlist_uuid: UUID,
     item_data: SetWishlistItemStatusRequest,
     _wishlist_owner: WishlistOwnerDependency,

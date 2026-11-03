@@ -1,5 +1,6 @@
 import abc
 import datetime
+from dataclasses import dataclass
 from typing import override
 
 import jwt
@@ -7,28 +8,41 @@ import jwt
 from src.config import Settings
 from src.shared.application.exceptions import TokenException
 
+ACCESS_TOKEN_TYPE = "access"
+
+
+@dataclass(frozen=True)
+class AccessTokenPayload:
+    username: str
+    issued_at: datetime.datetime
+    expires_at: datetime.datetime
+
 
 class TokenManager(abc.ABC):
     @abc.abstractmethod
-    def generate_token(
-        self, username: str, token_lifetime: None | datetime.timedelta = None
+    def create_access_token(
+        self, username: str, token_lifetime: datetime.timedelta
     ) -> str: ...
 
     @abc.abstractmethod
-    def get_username_from_token(self, token: str) -> str: ...
+    def decode_token(self, token: str) -> AccessTokenPayload: ...
 
 
 class JWTManager(TokenManager):
     def __init__(self, settings: Settings):
-        self._secret_key: str = settings.secret_key
+        self._secret_key: str = settings.jwt_secret_key
 
     @override
-    def generate_token(
-        self, username: str, token_lifetime: None | datetime.timedelta = None
+    def create_access_token(
+        self, username: str, token_lifetime: datetime.timedelta
     ) -> str:
-        payload = {"username": username}
-        if token_lifetime:
-            payload["exp"] = datetime.datetime.now(datetime.UTC) + token_lifetime
+        now = datetime.datetime.now(datetime.UTC)
+        payload = {
+            "sub": username,
+            "type": ACCESS_TOKEN_TYPE,
+            "iat": now.timestamp(),
+            "exp": (now + token_lifetime).timestamp(),
+        }
         token = jwt.encode(
             payload=payload,
             key=self._secret_key,
@@ -37,11 +51,19 @@ class JWTManager(TokenManager):
         return token
 
     @override
-    def get_username_from_token(self, token: str) -> str:
+    def decode_token(self, token: str) -> AccessTokenPayload:
         try:
             payload = jwt.decode(token, self._secret_key, algorithms=["HS256"])
         except jwt.ExpiredSignatureError as e:
             raise TokenException("Token expired") from e
         except jwt.InvalidTokenError as e:
             raise TokenException("Invalid token") from e
-        return payload["username"]
+
+        if payload.get("type") != ACCESS_TOKEN_TYPE:
+            raise TokenException("Invalid token type")
+
+        return AccessTokenPayload(
+            username=payload["sub"],
+            issued_at=datetime.datetime.fromtimestamp(payload["iat"], datetime.UTC),
+            expires_at=datetime.datetime.fromtimestamp(payload["exp"], datetime.UTC),
+        )

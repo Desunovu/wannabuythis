@@ -1,5 +1,8 @@
 from sqlalchemy.orm import sessionmaker
 
+from src.infrastructure.database.sqlalchemy.repositories.refresh_token_repository import (
+    SQLAlchemyRefreshTokenRepository,
+)
 from src.infrastructure.database.sqlalchemy.repositories.user_repository import (
     SQLAlchemyUserRepository,
 )
@@ -23,6 +26,7 @@ class SQLAlchemyUnitOfWork(UnitOfWork):
     def __enter__(self):
         self.session = self.session_factory()
         self.user_repository = SQLAlchemyUserRepository(self.session)
+        self.refresh_token_repository = SQLAlchemyRefreshTokenRepository(self.session)
         self.wishlist_repository = SQLAlchemyWishlistRepository(self.session)
         return super().__enter__()
 

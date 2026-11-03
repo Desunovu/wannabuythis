@@ -4,6 +4,7 @@ from src.modules.wishlists.domain.commands import (
     AddWishlistItem,
     ArchiveWishlist,
     ChangeWishlistName,
+    ChangeWishlistVisibility,
     CreateWishlist,
     MarkWishlistItemAsNotPurchased,
     MarkWishlistItemAsPurchased,
@@ -33,6 +34,7 @@ def handle_create_wishlist(
             owner_username=command.owner_username,
             name=command.name,
             items=[],
+            is_public=command.is_public,
         )
         uow.wishlist_repository.add(wishlist)
         uow.commit()
@@ -107,6 +109,15 @@ def handle_unarchive_wishlist(command: UnarchiveWishlist, uow: FromDishka[UnitOf
         uow.commit()
 
 
+def handle_change_wishlist_visibility(
+    command: ChangeWishlistVisibility, uow: FromDishka[UnitOfWork]
+):
+    with uow:
+        wishlist = uow.wishlist_repository.get(command.uuid)
+        wishlist.change_visibility(command.is_public)
+        uow.commit()
+
+
 WISHLIST_COMMAND_HANDLERS: dict[type[Command], callable] = {
     CreateWishlist: handle_create_wishlist,
     ChangeWishlistName: handle_change_wishlist_name,
@@ -116,4 +127,5 @@ WISHLIST_COMMAND_HANDLERS: dict[type[Command], callable] = {
     MarkWishlistItemAsNotPurchased: handle_mark_wishlist_item_as_not_purchased,
     ArchiveWishlist: handle_archive_wishlist,
     UnarchiveWishlist: handle_unarchive_wishlist,
+    ChangeWishlistVisibility: handle_change_wishlist_visibility,
 }

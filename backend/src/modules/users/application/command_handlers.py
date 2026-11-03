@@ -1,8 +1,12 @@
+import datetime
+
 from dishka import FromDishka
 
 from src.config import Settings
 from src.modules.users.application import handler_utils
+from src.modules.users.application.dto import TokenPair
 from src.modules.users.application.handler_utils import send_new_activation_code
+from src.modules.users.application.refresh_token_service import RefreshTokenService
 from src.modules.users.application.validation import validate_username
 from src.modules.users.domain.commands import (
     ActivateUser,
@@ -10,22 +14,33 @@ from src.modules.users.domain.commands import (
     ChangeEmail,
     ChangePasswordWithOldPassword,
     ChangePasswordWithoutOldPassword,
+    ConfirmEmailChange,
     CreateUser,
     DeactivateUser,
     GenerateAuthToken,
+    RefreshAccessToken,
+    RequestEmailChange,
     ResendActivationCode,
+    RevokeRefreshToken,
 )
 from src.modules.users.domain.model import User
-from src.shared.application.exceptions import CodeVerificationError
+from src.shared.application.exceptions import (
+    CodeVerificationError,
+    TokenException,
+    UserNotActive,
+    UserNotFound,
+)
 from src.shared.application.uow import UnitOfWork
 from src.shared.domain.commands import Command
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
-from src.shared.utils.activation_codes.activation_code_generator import (
-    ActivationCodeGenerator,
-)
+from src.shared.ports.email_change_code_storage import EmailChangeCodeStorage
 from src.shared.utils.auth.password_manager import PasswordManager
 from src.shared.utils.auth.token_manager import TokenManager
 from src.shared.utils.notifications.notificator import Notificator
+from src.shared.utils.text import canonicalize
+from src.shared.utils.verification_codes.verification_code_generator import (
+    VerificationCodeGenerator,
+)
 
 
 def handle_create_user(
@@ -36,8 +51,10 @@ def handle_create_user(
 ):
     with uow:
         uow.user_repository.assert_user_does_not_exist(command.username)
+        email_normalized = canonicalize(command.email)
+        uow.user_repository.assert_email_does_not_exist(email_normalized)
         PasswordManager.assert_password_valid(
-            command.password, user_inputs=[command.username, command.email]
+            command.password, user_inputs=[command.username, email_normalized]
         )
         validate_username(
             command.username,
@@ -48,7 +65,7 @@ def handle_create_user(
 
         user = User(
             username=command.username.lower(),
-            email=command.email.lower(),
+            email=email_normalized,
             password_hash=password_manager.hash_password(command.password),
         )
         uow.user_repository.add(user)
@@ -61,17 +78,85 @@ def handle_generate_auth_token(
     uow: FromDishka[UnitOfWork],
     password_manager: FromDishka[PasswordManager],
     token_manager: FromDishka[TokenManager],
+    refresh_token_service: FromDishka[RefreshTokenService],
+    settings: FromDishka[Settings],
 ):
     with uow:
         user = uow.user_repository.get_active_user(command.username.lower())
-    password_manager.assert_passwords_match(command.password, user.password_hash)
+        password_manager.assert_passwords_match(command.password, user.password_hash)
+        access_token = token_manager.create_access_token(
+            username=user.username,
+            token_lifetime=settings.access_token_lifetime,
+        )
+        issued_refresh_token = refresh_token_service.issue(
+            username=user.username,
+            lifetime=settings.refresh_token_lifetime,
+        )
+        uow.refresh_token_repository.add(issued_refresh_token.record)
+        uow.commit()
 
-    token = token_manager.generate_token(
-        username=user.username,
-        token_lifetime=command.token_lifetime,
+    return TokenPair(
+        access_token=access_token,
+        refresh_token=issued_refresh_token.raw_token,
     )
 
-    return token
+
+def handle_refresh_access_token(
+    command: RefreshAccessToken,
+    uow: FromDishka[UnitOfWork],
+    token_manager: FromDishka[TokenManager],
+    refresh_token_service: FromDishka[RefreshTokenService],
+    settings: FromDishka[Settings],
+):
+    with uow:
+        now = datetime.datetime.now(datetime.UTC)
+        token_hash = refresh_token_service.hash_token(command.refresh_token)
+        stored_refresh_token = uow.refresh_token_repository.get_by_hash(token_hash)
+        if (
+            stored_refresh_token is None
+            or stored_refresh_token.is_revoked()
+            or stored_refresh_token.is_expired(now)
+        ):
+            raise TokenException("Invalid refresh token")
+
+        try:
+            user = uow.user_repository.get_active_user(stored_refresh_token.username)
+        except (UserNotFound, UserNotActive) as exc:
+            raise TokenException("Invalid refresh token") from exc
+
+        if not uow.refresh_token_repository.revoke_if_active(
+            token_hash, revoked_at=now
+        ):
+            raise TokenException("Invalid refresh token")
+
+        access_token = token_manager.create_access_token(
+            username=user.username,
+            token_lifetime=settings.access_token_lifetime,
+        )
+        issued_refresh_token = refresh_token_service.issue(
+            username=user.username,
+            lifetime=settings.refresh_token_lifetime,
+        )
+        uow.refresh_token_repository.add(issued_refresh_token.record)
+        uow.commit()
+
+    return TokenPair(
+        access_token=access_token,
+        refresh_token=issued_refresh_token.raw_token,
+    )
+
+
+def handle_revoke_refresh_token(
+    command: RevokeRefreshToken,
+    uow: FromDishka[UnitOfWork],
+    refresh_token_service: FromDishka[RefreshTokenService],
+):
+    with uow:
+        uow.refresh_token_repository.revoke(
+            token_hash=refresh_token_service.hash_token(command.refresh_token),
+            revoked_at=datetime.datetime.now(datetime.UTC),
+        )
+        uow.commit()
 
 
 def handle_change_password_without_old_password(
@@ -85,6 +170,10 @@ def handle_change_password_without_old_password(
             user=user,
             password_manager=password_manager,
             new_password=command.new_password,
+        )
+        uow.refresh_token_repository.revoke_all_for_user(
+            username=user.username,
+            revoked_at=datetime.datetime.now(datetime.UTC),
         )
         uow.commit()
 
@@ -104,14 +193,61 @@ def handle_change_password_with_old_password(
             new_password=command.new_password,
             password_manager=password_manager,
         )
+        uow.refresh_token_repository.revoke_all_for_user(
+            username=user.username,
+            revoked_at=datetime.datetime.now(datetime.UTC),
+        )
         uow.commit()
 
 
 def handle_change_user_email(command: ChangeEmail, uow: FromDishka[UnitOfWork]):
     with uow:
         user = uow.user_repository.get(command.username)
-        user.change_email(command.new_email)
+        new_email = canonicalize(command.new_email)
+        if new_email != user.email:
+            uow.user_repository.assert_email_does_not_exist(new_email)
+        user.change_email(new_email)
         uow.commit()
+
+
+def handle_request_email_change(
+    command: RequestEmailChange,
+    uow: FromDishka[UnitOfWork],
+    notificator: FromDishka[Notificator],
+    verification_code_generator: FromDishka[VerificationCodeGenerator],
+    email_change_code_storage: FromDishka[EmailChangeCodeStorage],
+):
+    with uow:
+        user = uow.user_repository.get(command.username)
+        new_email = canonicalize(command.new_email)
+        if new_email == user.email:
+            return
+        uow.user_repository.assert_email_does_not_exist(new_email)
+
+    code = verification_code_generator.create_code()
+    email_change_code_storage.save(
+        username=user.username, code=code, new_email=new_email
+    )
+    notificator.send_email_change_code(email=new_email, code=code)
+
+
+def handle_confirm_email_change(
+    command: ConfirmEmailChange,
+    uow: FromDishka[UnitOfWork],
+    email_change_code_storage: FromDishka[EmailChangeCodeStorage],
+):
+    pending = email_change_code_storage.get(command.username)
+    if pending is None or command.code != pending.code:
+        raise CodeVerificationError
+
+    with uow:
+        user = uow.user_repository.get(command.username)
+        if pending.new_email != user.email:
+            uow.user_repository.assert_email_does_not_exist(pending.new_email)
+        user.change_email(pending.new_email)
+        uow.commit()
+
+    email_change_code_storage.delete(username=command.username)
 
 
 def handle_activate_user(command: ActivateUser, uow: FromDishka[UnitOfWork]):
@@ -128,23 +264,23 @@ def handle_activate_user_with_code(
 ):
     with uow:
         user = uow.user_repository.get(command.username)
-        stored_code = activation_code_storage.get_activation_code(
+        expected_code = activation_code_storage.get_activation_code(
             username=user.username
         )
-        if stored_code is None or command.code != stored_code:
+        if expected_code is None or command.code != expected_code:
             raise CodeVerificationError
 
-        activation_code_storage.save_activation_code(username=user.username, code="")
         user.activate()
-
         uow.commit()
+
+        activation_code_storage.delete_activation_code(username=user.username)
 
 
 def handle_resend_activation_code(
     command: ResendActivationCode,
     uow: FromDishka[UnitOfWork],
     notificator: FromDishka[Notificator],
-    activation_code_generator: FromDishka[ActivationCodeGenerator],
+    verification_code_generator: FromDishka[VerificationCodeGenerator],
     activation_code_storage: FromDishka[ActivationCodeStorage],
     password_manager: FromDishka[PasswordManager],
 ):
@@ -154,7 +290,7 @@ def handle_resend_activation_code(
 
     send_new_activation_code(
         user=user,
-        activation_code_generator=activation_code_generator,
+        verification_code_generator=verification_code_generator,
         activation_code_storage=activation_code_storage,
         notificator=notificator,
     )
@@ -164,16 +300,24 @@ def handle_deactivate_user(command: DeactivateUser, uow: FromDishka[UnitOfWork])
     with uow:
         user = uow.user_repository.get(command.username)
         user.deactivate()
+        uow.refresh_token_repository.revoke_all_for_user(
+            username=user.username,
+            revoked_at=datetime.datetime.now(datetime.UTC),
+        )
         uow.commit()
 
 
 USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     CreateUser: handle_create_user,
     GenerateAuthToken: handle_generate_auth_token,
+    RefreshAccessToken: handle_refresh_access_token,
+    RevokeRefreshToken: handle_revoke_refresh_token,
     ActivateUserWithCode: handle_activate_user_with_code,
     ChangePasswordWithoutOldPassword: handle_change_password_without_old_password,
     ChangePasswordWithOldPassword: handle_change_password_with_old_password,
     ChangeEmail: handle_change_user_email,
+    RequestEmailChange: handle_request_email_change,
+    ConfirmEmailChange: handle_confirm_email_change,
     ActivateUser: handle_activate_user,
     ResendActivationCode: handle_resend_activation_code,
     DeactivateUser: handle_deactivate_user,

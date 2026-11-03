@@ -61,6 +61,11 @@ class UserExists(ConflictException):
         super().__init__(f"User '{username}' exists")
 
 
+class UserEmailExists(ConflictException):
+    def __init__(self, email: str):
+        super().__init__(f"User with email '{email}' already exists")
+
+
 class UserAlreadyActive(ConflictException):
     def __init__(self, username: str):
         super().__init__(f"User '{username}' is already active")
