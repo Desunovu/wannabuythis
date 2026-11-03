@@ -9,10 +9,6 @@ from src.infrastructure.cache.redis.activation_code_storage import (
 from src.infrastructure.database.sqlalchemy.unit_of_work import SQLAlchemyUnitOfWork
 from src.shared.application.uow import UnitOfWork
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
-from src.shared.utils.activation_codes.activation_code_generator import (
-    ActivationCodeGenerator,
-    RandomActivationCodeGenerator,
-)
 from src.shared.utils.auth.password_manager import (
     Argon2PasswordManager,
     PasswordManager,
@@ -23,6 +19,10 @@ from src.shared.utils.generators.uuid_generator import (
     UUIDGenerator,
 )
 from src.shared.utils.notifications.notificator import EmailNotificator, Notificator
+from src.shared.utils.verification_codes.verification_code_generator import (
+    RandomVerificationCodeGenerator,
+    VerificationCodeGenerator,
+)
 
 
 class InfrastructureProvider(Provider):
@@ -43,8 +43,8 @@ class InfrastructureProvider(Provider):
         return DefaultUUIDGenerator()
 
     @provide(scope=Scope.APP)
-    def get_activation_code_generator(self) -> ActivationCodeGenerator:
-        return RandomActivationCodeGenerator()
+    def get_verification_code_generator(self) -> VerificationCodeGenerator:
+        return RandomVerificationCodeGenerator()
 
     @provide(scope=Scope.APP)
     def get_redis_client(self, settings: Settings) -> redis.Redis:

@@ -610,8 +610,8 @@ class TestActivateUser:
 
 class TestActivateUserWithCode:
     @staticmethod
-    def _create_code(user, activation_code_generator, activation_code_storage):
-        code = activation_code_generator.create_code()
+    def _create_code(user, verification_code_generator, activation_code_storage):
+        code = verification_code_generator.create_code()
         activation_code_storage.save_activation_code(username=user.username, code=code)
         return code
 
@@ -620,12 +620,12 @@ class TestActivateUserWithCode:
         mediator,
         uow,
         deactivated_user,
-        activation_code_generator,
+        verification_code_generator,
         activation_code_storage,
     ):
         uow.user_repository.add(deactivated_user)
         code = self._create_code(
-            deactivated_user, activation_code_generator, activation_code_storage
+            deactivated_user, verification_code_generator, activation_code_storage
         )
 
         mediator.handle(
@@ -649,12 +649,12 @@ class TestActivateUserWithCode:
         uow,
         activated_user,
         valid_password,
-        activation_code_generator,
+        verification_code_generator,
         activation_code_storage,
     ):
         uow.user_repository.add(activated_user)
         code = self._create_code(
-            activated_user, activation_code_generator, activation_code_storage
+            activated_user, verification_code_generator, activation_code_storage
         )
 
         with pytest.raises(UserAlreadyActive):

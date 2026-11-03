@@ -31,13 +31,13 @@ from src.shared.application.exceptions import (
 from src.shared.application.uow import UnitOfWork
 from src.shared.domain.commands import Command
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
-from src.shared.utils.activation_codes.activation_code_generator import (
-    ActivationCodeGenerator,
-)
 from src.shared.utils.auth.password_manager import PasswordManager
 from src.shared.utils.auth.token_manager import TokenManager
 from src.shared.utils.notifications.notificator import Notificator
 from src.shared.utils.text import canonicalize
+from src.shared.utils.verification_codes.verification_code_generator import (
+    VerificationCodeGenerator,
+)
 
 
 def handle_create_user(
@@ -237,7 +237,7 @@ def handle_resend_activation_code(
     command: ResendActivationCode,
     uow: FromDishka[UnitOfWork],
     notificator: FromDishka[Notificator],
-    activation_code_generator: FromDishka[ActivationCodeGenerator],
+    verification_code_generator: FromDishka[VerificationCodeGenerator],
     activation_code_storage: FromDishka[ActivationCodeStorage],
     password_manager: FromDishka[PasswordManager],
 ):
@@ -247,7 +247,7 @@ def handle_resend_activation_code(
 
     send_new_activation_code(
         user=user,
-        activation_code_generator=activation_code_generator,
+        verification_code_generator=verification_code_generator,
         activation_code_storage=activation_code_storage,
         notificator=notificator,
     )

@@ -1,7 +1,7 @@
 from src.modules.users.application.refresh_token_service import RefreshTokenService
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
-from src.shared.utils.activation_codes.activation_code_generator import (
-    ActivationCodeGenerator,
+from src.shared.utils.verification_codes.verification_code_generator import (
+    VerificationCodeGenerator,
 )
 from tests.integration.helpers import app_uow
 
@@ -63,7 +63,7 @@ class TestFastAPIUsersAuthRoutes:
     @staticmethod
     def _create_code(client, user):
         container = client.app.state.dishka_container
-        generator = container.get(ActivationCodeGenerator)
+        generator = container.get(VerificationCodeGenerator)
         storage = container.get(ActivationCodeStorage)
         code = generator.create_code()
         storage.save_activation_code(username=user.username, code=code)
