@@ -79,6 +79,12 @@ class Settings(BaseSettings):
         le=168,
         description="Activation token lifetime in hours",
     )
+    email_change_code_lifetime_in_minutes: int = Field(
+        default=60,
+        ge=1,
+        le=1440,
+        description="Email change code lifetime in minutes",
+    )
 
     # Redis configuration
     redis_host: str = Field(default="localhost", description="Redis host")
@@ -142,6 +148,11 @@ class Settings(BaseSettings):
     def activation_code_lifetime(self) -> datetime.timedelta:
         """Get activation code lifetime as timedelta."""
         return datetime.timedelta(hours=self.activation_token_lifetime_in_hours)
+
+    @property
+    def email_change_code_lifetime(self) -> datetime.timedelta:
+        """Get email change code lifetime as timedelta."""
+        return datetime.timedelta(minutes=self.email_change_code_lifetime_in_minutes)
 
     @property
     def is_production(self) -> bool:

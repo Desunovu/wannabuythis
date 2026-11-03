@@ -10,10 +10,12 @@ from src.modules.users.domain.commands import (
     ChangeEmail,
     ChangePasswordWithOldPassword,
     ChangePasswordWithoutOldPassword,
+    ConfirmEmailChange,
     CreateUser,
     DeactivateUser,
     GenerateAuthToken,
     RefreshAccessToken,
+    RequestEmailChange,
     ResendActivationCode,
     RevokeRefreshToken,
 )
@@ -590,6 +592,97 @@ class TestChangeEmail:
         uow.user_repository.add(user)
         mediator.handle(ChangeEmail(username=user.username, new_email=email.upper()))
         assert user.email == email
+
+
+class TestRequestEmailChange:
+    def test_request_email_change(
+        self, mediator, uow, user, new_email, email_change_code_storage
+    ):
+        uow.user_repository.add(user)
+
+        mediator.handle(
+            RequestEmailChange(
+                username=user.username, new_email=f" {new_email.upper()} "
+            )
+        )
+
+        pending = email_change_code_storage.get(user.username)
+        assert pending is not None
+        assert pending.new_email == new_email
+        assert user.email != new_email
+
+    def test_request_email_change_to_existing_email(
+        self, mediator, uow, user, second_user, email_change_code_storage
+    ):
+        uow.user_repository.add(user)
+        uow.user_repository.add(second_user)
+
+        with pytest.raises(UserEmailExists):
+            mediator.handle(
+                RequestEmailChange(username=user.username, new_email=second_user.email)
+            )
+
+        assert email_change_code_storage.get(user.username) is None
+
+
+class TestConfirmEmailChange:
+    @staticmethod
+    def _request_email_change_code(mediator, storage, user, new_email):
+        mediator.handle(RequestEmailChange(username=user.username, new_email=new_email))
+        pending = storage.get(user.username)
+        assert pending is not None
+        return pending.code
+
+    def test_confirm_email_change(
+        self, mediator, uow, user, new_email, email_change_code_storage
+    ):
+        uow.user_repository.add(user)
+        code = self._request_email_change_code(
+            mediator, email_change_code_storage, user, new_email
+        )
+
+        mediator.handle(ConfirmEmailChange(username=user.username, code=code))
+
+        assert user.email == new_email
+        assert email_change_code_storage.get(user.username) is None
+
+    def test_confirm_email_change_with_wrong_code(
+        self, mediator, uow, user, new_email, email_change_code_storage
+    ):
+        uow.user_repository.add(user)
+        self._request_email_change_code(
+            mediator, email_change_code_storage, user, new_email
+        )
+
+        with pytest.raises(CodeVerificationError):
+            mediator.handle(
+                ConfirmEmailChange(username=user.username, code="wrong-code")
+            )
+
+        assert user.email != new_email
+        assert email_change_code_storage.get(user.username) is not None
+
+    def test_confirm_email_change_without_request(self, mediator, uow, user):
+        uow.user_repository.add(user)
+
+        with pytest.raises(CodeVerificationError):
+            mediator.handle(ConfirmEmailChange(username=user.username, code="12345678"))
+
+    def test_confirm_email_change_when_email_is_taken(
+        self, mediator, uow, user, second_user, new_email, email_change_code_storage
+    ):
+        uow.user_repository.add(user)
+        code = self._request_email_change_code(
+            mediator, email_change_code_storage, user, new_email
+        )
+
+        second_user.email = new_email
+        uow.user_repository.add(second_user)
+
+        with pytest.raises(UserEmailExists):
+            mediator.handle(ConfirmEmailChange(username=user.username, code=code))
+
+        assert user.email != new_email
 
 
 class TestActivateUser:

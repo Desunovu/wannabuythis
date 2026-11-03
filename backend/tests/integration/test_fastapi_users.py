@@ -1,5 +1,6 @@
 from src.modules.users.application.refresh_token_service import RefreshTokenService
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
+from src.shared.ports.email_change_code_storage import EmailChangeCodeStorage
 from src.shared.utils.verification_codes.verification_code_generator import (
     VerificationCodeGenerator,
 )
@@ -13,6 +14,7 @@ AUTH_LOGOUT_URL = "/auth/logout"
 AUTH_ACTIVATE_URL = "/auth/activate"
 AUTH_RESEND_ACTIVATION_URL = "/auth/resend-activation"
 CHANGE_EMAIL_URL = "/users/me/email"
+CONFIRM_EMAIL_CHANGE_URL = "/users/me/email/confirm"
 CHANGE_PASSWORD_URL = "/users/me/password"
 GET_CURRENT_USER_URL = "/users/me"
 GET_USERS_URL = "/users"
@@ -25,6 +27,13 @@ def _login(client, username, password):
     )
     assert response.status_code == 200
     return response.json()
+
+
+def _email_change_code(client, username):
+    storage = client.app.state.dishka_container.get(EmailChangeCodeStorage)
+    pending = storage.get(username)
+    assert pending is not None
+    return pending.code
 
 
 class TestFastAPIUsersAdminRoutes:
@@ -208,10 +217,21 @@ class TestFastAPIUsersCommandRoutes:
         response = user_client.patch(url=CHANGE_PASSWORD_URL, json=body)
         assert response.status_code == 200
 
-    def test_change_email(self, user_client, user, new_email):
-        body = {"username": user.username, "new_email": new_email}
-        response = user_client.patch(url=CHANGE_EMAIL_URL, json=body)
+    def test_request_email_change(self, user_client, user, new_email):
+        response = user_client.patch(
+            url=CHANGE_EMAIL_URL, json={"new_email": new_email}
+        )
+        assert response.status_code == 202
+        assert user_client.get(GET_CURRENT_USER_URL).json()["email"] == user.email
+
+    def test_confirm_email_change(self, user_client, user, new_email):
+        user_client.patch(url=CHANGE_EMAIL_URL, json={"new_email": new_email})
+        code = _email_change_code(user_client, user.username)
+
+        response = user_client.post(url=CONFIRM_EMAIL_CHANGE_URL, json={"code": code})
+
         assert response.status_code == 200
+        assert user_client.get(GET_CURRENT_USER_URL).json()["email"] == new_email
 
 
 class TestFastAPIUsersQueryRoutes:

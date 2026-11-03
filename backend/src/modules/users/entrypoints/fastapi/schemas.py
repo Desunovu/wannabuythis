@@ -45,5 +45,9 @@ class ChangeEmailRequest(BaseModel):
     new_email: EmailStr
 
 
+class ConfirmEmailChangeRequest(BaseModel):
+    code: str = Field(pattern=r"^\d{8}$")
+
+
 class ChangePasswordWithoutOldPasswordRequest(BaseModel):
     new_password: str

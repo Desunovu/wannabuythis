@@ -3,6 +3,7 @@ import pytest
 from src.shared.application.mediator import Mediator
 from src.shared.application.uow import UnitOfWork
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
+from src.shared.ports.email_change_code_storage import EmailChangeCodeStorage
 from src.shared.utils.verification_codes.verification_code_generator import (
     VerificationCodeGenerator,
 )
@@ -40,3 +41,8 @@ def verification_code_generator(unit_test_container) -> VerificationCodeGenerato
 @pytest.fixture
 def activation_code_storage(unit_test_container) -> ActivationCodeStorage:
     return unit_test_container.get(ActivationCodeStorage)
+
+
+@pytest.fixture
+def email_change_code_storage(unit_test_container) -> EmailChangeCodeStorage:
+    return unit_test_container.get(EmailChangeCodeStorage)

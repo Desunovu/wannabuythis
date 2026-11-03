@@ -14,10 +14,12 @@ from src.modules.users.domain.commands import (
     ChangeEmail,
     ChangePasswordWithOldPassword,
     ChangePasswordWithoutOldPassword,
+    ConfirmEmailChange,
     CreateUser,
     DeactivateUser,
     GenerateAuthToken,
     RefreshAccessToken,
+    RequestEmailChange,
     ResendActivationCode,
     RevokeRefreshToken,
 )
@@ -31,6 +33,7 @@ from src.shared.application.exceptions import (
 from src.shared.application.uow import UnitOfWork
 from src.shared.domain.commands import Command
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
+from src.shared.ports.email_change_code_storage import EmailChangeCodeStorage
 from src.shared.utils.auth.password_manager import PasswordManager
 from src.shared.utils.auth.token_manager import TokenManager
 from src.shared.utils.notifications.notificator import Notificator
@@ -207,6 +210,46 @@ def handle_change_user_email(command: ChangeEmail, uow: FromDishka[UnitOfWork]):
         uow.commit()
 
 
+def handle_request_email_change(
+    command: RequestEmailChange,
+    uow: FromDishka[UnitOfWork],
+    notificator: FromDishka[Notificator],
+    verification_code_generator: FromDishka[VerificationCodeGenerator],
+    email_change_code_storage: FromDishka[EmailChangeCodeStorage],
+):
+    with uow:
+        user = uow.user_repository.get(command.username)
+        new_email = canonicalize(command.new_email)
+        if new_email == user.email:
+            return
+        uow.user_repository.assert_email_does_not_exist(new_email)
+
+    code = verification_code_generator.create_code()
+    email_change_code_storage.save(
+        username=user.username, code=code, new_email=new_email
+    )
+    notificator.send_email_change_code(email=new_email, code=code)
+
+
+def handle_confirm_email_change(
+    command: ConfirmEmailChange,
+    uow: FromDishka[UnitOfWork],
+    email_change_code_storage: FromDishka[EmailChangeCodeStorage],
+):
+    pending = email_change_code_storage.get(command.username)
+    if pending is None or command.code != pending.code:
+        raise CodeVerificationError
+
+    with uow:
+        user = uow.user_repository.get(command.username)
+        if pending.new_email != user.email:
+            uow.user_repository.assert_email_does_not_exist(pending.new_email)
+        user.change_email(pending.new_email)
+        uow.commit()
+
+    email_change_code_storage.delete(username=command.username)
+
+
 def handle_activate_user(command: ActivateUser, uow: FromDishka[UnitOfWork]):
     with uow:
         user = uow.user_repository.get(command.username)
@@ -273,6 +316,8 @@ USER_COMMAND_HANDLERS: dict[type[Command], callable] = {
     ChangePasswordWithoutOldPassword: handle_change_password_without_old_password,
     ChangePasswordWithOldPassword: handle_change_password_with_old_password,
     ChangeEmail: handle_change_user_email,
+    RequestEmailChange: handle_request_email_change,
+    ConfirmEmailChange: handle_confirm_email_change,
     ActivateUser: handle_activate_user,
     ResendActivationCode: handle_resend_activation_code,
     DeactivateUser: handle_deactivate_user,

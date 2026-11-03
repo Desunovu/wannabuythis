@@ -6,9 +6,13 @@ from src.config import Settings
 from src.infrastructure.cache.redis.activation_code_storage import (
     RedisActivationCodeStorage,
 )
+from src.infrastructure.cache.redis.email_change_code_storage import (
+    RedisEmailChangeCodeStorage,
+)
 from src.infrastructure.database.sqlalchemy.unit_of_work import SQLAlchemyUnitOfWork
 from src.shared.application.uow import UnitOfWork
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
+from src.shared.ports.email_change_code_storage import EmailChangeCodeStorage
 from src.shared.utils.auth.password_manager import (
     Argon2PasswordManager,
     PasswordManager,
@@ -62,6 +66,15 @@ class InfrastructureProvider(Provider):
         return RedisActivationCodeStorage(
             redis_client=redis_client,
             activation_code_lifetime=settings.activation_code_lifetime,
+        )
+
+    @provide(scope=Scope.APP)
+    def get_email_change_code_storage(
+        self, redis_client: redis.Redis, settings: Settings
+    ) -> EmailChangeCodeStorage:
+        return RedisEmailChangeCodeStorage(
+            redis_client=redis_client,
+            code_lifetime=settings.email_change_code_lifetime,
         )
 
     @provide(scope=Scope.APP)

@@ -65,3 +65,15 @@ class ChangePasswordWithoutOldPassword(Command):
 class ChangeEmail(Command):
     username: str
     new_email: str
+
+
+@dataclass(frozen=True)
+class RequestEmailChange(Command):
+    username: str
+    new_email: str
+
+
+@dataclass(frozen=True)
+class ConfirmEmailChange(Command):
+    username: str
+    code: str

@@ -18,6 +18,13 @@ class Notificator(abc.ABC):
             message=f"Activation code: {code}",
         )
 
+    def send_email_change_code(self, email: str, code: str):
+        self.send_notification(
+            email=email,
+            subject="WannaBuyThis Email change",
+            message=f"Confirmation code: {code}",
+        )
+
 
 class EmailNotificator(Notificator):
     def __init__(self, settings: Settings):
