@@ -6,7 +6,7 @@ from src.shared.ports.activation_code_storage import (
     ActivationCodeStorage,
     FakeActivationCodeStorage,
 )
-from src.shared.utils.notifications.notificator import FakeNotificator, Notificator
+from src.shared.utils.notifications.notificator import FakeEmailNotificator, Notificator
 
 
 class UnitTestInfrastructureProvider(Provider):
@@ -20,4 +20,4 @@ class UnitTestInfrastructureProvider(Provider):
 
     @provide(scope=Scope.APP)
     def get_notificator(self) -> Notificator:
-        return FakeNotificator()
+        return FakeEmailNotificator()

@@ -6,7 +6,7 @@ from src.infrastructure.cache.redis.activation_code_storage import (
     RedisActivationCodeStorage,
 )
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
-from src.shared.utils.notifications.notificator import FakeNotificator, Notificator
+from src.shared.utils.notifications.notificator import FakeEmailNotificator, Notificator
 
 
 class IntegrationTestInfrastructureProvider(Provider):
@@ -19,4 +19,4 @@ class IntegrationTestInfrastructureProvider(Provider):
 
     @provide(scope=Scope.APP)
     def get_notificator(self) -> Notificator:
-        return FakeNotificator()
+        return FakeEmailNotificator()

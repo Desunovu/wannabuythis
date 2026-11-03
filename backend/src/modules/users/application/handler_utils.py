@@ -17,7 +17,7 @@ def send_new_activation_code(
     activation_code_storage.save_activation_code(
         username=user.username, code=activation_code
     )
-    notificator.send_activation_code(recipient=user, activation_code=activation_code)
+    notificator.send_activation_code(email=user.email, code=activation_code)
 
 
 def change_user_password(
