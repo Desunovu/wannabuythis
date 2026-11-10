@@ -1,10 +1,12 @@
 import datetime
 from dataclasses import dataclass
 
+from src.shared.domain.username import Username
+
 
 @dataclass
 class RefreshToken:
-    username: str
+    username: Username
     token_hash: str
     created_at: datetime.datetime
     expires_at: datetime.datetime

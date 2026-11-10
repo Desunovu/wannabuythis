@@ -8,12 +8,16 @@ from src.shared.application.exceptions import (
     UserNotActive,
     UserNotFound,
 )
+from src.shared.domain.username import normalize_username
 from src.shared.ports.repository import BaseRepository
 
 
 class UserRepository(BaseRepository[User]):
+    def _get(self, username: str) -> User:
+        return self._get_by_username(normalize_username(username))
+
     @abc.abstractmethod
-    def _get(self, username: str) -> User: ...
+    def _get_by_username(self, username: str) -> User: ...
 
     @abc.abstractmethod
     def _get_by_email(self, email: str) -> User: ...
@@ -55,7 +59,7 @@ class FakeUserRepository(UserRepository):
         super().__init__()
         self._users = users
 
-    def _get(self, username: str) -> User:
+    def _get_by_username(self, username: str) -> User:
         try:
             user = next(user for user in self._users if user.username == username)
         except StopIteration:

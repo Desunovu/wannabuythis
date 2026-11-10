@@ -6,14 +6,15 @@ from typing import override
 import jwt
 
 from src.config import Settings
-from src.shared.application.exceptions import TokenException
+from src.shared.application.exceptions import TokenException, UserInvalidName
+from src.shared.domain.username import Username
 
 ACCESS_TOKEN_TYPE = "access"
 
 
 @dataclass(frozen=True)
 class AccessTokenPayload:
-    username: str
+    username: Username
     issued_at: datetime.datetime
     expires_at: datetime.datetime
 
@@ -21,7 +22,7 @@ class AccessTokenPayload:
 class TokenManager(abc.ABC):
     @abc.abstractmethod
     def create_access_token(
-        self, username: str, token_lifetime: datetime.timedelta
+        self, username: Username, token_lifetime: datetime.timedelta
     ) -> str: ...
 
     @abc.abstractmethod
@@ -34,7 +35,7 @@ class JWTManager(TokenManager):
 
     @override
     def create_access_token(
-        self, username: str, token_lifetime: datetime.timedelta
+        self, username: Username, token_lifetime: datetime.timedelta
     ) -> str:
         now = datetime.datetime.now(datetime.UTC)
         payload = {
@@ -62,8 +63,13 @@ class JWTManager(TokenManager):
         if payload.get("type") != ACCESS_TOKEN_TYPE:
             raise TokenException("Invalid token type")
 
+        try:
+            username = Username(payload.get("sub"))
+        except UserInvalidName as exc:
+            raise TokenException("Invalid token") from exc
+
         return AccessTokenPayload(
-            username=payload["sub"],
+            username=username,
             issued_at=datetime.datetime.fromtimestamp(payload["iat"], datetime.UTC),
             expires_at=datetime.datetime.fromtimestamp(payload["exp"], datetime.UTC),
         )

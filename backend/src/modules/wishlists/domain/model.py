@@ -23,6 +23,7 @@ from src.shared.application.exceptions import (
 )
 from src.shared.domain.aggregates import AggregateRoot
 from src.shared.domain.entities import Entity
+from src.shared.domain.username import Username
 
 
 class MeasurementUnit(str, enum.Enum):
@@ -51,7 +52,7 @@ class WishlistItem(Entity):
 @dataclass(kw_only=True, unsafe_hash=True)
 class Wishlist(AggregateRoot):
     uuid: UUID
-    owner_username: str
+    owner_username: Username
     name: str
     items: list[WishlistItem] = field(default_factory=list, compare=False)
     is_archived: bool = field(default=False)
@@ -59,6 +60,7 @@ class Wishlist(AggregateRoot):
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def __post_init__(self):
+        self.owner_username = Username(self.owner_username)
         self._add_event(WishlistCreated(uuid=self.uuid, name=self.name))
 
     def change_name(self, name: str):

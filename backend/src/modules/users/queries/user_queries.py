@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session, load_only
 
 from src.modules.users.domain.model import User
 from src.shared.application.exceptions import UserNotFound
+from src.shared.domain.username import normalize_username
 
 
 def get_all_users(session: Session) -> list[User]:
@@ -14,7 +15,7 @@ def get_all_users(session: Session) -> list[User]:
 def get_user_by_username(session: Session, username: str) -> User:
     user = session.get(
         User,
-        username,
+        normalize_username(username),
         options=[load_only(User.username, User.is_active)],
     )
     if user is None:

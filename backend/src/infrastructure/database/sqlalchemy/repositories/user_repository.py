@@ -10,7 +10,7 @@ class SQLAlchemyUserRepository(UserRepository):
         super().__init__()
         self.session = session
 
-    def _get(self, username: str) -> User:
+    def _get_by_username(self, username: str) -> User:
         user = (
             self.session.query(User)
             .filter_by(username=username)

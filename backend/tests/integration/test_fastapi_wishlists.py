@@ -205,6 +205,23 @@ class TestFastAPIWishlistsQueryRoutes:
         names = [entry["name"] for entry in response.json()]
         assert public_wishlist.name in names
 
+    def test_get_wishlists_by_user_ignoring_username_case(
+        self, client_with_public_wishlist, public_wishlist
+    ):
+        url = f"{GET_WISHLIST_BY_USERNAME_URL}/{public_wishlist.owner_username.upper()}"
+        response = client_with_public_wishlist.get(url)
+        assert response.status_code == 200
+        names = [entry["name"] for entry in response.json()]
+        assert public_wishlist.name in names
+
+    def test_get_wishlists_by_invalid_username_returns_empty(
+        self, client_with_public_wishlist
+    ):
+        url = f"{GET_WISHLIST_BY_USERNAME_URL}/non-existing-user"
+        response = client_with_public_wishlist.get(url)
+        assert response.status_code == 200
+        assert response.json() == []
+
     def test_get_wishlists_by_user_public_only(
         self, client_with_user, public_wishlist, populated_wishlist
     ):

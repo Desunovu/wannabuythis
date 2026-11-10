@@ -81,40 +81,71 @@ class TestCreateUser:
                 )
             )
 
-    def test_create_user_with_existing_username(
+    def test_create_user_with_existing_username_ignoring_case(
         self, mediator, uow, user, valid_password
     ):
         uow.user_repository.add(user)
         with pytest.raises(UserExists):
             mediator.handle(
                 CreateUser(
-                    username=user.username,
+                    username=user.username.upper(),
                     email="testemail@example.com",
                     password=valid_password,
                 )
             )
 
     @pytest.mark.parametrize(
-        "forbidden_username",
+        "username",
         [
             "",
+            "   ",
+            "ab",
             "admin",
+            "ADMIN",
             "123",
-            "a" * 51,
             "a b",
+            "a" * 51,
+            # "ß" casefolds to "ss", so the canonical value exceeds the limit.
+            "a" * 28 + "ß",
         ],
     )
-    def test_create_user_invalid_username(
-        self, mediator, forbidden_username, valid_password
-    ):
+    def test_create_user_invalid_username(self, mediator, username, valid_password):
         with pytest.raises(UserInvalidName):
             mediator.handle(
                 CreateUser(
-                    username=forbidden_username,
+                    username=username,
                     email="testemail@example.com",
                     password=valid_password,
                 )
             )
+
+    def test_create_user_accepts_username_at_max_length(
+        self, mediator, uow, valid_password
+    ):
+        # The raw value is longer than the limit, but trimming happens first.
+        username = "  " + "a" * 29 + "  "
+        mediator.handle(
+            CreateUser(
+                username=username,
+                email="maxlength@example.com",
+                password=valid_password,
+            )
+        )
+        user = uow.user_repository.get("a" * 29)
+        assert user is not None
+        assert user.username == "a" * 29
+
+    def test_create_user_canonicalizes_username(self, mediator, uow, valid_password):
+        mediator.handle(
+            CreateUser(
+                username="  MixedCaseUser  ",
+                email="mixedcase@example.com",
+                password=valid_password,
+            )
+        )
+        user = uow.user_repository.get("mixedcaseuser")
+        assert user is not None
+        assert user.username == "mixedcaseuser"
 
     def test_create_user_canonicalizes_email(self, mediator, uow, valid_password):
         mediator.handle(
@@ -171,11 +202,25 @@ class TestGenerateAuthToken:
         with pytest.raises(UserNotActive):
             mediator.handle(command)
 
+    def test_generate_auth_token_ignoring_username_case(
+        self, mediator, uow, user, valid_password
+    ):
+        uow.user_repository.add(user)
+        token_pair = mediator.handle(
+            GenerateAuthToken(
+                username=f"  {user.username.upper()}  ",
+                password=valid_password,
+            )
+        )
+        assert token_pair.access_token
+
     def test_generate_auth_token_wrong_username(self, mediator):
+        # A structurally invalid username is not a validation error: it simply
+        # does not match any stored user.
         with pytest.raises(UserNotFound):
             mediator.handle(
                 GenerateAuthToken(
-                    username="non-existing-user",
+                    username="  non-existing-user  ",
                     password="password",
                 )
             )

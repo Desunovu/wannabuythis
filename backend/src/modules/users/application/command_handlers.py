@@ -4,6 +4,7 @@ from dishka import FromDishka
 
 from src.config import Settings
 from src.modules.users.application import handler_utils
+from src.modules.users.application.canonicalization import normalize_email
 from src.modules.users.application.dto import TokenPair
 from src.modules.users.application.handler_utils import send_new_activation_code
 from src.modules.users.application.refresh_token_service import RefreshTokenService
@@ -32,12 +33,12 @@ from src.shared.application.exceptions import (
 )
 from src.shared.application.uow import UnitOfWork
 from src.shared.domain.commands import Command
+from src.shared.domain.username import Username, normalize_username
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
 from src.shared.ports.email_change_code_storage import EmailChangeCodeStorage
 from src.shared.utils.auth.password_manager import PasswordManager
 from src.shared.utils.auth.token_manager import TokenManager
 from src.shared.utils.notifications.notificator import Notificator
-from src.shared.utils.text import canonicalize
 from src.shared.utils.verification_codes.verification_code_generator import (
     VerificationCodeGenerator,
 )
@@ -50,21 +51,22 @@ def handle_create_user(
     settings: FromDishka[Settings],
 ):
     with uow:
-        uow.user_repository.assert_user_does_not_exist(command.username)
-        email_normalized = canonicalize(command.email)
+        username = Username(command.username)
+        uow.user_repository.assert_user_does_not_exist(username)
+        email_normalized = normalize_email(command.email)
         uow.user_repository.assert_email_does_not_exist(email_normalized)
         PasswordManager.assert_password_valid(
-            command.password, user_inputs=[command.username, email_normalized]
+            command.password, user_inputs=[username, email_normalized]
         )
         validate_username(
-            command.username,
+            username,
             min_length=settings.users_name_min_length,
             max_length=settings.users_name_max_length,
             forbidden_names=settings.users_forbidden_names,
         )
 
         user = User(
-            username=command.username.lower(),
+            username=username,
             email=email_normalized,
             password_hash=password_manager.hash_password(command.password),
         )
@@ -82,7 +84,7 @@ def handle_generate_auth_token(
     settings: FromDishka[Settings],
 ):
     with uow:
-        user = uow.user_repository.get_active_user(command.username.lower())
+        user = uow.user_repository.get_active_user(command.username)
         password_manager.assert_passwords_match(command.password, user.password_hash)
         access_token = token_manager.create_access_token(
             username=user.username,
@@ -203,7 +205,7 @@ def handle_change_password_with_old_password(
 def handle_change_user_email(command: ChangeEmail, uow: FromDishka[UnitOfWork]):
     with uow:
         user = uow.user_repository.get(command.username)
-        new_email = canonicalize(command.new_email)
+        new_email = normalize_email(command.new_email)
         if new_email != user.email:
             uow.user_repository.assert_email_does_not_exist(new_email)
         user.change_email(new_email)
@@ -219,7 +221,7 @@ def handle_request_email_change(
 ):
     with uow:
         user = uow.user_repository.get(command.username)
-        new_email = canonicalize(command.new_email)
+        new_email = normalize_email(command.new_email)
         if new_email == user.email:
             return
         uow.user_repository.assert_email_does_not_exist(new_email)
@@ -236,18 +238,19 @@ def handle_confirm_email_change(
     uow: FromDishka[UnitOfWork],
     email_change_code_storage: FromDishka[EmailChangeCodeStorage],
 ):
-    pending = email_change_code_storage.get(command.username)
+    username = normalize_username(command.username)
+    pending = email_change_code_storage.get(username)
     if pending is None or command.code != pending.code:
         raise CodeVerificationError
 
     with uow:
-        user = uow.user_repository.get(command.username)
+        user = uow.user_repository.get(username)
         if pending.new_email != user.email:
             uow.user_repository.assert_email_does_not_exist(pending.new_email)
         user.change_email(pending.new_email)
         uow.commit()
 
-    email_change_code_storage.delete(username=command.username)
+    email_change_code_storage.delete(username=username)
 
 
 def handle_activate_user(command: ActivateUser, uow: FromDishka[UnitOfWork]):

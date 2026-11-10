@@ -110,6 +110,13 @@ class TestFastAPIUsersAuthRoutes:
         assert stored_refresh_token is not None
         assert stored_refresh_token.username == user.username
 
+    def test_login_invalid_username_returns_404(self, user_client, valid_password):
+        response = user_client.post(
+            url=AUTH_LOGIN_URL,
+            data={"username": "non-existing-user", "password": valid_password},
+        )
+        assert response.status_code == 404
+
     def test_refresh(self, client_with_user, user, valid_password):
         old_token_pair = _login(client_with_user, user.username, valid_password)
 
@@ -254,6 +261,16 @@ class TestFastAPIUsersQueryRoutes:
         assert response.status_code == 200
         assert response.json()["username"] == user.username
         assert set(response.json()) == {"username"}
+
+    def test_get_user_ignoring_username_case(self, client_with_user, user):
+        url = f"{GET_USERS_URL}/{user.username.upper()}"
+        response = client_with_user.get(url)
+        assert response.status_code == 200
+        assert response.json()["username"] == user.username
+
+    def test_get_user_invalid_username_returns_404(self, client_with_user):
+        response = client_with_user.get(f"{GET_USERS_URL}/non-existing-user")
+        assert response.status_code == 404
 
 
 class TestFastAPIUsersSessionRevocation:

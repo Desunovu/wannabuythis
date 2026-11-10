@@ -9,6 +9,7 @@ from src.modules.wishlists.domain.model import (
     Wishlist,
     WishlistItem,
 )
+from src.shared.domain.username import Username
 from src.shared.utils.auth.password_manager import Argon2PasswordManager
 
 
@@ -62,7 +63,7 @@ def wishlist_new_name():
 @pytest.fixture
 def user(email, valid_password):
     return User(
-        username="testuser",
+        username=Username("testuser"),
         email=email,
         password_hash=Argon2PasswordManager().hash_password(valid_password),
         is_active=True,
@@ -72,7 +73,7 @@ def user(email, valid_password):
 @pytest.fixture
 def admin_user(admin_email, valid_password):
     return User(
-        username="admin",
+        username=Username("admin"),
         email=admin_email,
         password_hash=Argon2PasswordManager().hash_password(valid_password),
         is_active=True,
@@ -83,7 +84,7 @@ def admin_user(admin_email, valid_password):
 @pytest.fixture
 def second_user(second_user_email, valid_password):
     return User(
-        username="seconduser",
+        username=Username("seconduser"),
         email=second_user_email,
         password_hash=Argon2PasswordManager().hash_password(valid_password),
         is_active=True,

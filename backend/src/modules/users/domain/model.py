@@ -9,17 +9,19 @@ from src.modules.users.domain.events import (
 )
 from src.shared.application.exceptions import UserAlreadyActive, UserAlreadyDeactivated
 from src.shared.domain.aggregates import AggregateRoot
+from src.shared.domain.username import Username
 
 
 @dataclass(kw_only=True, unsafe_hash=True)
 class User(AggregateRoot):
-    username: str
+    username: Username
     email: str
     password_hash: str
     is_active: bool = field(default=False)
     is_superuser: bool = field(default=False)
 
     def __post_init__(self):
+        self.username = Username(self.username)
         self._add_event(UserCreated(username=self.username, email=self.email))
 
     def change_password_hash(self, password_hash: str):
