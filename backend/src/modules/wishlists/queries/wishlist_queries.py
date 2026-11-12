@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
 from src.modules.wishlists.domain.model import Wishlist
@@ -28,7 +28,7 @@ def get_wishlists_owned_by(
     )
     if public_only:
         query = query.filter_by(is_public=True)
-    wishlists = session.scalars(query.order_by(Wishlist.created_at.desc())).all()
+    wishlists = session.scalars(query.order_by(desc("created_at"))).all()
     return wishlists
 
 
