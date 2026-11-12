@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from uuid import UUID
 
 from sqlalchemy import select
@@ -19,7 +20,7 @@ def get_wishlist_by_uuid(session: Session, uuid: UUID) -> Wishlist:
 
 def get_wishlists_owned_by(
     session: Session, username: str, public_only: bool = False
-) -> list[Wishlist]:
+) -> Sequence[Wishlist]:
     """SQLAlchemy query to get all unarchived wishlists owned by a user."""
 
     query = select(Wishlist).filter_by(
@@ -31,7 +32,9 @@ def get_wishlists_owned_by(
     return wishlists
 
 
-def get_archived_wishlists_owned_by(session: Session, username: str) -> list[Wishlist]:
+def get_archived_wishlists_owned_by(
+    session: Session, username: str
+) -> Sequence[Wishlist]:
     """SQLAlchemy query to get all archived wishlists owned by a user."""
 
     wishlists = session.scalars(
