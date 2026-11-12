@@ -20,6 +20,7 @@ from src.modules.users.domain.commands import (
 from src.modules.users.entrypoints.fastapi.schemas import (
     ActivateUserWithCodeRequest,
     RefreshTokenRequest,
+    ResendActivationCodeRequest,
     TokenPairResponse,
 )
 from src.shared.application.mediator import Mediator
@@ -116,9 +117,9 @@ def activate_user(
 @inject_sync
 def resend_activation_code(
     request: Request,
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    body_data: ResendActivationCodeRequest,
     mediator: FromDishka[Mediator],
 ):
     mediator.handle(
-        ResendActivationCode(username=form_data.username, password=form_data.password)
+        ResendActivationCode(username=body_data.username, password=body_data.password)
     )

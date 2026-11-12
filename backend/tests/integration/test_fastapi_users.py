@@ -205,9 +205,9 @@ class TestFastAPIUsersAuthRoutes:
     def test_resend_activation_link(
         self, client_with_deactivated_user, deactivated_user, valid_password
     ):
-        form_data = {"username": deactivated_user.username, "password": valid_password}
+        body = {"username": deactivated_user.username, "password": valid_password}
         response = client_with_deactivated_user.post(
-            url=AUTH_RESEND_ACTIVATION_URL, data=form_data
+            url=AUTH_RESEND_ACTIVATION_URL, json=body
         )
         assert response.status_code == 200
 
