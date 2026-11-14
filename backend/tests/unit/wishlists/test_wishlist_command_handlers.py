@@ -2,6 +2,7 @@ import uuid
 
 import pytest
 
+from src.config import settings
 from src.modules.wishlists.domain.commands import (
     AddWishlistItem,
     ArchiveWishlist,
@@ -20,6 +21,7 @@ from src.shared.application.exceptions import (
     WishlistItemAlreadyPurchased,
     WishlistItemNotFound,
     WishlistItemNotPurchased,
+    WishlistItemQuantityInvalid,
     WishlistNotArchived,
     WishlistNotFound,
 )
@@ -94,6 +96,24 @@ class TestAddWishlistItem:
                     wishlist_uuid=uuid.uuid4(),
                     name="Apple",
                     quantity=3,
+                    measurement_unit=MeasurementUnit.KILOGRAM,
+                    priority=Priority.LOW,
+                )
+            )
+
+    @pytest.mark.parametrize(
+        "quantity", [0, -1, settings.wishlists_item_quantity_max + 1]
+    )
+    def test_add_wishlist_item_with_invalid_quantity(
+        self, mediator, uow, wishlist, quantity
+    ):
+        uow.wishlist_repository.add(wishlist)
+        with pytest.raises(WishlistItemQuantityInvalid):
+            mediator.handle(
+                AddWishlistItem(
+                    wishlist_uuid=wishlist.uuid,
+                    name="Apple",
+                    quantity=quantity,
                     measurement_unit=MeasurementUnit.KILOGRAM,
                     priority=Priority.LOW,
                 )

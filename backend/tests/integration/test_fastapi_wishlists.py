@@ -1,3 +1,6 @@
+import pytest
+
+from src.config import settings
 from src.modules.wishlists.domain.model import MeasurementUnit, Priority
 from tests.integration.helpers import add_wishlist_to_db
 
@@ -20,9 +23,12 @@ GET_ARCHIVED_WISHLISTS_URL = f"{WISHLISTS_BASE_URL}/archived"
 
 class TestFastAPIWishlistsCommandRoutes:
     def test_create_private_wishlist(self, user_client):
-        body = {"wishlist_name": "test wishlist", "is_public": False}
+        body = {"wishlist_name": "  test wishlist  ", "is_public": False}
         response = user_client.post(url=CREATE_WISHLIST_URL, json=body)
         assert response.status_code == 200
+        response = user_client.get(WISHLISTS_BASE_URL)
+        names = [entry["name"] for entry in response.json()]
+        assert "test wishlist" in names
 
     def test_create_wishlist_requires_visibility(self, user_client):
         body = {"wishlist_name": "test wishlist"}
@@ -42,9 +48,13 @@ class TestFastAPIWishlistsCommandRoutes:
         self, user_with_populated_wishlist_client, populated_wishlist
     ):
         url = f"{CHANGE_WISHLIST_NAME_URL}/{populated_wishlist.uuid}"
-        body = {"new_name": "new test wishlist"}
+        body = {"new_name": "  new test wishlist  "}
         response = user_with_populated_wishlist_client.post(url=url, json=body)
         assert response.status_code == 200
+        response = user_with_populated_wishlist_client.get(
+            f"{WISHLISTS_BASE_URL}/{populated_wishlist.uuid}"
+        )
+        assert response.json()["name"] == "new test wishlist"
 
     def test_archive_wishlist(
         self, user_with_populated_wishlist_client, populated_wishlist
@@ -65,13 +75,18 @@ class TestFastAPIWishlistsCommandRoutes:
     ):
         url = f"{ADD_WISHLIST_ITEM_URL}/{populated_wishlist.uuid}"
         body = {
-            "name": "test item",
+            "name": "  test item  ",
             "quantity": 1,
             "measurement_unit": MeasurementUnit.PIECE,
             "priority": Priority.MEDIUM,
         }
         response = user_with_populated_wishlist_client.post(url=url, json=body)
         assert response.status_code == 200
+        response = user_with_populated_wishlist_client.get(
+            f"{WISHLISTS_BASE_URL}/{populated_wishlist.uuid}"
+        )
+        names = [item["name"] for item in response.json()["items"]]
+        assert "test item" in names
 
     def test_remove_wishlist_item(
         self, user_with_populated_wishlist_client, populated_wishlist, apple_item
@@ -142,6 +157,62 @@ class TestFastAPIWishlistsCommandRoutes:
         )
         assert response.status_code == 200
         assert response.json()["is_public"] is False
+
+
+class TestFastAPIWishlistsRequestValidation:
+    """Pydantic schema boundaries that never reach the mediator."""
+
+    @pytest.mark.parametrize(
+        "name", ["", "   ", "a" * (settings.wishlists_name_max_length + 1)]
+    )
+    def test_create_wishlist_rejects_invalid_name(self, user_client, name):
+        body = {"wishlist_name": name, "is_public": False}
+        response = user_client.post(url=CREATE_WISHLIST_URL, json=body)
+        assert response.status_code == 422
+
+    @pytest.mark.parametrize(
+        "name", ["", "   ", "a" * (settings.wishlists_name_max_length + 1)]
+    )
+    def test_change_wishlist_name_rejects_invalid_name(
+        self, user_with_populated_wishlist_client, populated_wishlist, name
+    ):
+        url = f"{CHANGE_WISHLIST_NAME_URL}/{populated_wishlist.uuid}"
+        response = user_with_populated_wishlist_client.post(
+            url=url, json={"new_name": name}
+        )
+        assert response.status_code == 422
+
+    @pytest.mark.parametrize(
+        "name", ["", "   ", "a" * (settings.wishlists_item_name_max_length + 1)]
+    )
+    def test_add_wishlist_item_rejects_invalid_name(
+        self, user_with_populated_wishlist_client, populated_wishlist, name
+    ):
+        url = f"{ADD_WISHLIST_ITEM_URL}/{populated_wishlist.uuid}"
+        body = {
+            "name": name,
+            "quantity": 1,
+            "measurement_unit": MeasurementUnit.PIECE,
+            "priority": Priority.MEDIUM,
+        }
+        response = user_with_populated_wishlist_client.post(url=url, json=body)
+        assert response.status_code == 422
+
+    @pytest.mark.parametrize(
+        "quantity", [0, -1, settings.wishlists_item_quantity_max + 1]
+    )
+    def test_add_wishlist_item_rejects_invalid_quantity(
+        self, user_with_populated_wishlist_client, populated_wishlist, quantity
+    ):
+        url = f"{ADD_WISHLIST_ITEM_URL}/{populated_wishlist.uuid}"
+        body = {
+            "name": "test item",
+            "quantity": quantity,
+            "measurement_unit": MeasurementUnit.PIECE,
+            "priority": Priority.MEDIUM,
+        }
+        response = user_with_populated_wishlist_client.post(url=url, json=body)
+        assert response.status_code == 422
 
 
 class TestFastAPIWishlistsQueryRoutes:

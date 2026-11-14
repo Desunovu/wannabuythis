@@ -19,6 +19,7 @@ from src.shared.application.exceptions import (
     WishlistItemAlreadyPurchased,
     WishlistItemNotFound,
     WishlistItemNotPurchased,
+    WishlistItemQuantityInvalid,
     WishlistNotArchived,
 )
 from src.shared.domain.aggregates import AggregateRoot
@@ -47,6 +48,10 @@ class WishlistItem(Entity):
     measurement_unit: MeasurementUnit
     priority: Priority
     is_purchased: bool = field(default=False)
+
+    def __post_init__(self):
+        if self.quantity <= 0:
+            raise WishlistItemQuantityInvalid("Wishlist item quantity must be positive")
 
 
 @dataclass(kw_only=True, unsafe_hash=True)

@@ -106,6 +106,11 @@ class WishlistItemNotFound(NotFoundException):
         super().__init__(f"Wishlist item '{uuid}' not found")
 
 
+class WishlistItemQuantityInvalid(ValidationException):
+    def __init__(self, error_message: str = "Wishlist item quantity is invalid"):
+        super().__init__(error_message)
+
+
 class WishlistAlreadyArchived(ConflictException):
     def __init__(self, uuid: UUID):
         super().__init__(f"Wishlist '{uuid}' already archived")

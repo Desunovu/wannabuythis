@@ -44,7 +44,7 @@ Built on **onion/hexagonal architecture + DDD + CQRS**.
 - **CQRS**: write side uses commands + handlers; read side uses dedicated query functions.
 - **Dependency Injection**: environment-aware containers for production, development, and tests.
 - **Unit tests** reach handlers only through the mediator, covering all negative and boundary cases of the application layer and the domain beneath it.
-- **Integration tests** cover endpoint happy paths and the boundary cases unit tests cannot reach.
+- **Integration tests** cover each endpoint once through its longest positive path and the request-schema validation at the HTTP boundary (`422`), which never reaches the mediator; application and domain negative/boundary cases belong to unit tests.
 
 ## Backend commands
 

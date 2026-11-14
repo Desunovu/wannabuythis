@@ -1,9 +1,31 @@
 from dataclasses import asdict
+from typing import Annotated
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, StringConstraints
 
+from src.config import settings
 from src.modules.wishlists.domain.model import MeasurementUnit, Priority
+
+WishlistName = Annotated[
+    str,
+    StringConstraints(
+        strip_whitespace=True,
+        min_length=1,
+        max_length=settings.wishlists_name_max_length,
+    ),
+]
+WishlistItemName = Annotated[
+    str,
+    StringConstraints(
+        strip_whitespace=True,
+        min_length=1,
+        max_length=settings.wishlists_item_name_max_length,
+    ),
+]
+WishlistItemQuantity = Annotated[
+    int, Field(gt=0, le=settings.wishlists_item_quantity_max)
+]
 
 
 class WishlistItemResponse(BaseModel):
@@ -45,12 +67,12 @@ class WishlistResponse(BaseModel):
 
 
 class CreateWishlistRequest(BaseModel):
-    wishlist_name: str
+    wishlist_name: WishlistName
     is_public: bool
 
 
 class ChangeWishlistNameRequest(BaseModel):
-    new_name: str
+    new_name: WishlistName
 
 
 class ChangeWishlistVisibilityRequest(BaseModel):
@@ -58,8 +80,8 @@ class ChangeWishlistVisibilityRequest(BaseModel):
 
 
 class AddWishlistItemRequest(BaseModel):
-    name: str
-    quantity: int
+    name: WishlistItemName
+    quantity: WishlistItemQuantity
     measurement_unit: MeasurementUnit
     priority: Priority
 

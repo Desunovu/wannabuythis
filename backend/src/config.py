@@ -125,6 +125,17 @@ class Settings(BaseSettings):
         description="Set of forbidden names",
     )
 
+    # Wishlist validation
+    wishlists_name_max_length: int = Field(
+        default=255, ge=1, description="Maximum length of wishlist name"
+    )
+    wishlists_item_name_max_length: int = Field(
+        default=255, ge=1, description="Maximum length of wishlist item name"
+    )
+    wishlists_item_quantity_max: int = Field(
+        default=1_000, ge=1, description="Maximum quantity per wishlist item"
+    )
+
     # Computed properties
     @property
     def postgres_uri(self) -> str:
