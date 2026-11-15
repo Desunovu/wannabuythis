@@ -161,3 +161,8 @@ cython_debug/
 
 # Kubernetes
 secret.yaml
+
+# AI / IDE tooling (local state, not part of the source tree)
+.agent/
+.qoder/
+graphify-out/

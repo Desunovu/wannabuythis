@@ -1,23 +1,23 @@
 from src.modules.users.domain.model import User
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
-from src.shared.utils.activation_codes.activation_code_generator import (
-    ActivationCodeGenerator,
-)
 from src.shared.utils.auth.password_manager import PasswordManager
 from src.shared.utils.notifications.notificator import Notificator
+from src.shared.utils.verification_codes.verification_code_generator import (
+    VerificationCodeGenerator,
+)
 
 
 def send_new_activation_code(
     user: User,
-    activation_code_generator: ActivationCodeGenerator,
+    verification_code_generator: VerificationCodeGenerator,
     activation_code_storage: ActivationCodeStorage,
     notificator: Notificator,
 ):
-    activation_code = activation_code_generator.create_code()
+    activation_code = verification_code_generator.create_code()
     activation_code_storage.save_activation_code(
         username=user.username, code=activation_code
     )
-    notificator.send_activation_code(recipient=user, activation_code=activation_code)
+    notificator.send_activation_code(email=user.email, code=activation_code)
 
 
 def change_user_password(

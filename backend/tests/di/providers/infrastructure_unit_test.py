@@ -6,7 +6,11 @@ from src.shared.ports.activation_code_storage import (
     ActivationCodeStorage,
     FakeActivationCodeStorage,
 )
-from src.shared.utils.notifications.notificator import FakeNotificator, Notificator
+from src.shared.ports.email_change_code_storage import (
+    EmailChangeCodeStorage,
+    FakeEmailChangeCodeStorage,
+)
+from src.shared.utils.notifications.notificator import FakeEmailNotificator, Notificator
 
 
 class UnitTestInfrastructureProvider(Provider):
@@ -19,5 +23,9 @@ class UnitTestInfrastructureProvider(Provider):
         return FakeActivationCodeStorage()
 
     @provide(scope=Scope.APP)
+    def get_email_change_code_storage(self) -> EmailChangeCodeStorage:
+        return FakeEmailChangeCodeStorage()
+
+    @provide(scope=Scope.APP)
     def get_notificator(self) -> Notificator:
-        return FakeNotificator()
+        return FakeEmailNotificator()

@@ -1,3 +1,6 @@
+from src.modules.users.infrastructure.refresh_token_repository import (
+    FakeRefreshTokenRepository,
+)
 from src.modules.users.infrastructure.user_repository import FakeUserRepository
 from src.modules.wishlists.infrastructure.wishlist_repository import (
     FakeWishlistRepository,
@@ -11,6 +14,7 @@ class FakeUnitOfWork(UnitOfWork):
     def __init__(self):
         super().__init__()
         self.user_repository = FakeUserRepository(users=set())
+        self.refresh_token_repository = FakeRefreshTokenRepository()
         self.wishlist_repository = FakeWishlistRepository(set())
         self.committed = False
 

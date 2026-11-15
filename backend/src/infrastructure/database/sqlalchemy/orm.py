@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy import (
     Boolean,
     Column,
@@ -7,6 +9,7 @@ from sqlalchemy import (
     Integer,
     String,
     Table,
+    TypeDecorator,
     Uuid,
     event,
 )
@@ -14,18 +17,75 @@ from sqlalchemy.orm import registry, relationship
 
 from src.modules.users.domain import model as user_domain_model
 from src.modules.wishlists.domain import model as wishlist_domain_model
+from src.shared.domain.username import Username, normalize_username
 
 mapper_registry = registry()
+
+
+class UTCDateTime(TypeDecorator[datetime.datetime]):
+    """Store datetimes as UTC and restore tzinfo dropped by some backends (SQLite)."""
+
+    impl = DateTime(timezone=True)
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return None
+        if value.tzinfo is None:
+            return value.replace(tzinfo=datetime.UTC)
+        return value.astimezone(datetime.UTC)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return None
+        if value.tzinfo is None:
+            return value.replace(tzinfo=datetime.UTC)
+        return value.astimezone(datetime.UTC)
+
+
+class UsernameType(TypeDecorator[str]):
+    """Store usernames as plain strings and restore the value object on load."""
+
+    impl = String
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return None
+        return normalize_username(str(value))
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return None
+        return Username(value)
+
 
 users = Table(
     "users",
     mapper_registry.metadata,
-    Column("username", String, primary_key=True),
+    Column("username", UsernameType, primary_key=True),
     Column("email", String, unique=True),
     Column("password_hash", String),
     Column("is_active", Boolean),
     Column("is_superuser", Boolean, default=False),
 )
+
+refresh_tokens = Table(
+    "refresh_tokens",
+    mapper_registry.metadata,
+    Column("token_hash", String, primary_key=True),
+    Column(
+        "username",
+        UsernameType,
+        ForeignKey("users.username", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    ),
+    Column("created_at", UTCDateTime, nullable=False),
+    Column("expires_at", UTCDateTime, nullable=False),
+    Column("revoked_at", UTCDateTime, nullable=True),
+)
+
 
 wishlists = Table(
     "wishlists",
@@ -33,13 +93,15 @@ wishlists = Table(
     Column("uuid", Uuid, primary_key=True),
     Column(
         "owner_username",
-        String,
+        UsernameType,
         ForeignKey("users.username", ondelete="CASCADE"),
         nullable=False,
     ),
-    Column("name", String),
-    Column("is_archived", Boolean),
-    Column("created_at", DateTime),
+    Column("name", String, nullable=False),
+    Column("is_archived", Boolean, nullable=False),
+    Column("is_public", Boolean, nullable=False),
+    # TODO: use UTCDateTime for consistency
+    Column("created_at", DateTime, nullable=False),
 )
 
 wishlist_items = Table(
@@ -52,11 +114,15 @@ wishlist_items = Table(
         ForeignKey("wishlists.uuid", ondelete="CASCADE"),
         nullable=False,
     ),
-    Column("name", String),
-    Column("quantity", Integer),
-    Column("measurement_unit", Enum(wishlist_domain_model.MeasurementUnit)),
-    Column("priority", Enum(wishlist_domain_model.Priority)),
-    Column("is_purchased", Boolean),
+    Column("name", String, nullable=False),
+    Column("quantity", Integer, nullable=False),
+    Column(
+        "measurement_unit",
+        Enum(wishlist_domain_model.MeasurementUnit),
+        nullable=False,
+    ),
+    Column("priority", Enum(wishlist_domain_model.Priority), nullable=False),
+    Column("is_purchased", Boolean, nullable=False),
 )
 
 

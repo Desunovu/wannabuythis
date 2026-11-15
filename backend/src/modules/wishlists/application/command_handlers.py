@@ -1,9 +1,12 @@
 from dishka import FromDishka
 
+from src.config import Settings
+from src.modules.wishlists.application.validation import validate_item_quantity
 from src.modules.wishlists.domain.commands import (
     AddWishlistItem,
     ArchiveWishlist,
     ChangeWishlistName,
+    ChangeWishlistVisibility,
     CreateWishlist,
     MarkWishlistItemAsNotPurchased,
     MarkWishlistItemAsPurchased,
@@ -27,12 +30,13 @@ def handle_create_wishlist(
     uuid_generator: FromDishka[UUIDGenerator],
 ):
     with uow:
-        _user = uow.user_repository.get(command.owner_username)
+        owner = uow.user_repository.get(command.owner_username)
         wishlist = Wishlist(
             uuid=uuid_generator.generate(),
-            owner_username=command.owner_username,
+            owner_username=owner.username,
             name=command.name,
             items=[],
+            is_public=command.is_public,
         )
         uow.wishlist_repository.add(wishlist)
         uow.commit()
@@ -51,7 +55,10 @@ def handle_add_wishlist_item(
     command: AddWishlistItem,
     uow: FromDishka[UnitOfWork],
     uuid_generator: FromDishka[UUIDGenerator],
+    settings: FromDishka[Settings],
 ):
+    validate_item_quantity(command.quantity, settings.wishlists_item_quantity_max)
+
     with uow:
         wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
         item = WishlistItem(
@@ -107,6 +114,15 @@ def handle_unarchive_wishlist(command: UnarchiveWishlist, uow: FromDishka[UnitOf
         uow.commit()
 
 
+def handle_change_wishlist_visibility(
+    command: ChangeWishlistVisibility, uow: FromDishka[UnitOfWork]
+):
+    with uow:
+        wishlist = uow.wishlist_repository.get(command.uuid)
+        wishlist.change_visibility(command.is_public)
+        uow.commit()
+
+
 WISHLIST_COMMAND_HANDLERS: dict[type[Command], callable] = {
     CreateWishlist: handle_create_wishlist,
     ChangeWishlistName: handle_change_wishlist_name,
@@ -116,4 +132,5 @@ WISHLIST_COMMAND_HANDLERS: dict[type[Command], callable] = {
     MarkWishlistItemAsNotPurchased: handle_mark_wishlist_item_as_not_purchased,
     ArchiveWishlist: handle_archive_wishlist,
     UnarchiveWishlist: handle_unarchive_wishlist,
+    ChangeWishlistVisibility: handle_change_wishlist_visibility,
 }

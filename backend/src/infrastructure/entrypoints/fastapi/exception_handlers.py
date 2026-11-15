@@ -1,11 +1,14 @@
-from fastapi import HTTPException
+import logging
+
 from sqlalchemy.exc import IntegrityError
 from starlette.requests import Request
+from starlette.responses import JSONResponse
 from starlette.status import (
     HTTP_401_UNAUTHORIZED,
     HTTP_403_FORBIDDEN,
     HTTP_404_NOT_FOUND,
     HTTP_409_CONFLICT,
+    HTTP_422_UNPROCESSABLE_ENTITY,
 )
 
 from src.shared.application.exceptions import (
@@ -17,40 +20,34 @@ from src.shared.application.exceptions import (
     VerificationException,
 )
 
+logger = logging.getLogger(__name__)
 
-def handle_not_found(request: Request, exception: NotFoundException):
-    raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=exception.args[0])
-
-
-def handle_conflict(request: Request, exception: ConflictException):
-    raise HTTPException(status_code=HTTP_409_CONFLICT, detail=exception.args[0])
+INTEGRITY_ERROR_DETAIL = "Data conflict"
 
 
-def handle_validation_error(request: Request, exception: ValidationException):
-    raise HTTPException(status_code=HTTP_409_CONFLICT, detail=exception.args[0])
+def _detail_handler(status_code: int):
+    def handler(request: Request, exception: Exception) -> JSONResponse:
+        detail = exception.args[0] if exception.args else str(exception)
+        return JSONResponse(status_code=status_code, content={"detail": detail})
+
+    return handler
 
 
-def handle_verification_error(request: Request, exception: VerificationException):
-    raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=exception.args[0])
-
-
-def handle_forbidden(request: Request, exception: Forbidden):
-    raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail=exception.args[0])
-
-
-def handle_token_error(request: Request, exception: TokenException):
-    raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=exception.args[0])
-
-
-def handle_sqlalchemy_integrity_error(request: Request, exception: IntegrityError):
-    raise HTTPException(status_code=HTTP_409_CONFLICT, detail=exception.orig.args[0])
+def handle_sqlalchemy_integrity_error(
+    request: Request, exception: IntegrityError
+) -> JSONResponse:
+    logger.warning(f"IntegrityError: {exception.orig.args[0]}")
+    return JSONResponse(
+        status_code=HTTP_409_CONFLICT, content={"detail": INTEGRITY_ERROR_DETAIL}
+    )
 
 
 exception_to_exception_handlers = {
-    NotFoundException: handle_not_found,
-    ConflictException: handle_conflict,
-    ValidationException: handle_validation_error,
-    VerificationException: handle_verification_error,
-    Forbidden: handle_forbidden,
+    NotFoundException: _detail_handler(HTTP_404_NOT_FOUND),
+    ConflictException: _detail_handler(HTTP_409_CONFLICT),
+    ValidationException: _detail_handler(HTTP_422_UNPROCESSABLE_ENTITY),
+    VerificationException: _detail_handler(HTTP_401_UNAUTHORIZED),
+    Forbidden: _detail_handler(HTTP_403_FORBIDDEN),
+    TokenException: _detail_handler(HTTP_401_UNAUTHORIZED),
     IntegrityError: handle_sqlalchemy_integrity_error,
 }

@@ -1,4 +1,8 @@
 <script setup lang="ts">
+definePageMeta({
+  auth: false,
+});
+
 const { data: userData } = useAuth();
 const route = useRoute();
 const wishlistUuid = route.params.uuid as string;

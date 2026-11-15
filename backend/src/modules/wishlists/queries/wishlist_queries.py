@@ -1,10 +1,12 @@
+from collections.abc import Sequence
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
 from src.modules.wishlists.domain.model import Wishlist
 from src.shared.application.exceptions import WishlistNotFound
+from src.shared.domain.username import normalize_username
 
 
 def get_wishlist_by_uuid(session: Session, uuid: UUID) -> Wishlist:
@@ -16,21 +18,28 @@ def get_wishlist_by_uuid(session: Session, uuid: UUID) -> Wishlist:
     return wishlist
 
 
-def get_wishlists_owned_by(session: Session, username: str) -> list[Wishlist]:
+def get_wishlists_owned_by(
+    session: Session, username: str, public_only: bool = False
+) -> Sequence[Wishlist]:
     """SQLAlchemy query to get all unarchived wishlists owned by a user."""
 
-    wishlists = session.scalars(
-        select(Wishlist)
-        .filter_by(owner_username=username, is_archived=False)
-        .order_by(Wishlist.created_at.desc())
-    ).all()
+    query = select(Wishlist).filter_by(
+        owner_username=normalize_username(username), is_archived=False
+    )
+    if public_only:
+        query = query.filter_by(is_public=True)
+    wishlists = session.scalars(query.order_by(desc("created_at"))).all()
     return wishlists
 
 
-def get_archived_wishlists_owned_by(session: Session, username: str) -> list[Wishlist]:
+def get_archived_wishlists_owned_by(
+    session: Session, username: str
+) -> Sequence[Wishlist]:
     """SQLAlchemy query to get all archived wishlists owned by a user."""
 
     wishlists = session.scalars(
-        select(Wishlist).filter_by(owner_username=username, is_archived=True)
+        select(Wishlist).filter_by(
+            owner_username=normalize_username(username), is_archived=True
+        )
     ).all()
     return wishlists

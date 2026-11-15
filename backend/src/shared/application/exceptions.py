@@ -61,6 +61,11 @@ class UserExists(ConflictException):
         super().__init__(f"User '{username}' exists")
 
 
+class UserEmailExists(ConflictException):
+    def __init__(self, email: str):
+        super().__init__(f"User with email '{email}' already exists")
+
+
 class UserAlreadyActive(ConflictException):
     def __init__(self, username: str):
         super().__init__(f"User '{username}' is already active")
@@ -99,6 +104,11 @@ class WishlistNotFound(NotFoundException):
 class WishlistItemNotFound(NotFoundException):
     def __init__(self, uuid: UUID):
         super().__init__(f"Wishlist item '{uuid}' not found")
+
+
+class WishlistItemQuantityInvalid(ValidationException):
+    def __init__(self, error_message: str = "Wishlist item quantity is invalid"):
+        super().__init__(error_message)
 
 
 class WishlistAlreadyArchived(ConflictException):
