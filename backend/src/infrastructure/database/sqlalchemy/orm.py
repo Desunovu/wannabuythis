@@ -97,10 +97,11 @@ wishlists = Table(
         ForeignKey("users.username", ondelete="CASCADE"),
         nullable=False,
     ),
-    Column("name", String),
-    Column("is_archived", Boolean),
-    Column("is_public", Boolean),
-    Column("created_at", DateTime),  # TODO: use UTCDateTime for consistency
+    Column("name", String, nullable=False),
+    Column("is_archived", Boolean, nullable=False),
+    Column("is_public", Boolean, nullable=False),
+    # TODO: use UTCDateTime for consistency
+    Column("created_at", DateTime, nullable=False),
 )
 
 wishlist_items = Table(
@@ -113,11 +114,15 @@ wishlist_items = Table(
         ForeignKey("wishlists.uuid", ondelete="CASCADE"),
         nullable=False,
     ),
-    Column("name", String),
-    Column("quantity", Integer),
-    Column("measurement_unit", Enum(wishlist_domain_model.MeasurementUnit)),
-    Column("priority", Enum(wishlist_domain_model.Priority)),
-    Column("is_purchased", Boolean),
+    Column("name", String, nullable=False),
+    Column("quantity", Integer, nullable=False),
+    Column(
+        "measurement_unit",
+        Enum(wishlist_domain_model.MeasurementUnit),
+        nullable=False,
+    ),
+    Column("priority", Enum(wishlist_domain_model.Priority), nullable=False),
+    Column("is_purchased", Boolean, nullable=False),
 )
 
 
