@@ -100,8 +100,7 @@ wishlists = Table(
     Column("name", String, nullable=False),
     Column("is_archived", Boolean, nullable=False),
     Column("is_public", Boolean, nullable=False),
-    # TODO: use UTCDateTime for consistency
-    Column("created_at", DateTime, nullable=False),
+    Column("created_at", UTCDateTime, nullable=False),
 )
 
 wishlist_items = Table(
@@ -113,6 +112,7 @@ wishlist_items = Table(
         Uuid,
         ForeignKey("wishlists.uuid", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     ),
     Column("name", String, nullable=False),
     Column("quantity", Integer, nullable=False),
@@ -123,6 +123,7 @@ wishlist_items = Table(
     ),
     Column("priority", Enum(wishlist_domain_model.Priority), nullable=False),
     Column("is_purchased", Boolean, nullable=False),
+    Column("created_at", UTCDateTime, nullable=False),
 )
 
 
@@ -145,8 +146,8 @@ def start_sqlalchemy_mappers():
         properties={
             "items": relationship(
                 wishlist_domain_model.WishlistItem,
-                order_by=wishlist_items.c.uuid,
-                lazy="dynamic",
+                order_by=(wishlist_items.c.created_at, wishlist_items.c.uuid),
+                lazy="raise",
                 cascade="all, delete-orphan",
             )
         },

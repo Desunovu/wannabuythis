@@ -111,6 +111,13 @@ class WishlistItemQuantityInvalid(ValidationException):
         super().__init__(error_message)
 
 
+class WishlistItemsLimitExceeded(ConflictException):
+    def __init__(self, uuid: UUID, max_count: int):
+        super().__init__(
+            f"Wishlist '{uuid}' cannot contain more than {max_count} items"
+        )
+
+
 class WishlistAlreadyArchived(ConflictException):
     def __init__(self, uuid: UUID):
         super().__init__(f"Wishlist '{uuid}' already archived")

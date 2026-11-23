@@ -1,7 +1,10 @@
 from dishka import FromDishka
 
 from src.config import Settings
-from src.modules.wishlists.application.validation import validate_item_quantity
+from src.modules.wishlists.application.validation import (
+    validate_item_quantity,
+    validate_items_count,
+)
 from src.modules.wishlists.domain.commands import (
     AddWishlistItem,
     ArchiveWishlist,
@@ -61,6 +64,9 @@ def handle_add_wishlist_item(
 
     with uow:
         wishlist = uow.wishlist_repository.get(command.wishlist_uuid)
+        validate_items_count(
+            wishlist.uuid, len(wishlist.items), settings.wishlists_items_max_count
+        )
         item = WishlistItem(
             uuid=uuid_generator.generate(),
             wishlist_uuid=wishlist.uuid,

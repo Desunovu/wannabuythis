@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import clear_mappers
+from sqlalchemy.orm import Session, clear_mappers
 
 from src.config import settings
 from src.infrastructure.database.sqlalchemy.orm import (
@@ -30,6 +30,12 @@ def integration_test_container():
 @pytest.fixture
 def sqlalchemy_uow(integration_test_container) -> UnitOfWork:
     return integration_test_container.get(UnitOfWork)
+
+
+@pytest.fixture
+def db_session(integration_test_container) -> Session:
+    """Session bound to the same test database as sqlalchemy_uow."""
+    return integration_test_container.get(Session)
 
 
 @pytest.fixture

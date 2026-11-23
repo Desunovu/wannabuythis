@@ -48,6 +48,7 @@ class WishlistItem(Entity):
     measurement_unit: MeasurementUnit
     priority: Priority
     is_purchased: bool = field(default=False)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def __post_init__(self):
         if self.quantity <= 0:

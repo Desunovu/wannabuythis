@@ -14,7 +14,11 @@ from src.modules.wishlists.domain.commands import (
     RemoveWishlistItem,
     UnarchiveWishlist,
 )
-from src.modules.wishlists.domain.model import MeasurementUnit, Priority
+from src.modules.wishlists.domain.model import (
+    MeasurementUnit,
+    Priority,
+    WishlistItem,
+)
 from src.shared.application.exceptions import (
     UserNotFound,
     WishlistAlreadyArchived,
@@ -22,6 +26,7 @@ from src.shared.application.exceptions import (
     WishlistItemNotFound,
     WishlistItemNotPurchased,
     WishlistItemQuantityInvalid,
+    WishlistItemsLimitExceeded,
     WishlistNotArchived,
     WishlistNotFound,
 )
@@ -118,6 +123,45 @@ class TestAddWishlistItem:
                     priority=Priority.LOW,
                 )
             )
+
+    def test_add_wishlist_item_below_items_limit(self, mediator, uow, wishlist):
+        self._fill_wishlist(wishlist, settings.wishlists_items_max_count - 1)
+        uow.wishlist_repository.add(wishlist)
+
+        mediator.handle(self._add_apple_command(wishlist))
+
+        assert len(wishlist.items) == settings.wishlists_items_max_count
+
+    def test_add_wishlist_item_at_items_limit_rejected(self, mediator, uow, wishlist):
+        self._fill_wishlist(wishlist, settings.wishlists_items_max_count)
+        uow.wishlist_repository.add(wishlist)
+
+        with pytest.raises(WishlistItemsLimitExceeded, match=str(wishlist.uuid)):
+            mediator.handle(self._add_apple_command(wishlist))
+
+    @staticmethod
+    def _fill_wishlist(wishlist, items_count: int) -> None:
+        wishlist.items = [
+            WishlistItem(
+                uuid=uuid.uuid4(),
+                wishlist_uuid=wishlist.uuid,
+                name=f"item {index}",
+                quantity=1,
+                measurement_unit=MeasurementUnit.PIECE,
+                priority=Priority.LOW,
+            )
+            for index in range(items_count)
+        ]
+
+    @staticmethod
+    def _add_apple_command(wishlist) -> AddWishlistItem:
+        return AddWishlistItem(
+            wishlist_uuid=wishlist.uuid,
+            name="Apple",
+            quantity=3,
+            measurement_unit=MeasurementUnit.KILOGRAM,
+            priority=Priority.LOW,
+        )
 
 
 class TestRemoveWishlistItem:

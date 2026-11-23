@@ -70,10 +70,10 @@ def get_wishlist_owner(
     request: Request,
 ) -> User:
     wishlist_uuid = UUID(request.path_params["wishlist_uuid"])
-    wishlist = wishlist_queries.get_wishlist_by_uuid(
+    owner_username = wishlist_queries.get_wishlist_owner_username(
         session=session, uuid=wishlist_uuid
     )
-    if current_user.username != wishlist.owner_username:
+    if current_user.username != owner_username:
         raise UserNotAuthorized(username=current_user.username)
     return current_user
 

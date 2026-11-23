@@ -1,7 +1,7 @@
 import datetime
 import secrets
 from functools import lru_cache
-from typing import Literal
+from typing import Literal, Self
 
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -135,6 +135,25 @@ class Settings(BaseSettings):
     wishlists_item_quantity_max: int = Field(
         default=1_000, ge=1, description="Maximum quantity per wishlist item"
     )
+    wishlists_items_max_count: int = Field(
+        default=100,
+        ge=1,
+        le=10_000,
+        description="Maximum number of items in a wishlist",
+    )
+
+    # Pagination
+    wishlists_pagination_default_size: int = Field(
+        default=20,
+        ge=1,
+        description="Default page size of wishlist list endpoints",
+    )
+    wishlists_pagination_max_size: int = Field(
+        default=100,
+        ge=1,
+        le=1_000,
+        description="Maximum page size of wishlist list endpoints",
+    )
 
     # Computed properties
     @property
@@ -187,7 +206,7 @@ class Settings(BaseSettings):
         return self.secret_key
 
     @model_validator(mode="after")
-    def ensure_secret_key(self) -> "Settings":
+    def ensure_secret_key(self) -> Self:
         """Require an explicit key in production, generate a random one otherwise."""
         if self.secret_key is None:
             if self.env == "production":
@@ -197,6 +216,16 @@ class Settings(BaseSettings):
             self.secret_key = secrets.token_urlsafe(48)
         return self
 
+    @model_validator(mode="after")
+    def ensure_pagination_limits(self) -> Self:
+        """Keep the default page size within the allowed maximum."""
+        if self.wishlists_pagination_default_size > self.wishlists_pagination_max_size:
+            raise ValueError(
+                "WISHLISTS_PAGINATION_DEFAULT_SIZE must not exceed "
+                + "WISHLISTS_PAGINATION_MAX_SIZE"
+            )
+        return self
+
     @field_validator("base_url")
     @classmethod
     def validate_base_url(cls, v: str) -> str:
@@ -204,7 +233,11 @@ class Settings(BaseSettings):
         return v.rstrip("/")
 
 
-# TODO: Remove
+# Settings have two access paths: this module-level instance is read at import
+# time for declarative constraints (Pydantic schemas, FastAPI Query/OpenAPI),
+# where values must be known before the DI container exists; SettingsProvider
+# serves the same instance to runtime code. Keep runtime code on injection and
+# import this global only for import-time declarations.
 @lru_cache
 def get_settings() -> Settings:
     """Get cached application settings"""
