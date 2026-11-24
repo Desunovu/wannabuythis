@@ -5,7 +5,6 @@ from dishka.integrations.fastapi import FromDishka, inject_sync
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from starlette.requests import Request
 from starlette.status import HTTP_403_FORBIDDEN
 
 from src.modules.users.domain.model import User
@@ -65,11 +64,10 @@ OptionalCurrentUserDependency = Annotated[
 
 @inject_sync
 def get_wishlist_owner(
+    wishlist_uuid: UUID,
     current_user: CurrentUserDependency,
     session: FromDishka[Session],
-    request: Request,
 ) -> User:
-    wishlist_uuid = UUID(request.path_params["wishlist_uuid"])
     owner_username = wishlist_queries.get_wishlist_owner_username(
         session=session, uuid=wishlist_uuid
     )

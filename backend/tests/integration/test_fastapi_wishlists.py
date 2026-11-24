@@ -187,6 +187,11 @@ class TestFastAPIWishlistsCommandRoutes:
 class TestFastAPIWishlistsRequestValidation:
     """Pydantic schema boundaries that never reach the mediator."""
 
+    def test_wishlist_route_rejects_invalid_uuid(self, user_client):
+        url = f"{ARCHIVE_WISHLIST_URL}/not-a-uuid"
+        response = user_client.post(url=url)
+        assert response.status_code == 422
+
     @pytest.mark.parametrize(
         "name", ["", "   ", "a" * (settings.wishlists_name_max_length + 1)]
     )
