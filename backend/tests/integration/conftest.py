@@ -132,7 +132,7 @@ def client_with_archived_wishlist(
 
 
 @pytest.fixture
-def user_with_populated_wishlist_client(
+def user_client_with_populated_wishlist(
     user_client: TestClient, populated_wishlist
 ) -> TestClient:
     """Test client with a signed-in user containing their populated wishlist in the database."""
@@ -141,7 +141,7 @@ def user_with_populated_wishlist_client(
 
 
 @pytest.fixture
-def user_with_archived_wishlist_client(
+def user_client_with_archived_wishlist(
     user_client: TestClient, archived_wishlist
 ) -> TestClient:
     """Test client with a signed-in user containing their archived wishlist in the database."""

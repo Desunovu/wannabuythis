@@ -70,33 +70,33 @@ class TestFastAPIWishlistsCommandRoutes:
         assert wishlist_name in names
 
     def test_change_wishlist_name(
-        self, user_with_populated_wishlist_client, populated_wishlist
+        self, user_client_with_populated_wishlist, populated_wishlist
     ):
         url = f"{CHANGE_WISHLIST_NAME_URL}/{populated_wishlist.uuid}"
         body = {"new_name": "  new test wishlist  "}
-        response = user_with_populated_wishlist_client.post(url=url, json=body)
+        response = user_client_with_populated_wishlist.post(url=url, json=body)
         assert response.status_code == 200
-        response = user_with_populated_wishlist_client.get(
+        response = user_client_with_populated_wishlist.get(
             f"{WISHLISTS_BASE_URL}/{populated_wishlist.uuid}"
         )
         assert response.json()["name"] == "new test wishlist"
 
     def test_archive_wishlist(
-        self, user_with_populated_wishlist_client, populated_wishlist
+        self, user_client_with_populated_wishlist, populated_wishlist
     ):
         url = f"{ARCHIVE_WISHLIST_URL}/{populated_wishlist.uuid}"
-        response = user_with_populated_wishlist_client.post(url=url)
+        response = user_client_with_populated_wishlist.post(url=url)
         assert response.status_code == 200
 
     def test_unarchive_wishlist(
-        self, user_with_archived_wishlist_client, archived_wishlist
+        self, user_client_with_archived_wishlist, archived_wishlist
     ):
         url = f"{UNARCHIVE_WISHLIST_URL}/{archived_wishlist.uuid}"
-        response = user_with_archived_wishlist_client.post(url=url)
+        response = user_client_with_archived_wishlist.post(url=url)
         assert response.status_code == 200
 
     def test_add_wishlist_item(
-        self, user_with_populated_wishlist_client, populated_wishlist
+        self, user_client_with_populated_wishlist, populated_wishlist
     ):
         url = f"{ADD_WISHLIST_ITEM_URL}/{populated_wishlist.uuid}"
         body = {
@@ -105,49 +105,49 @@ class TestFastAPIWishlistsCommandRoutes:
             "measurement_unit": MeasurementUnit.PIECE,
             "priority": Priority.MEDIUM,
         }
-        response = user_with_populated_wishlist_client.post(url=url, json=body)
+        response = user_client_with_populated_wishlist.post(url=url, json=body)
         assert response.status_code == 200
-        response = user_with_populated_wishlist_client.get(
+        response = user_client_with_populated_wishlist.get(
             f"{WISHLISTS_BASE_URL}/{populated_wishlist.uuid}"
         )
         names = [item["name"] for item in response.json()["items"]]
         assert "test item" in names
 
     def test_remove_wishlist_item(
-        self, user_with_populated_wishlist_client, populated_wishlist, apple_item
+        self, user_client_with_populated_wishlist, populated_wishlist, apple_item
     ):
         url = f"{REMOVE_WISHLIST_ITEM_URL}/{populated_wishlist.uuid}"
         body = {"item_uuid": apple_item.uuid.hex}
-        response = user_with_populated_wishlist_client.post(url=url, json=body)
+        response = user_client_with_populated_wishlist.post(url=url, json=body)
         assert response.status_code == 200
 
     def test_mark_wishlist_item_as_purchased(
-        self, user_with_populated_wishlist_client, populated_wishlist, apple_item
+        self, user_client_with_populated_wishlist, populated_wishlist, apple_item
     ):
         url = f"{MARK_WISHLIST_ITEM_AS_PURCHASED_URL}/{populated_wishlist.uuid}"
         body = {"item_uuid": apple_item.uuid.hex}
-        response = user_with_populated_wishlist_client.post(url=url, json=body)
+        response = user_client_with_populated_wishlist.post(url=url, json=body)
         assert response.status_code == 200
 
     def test_mark_wishlist_item_as_not_purchased(
         self,
-        user_with_populated_wishlist_client,
+        user_client_with_populated_wishlist,
         purchased_banana_item,
     ):
         url = f"{MARK_WISHLIST_ITEM_AS_NOT_PURCHASED_URL}/{purchased_banana_item.wishlist_uuid}"
         body = {"item_uuid": purchased_banana_item.uuid.hex}
-        response = user_with_populated_wishlist_client.post(url=url, json=body)
+        response = user_client_with_populated_wishlist.post(url=url, json=body)
         assert response.status_code == 200
 
     def test_set_wishlist_visibility(
-        self, user_with_populated_wishlist_client, populated_wishlist
+        self, user_client_with_populated_wishlist, populated_wishlist
     ):
         url = f"{SET_WISHLIST_VISIBILITY_URL}/{populated_wishlist.uuid}"
-        response = user_with_populated_wishlist_client.post(
+        response = user_client_with_populated_wishlist.post(
             url=url, json={"is_public": True}
         )
         assert response.status_code == 200
-        response = user_with_populated_wishlist_client.get(
+        response = user_client_with_populated_wishlist.get(
             f"{WISHLISTS_BASE_URL}/{populated_wishlist.uuid}"
         )
         assert response.json()["is_public"] is True
@@ -160,23 +160,23 @@ class TestFastAPIWishlistsCommandRoutes:
         assert response.status_code == 404
 
     def test_set_wishlist_visibility_on_archived_rejected(
-        self, user_with_archived_wishlist_client, archived_wishlist
+        self, user_client_with_archived_wishlist, archived_wishlist
     ):
         url = f"{SET_WISHLIST_VISIBILITY_URL}/{archived_wishlist.uuid}"
-        response = user_with_archived_wishlist_client.post(
+        response = user_client_with_archived_wishlist.post(
             url=url, json={"is_public": True}
         )
         assert response.status_code == 409
 
     def test_archive_wishlist_makes_it_private(
-        self, user_with_populated_wishlist_client, populated_wishlist
+        self, user_client_with_populated_wishlist, populated_wishlist
     ):
         url = f"{SET_WISHLIST_VISIBILITY_URL}/{populated_wishlist.uuid}"
-        user_with_populated_wishlist_client.post(url=url, json={"is_public": True})
-        user_with_populated_wishlist_client.post(
+        user_client_with_populated_wishlist.post(url=url, json={"is_public": True})
+        user_client_with_populated_wishlist.post(
             f"{ARCHIVE_WISHLIST_URL}/{populated_wishlist.uuid}"
         )
-        response = user_with_populated_wishlist_client.get(
+        response = user_client_with_populated_wishlist.get(
             f"{WISHLISTS_BASE_URL}/{populated_wishlist.uuid}"
         )
         assert response.status_code == 200
@@ -203,10 +203,10 @@ class TestFastAPIWishlistsRequestValidation:
         "name", ["", "   ", "a" * (settings.wishlists_name_max_length + 1)]
     )
     def test_change_wishlist_name_rejects_invalid_name(
-        self, user_with_populated_wishlist_client, populated_wishlist, name
+        self, user_client_with_populated_wishlist, populated_wishlist, name
     ):
         url = f"{CHANGE_WISHLIST_NAME_URL}/{populated_wishlist.uuid}"
-        response = user_with_populated_wishlist_client.post(
+        response = user_client_with_populated_wishlist.post(
             url=url, json={"new_name": name}
         )
         assert response.status_code == 422
@@ -215,7 +215,7 @@ class TestFastAPIWishlistsRequestValidation:
         "name", ["", "   ", "a" * (settings.wishlists_item_name_max_length + 1)]
     )
     def test_add_wishlist_item_rejects_invalid_name(
-        self, user_with_populated_wishlist_client, populated_wishlist, name
+        self, user_client_with_populated_wishlist, populated_wishlist, name
     ):
         url = f"{ADD_WISHLIST_ITEM_URL}/{populated_wishlist.uuid}"
         body = {
@@ -224,14 +224,14 @@ class TestFastAPIWishlistsRequestValidation:
             "measurement_unit": MeasurementUnit.PIECE,
             "priority": Priority.MEDIUM,
         }
-        response = user_with_populated_wishlist_client.post(url=url, json=body)
+        response = user_client_with_populated_wishlist.post(url=url, json=body)
         assert response.status_code == 422
 
     @pytest.mark.parametrize(
         "quantity", [0, -1, settings.wishlists_item_quantity_max + 1]
     )
     def test_add_wishlist_item_rejects_invalid_quantity(
-        self, user_with_populated_wishlist_client, populated_wishlist, quantity
+        self, user_client_with_populated_wishlist, populated_wishlist, quantity
     ):
         url = f"{ADD_WISHLIST_ITEM_URL}/{populated_wishlist.uuid}"
         body = {
@@ -240,7 +240,7 @@ class TestFastAPIWishlistsRequestValidation:
             "measurement_unit": MeasurementUnit.PIECE,
             "priority": Priority.MEDIUM,
         }
-        response = user_with_populated_wishlist_client.post(url=url, json=body)
+        response = user_client_with_populated_wishlist.post(url=url, json=body)
         assert response.status_code == 422
 
 
@@ -324,10 +324,10 @@ class TestFastAPIWishlistsQueryRoutes:
         assert response.status_code == 404
 
     def test_get_archived_wishlist_by_owner(
-        self, user_with_archived_wishlist_client, archived_wishlist
+        self, user_client_with_archived_wishlist, archived_wishlist
     ):
         url = f"{WISHLISTS_BASE_URL}/{archived_wishlist.uuid}"
-        response = user_with_archived_wishlist_client.get(url)
+        response = user_client_with_archived_wishlist.get(url)
         assert response.status_code == 200
 
     def test_get_wishlists_by_user(self, client_with_public_wishlist, public_wishlist):
@@ -388,9 +388,9 @@ class TestFastAPIWishlistsQueryRoutes:
         }
 
     def test_get_archived_wishlists(
-        self, user_with_archived_wishlist_client, archived_wishlist
+        self, user_client_with_archived_wishlist, archived_wishlist
     ):
-        response = user_with_archived_wishlist_client.get(GET_ARCHIVED_WISHLISTS_URL)
+        response = user_client_with_archived_wishlist.get(GET_ARCHIVED_WISHLISTS_URL)
         assert response.status_code == 200
         names = [entry["name"] for entry in response.json()]
         assert archived_wishlist.name in names
