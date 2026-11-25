@@ -35,18 +35,22 @@ class TestExceptionHandlerResponses:
         assert response.status_code == 404
         assert "detail" in response.json()
 
-    def test_non_owner_modification_returns_403(
-        self, error_client, admin_user, user, wishlist
+    def test_non_owner_modification_returns_404(
+        self, caplog, error_client, admin_user, user, wishlist
     ):
         add_user_to_db(error_client, admin_user)
         add_user_to_db(error_client, user)
         add_wishlist_to_db(error_client, wishlist)
         add_authorization_header_to_client(error_client, admin_user)
+        caplog.set_level(logging.WARNING)
 
         url = CHANGE_WISHLIST_NAME_URL.format(wishlist_uuid=wishlist.uuid)
         response = error_client.post(url=url, json={"new_name": "hijacked"})
 
-        assert response.status_code == 403
+        assert response.status_code == 404
+        assert wishlist.owner_username not in response.text
+        assert str(wishlist.uuid) in caplog.text
+        assert admin_user.username in caplog.text
 
     def test_invalid_token_returns_401(self, error_client):
         response = error_client.get(

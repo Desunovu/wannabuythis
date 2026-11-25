@@ -158,7 +158,7 @@ class TestFastAPIWishlistsCommandRoutes:
         add_wishlist_to_db(client_with_user, populated_wishlist)
         url = f"{SET_WISHLIST_VISIBILITY_URL}/{populated_wishlist.uuid}"
         response = second_user_client.post(url=url, json={"is_public": True})
-        assert response.status_code == 403
+        assert response.status_code == 404
 
     def test_set_wishlist_visibility_on_archived_rejected(
         self, user_with_archived_wishlist_client, archived_wishlist

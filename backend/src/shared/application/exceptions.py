@@ -30,13 +30,6 @@ class TokenException(ApplicationException):
         super().__init__(message)
 
 
-class UserNotAuthorized(Forbidden):
-    def __init__(self, username: str):
-        super().__init__(
-            f"User '{username}' does not have permission to perform this action"
-        )
-
-
 class UserNotActive(Forbidden):
     def __init__(self, username: str):
         super().__init__(

@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated
 from uuid import UUID
 
@@ -13,10 +14,12 @@ from src.modules.wishlists.queries import wishlist_queries
 from src.shared.application.exceptions import (
     TokenException,
     UserNotActive,
-    UserNotAuthorized,
     UserNotFound,
+    WishlistNotFound,
 )
 from src.shared.utils.auth.token_manager import TokenManager
+
+logger = logging.getLogger(__name__)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
@@ -68,11 +71,17 @@ def get_wishlist_owner(
     current_user: CurrentUserDependency,
     session: FromDishka[Session],
 ) -> User:
+    """Ensure the current user owns the wishlist, hiding its existence otherwise."""
+
     owner_username = wishlist_queries.get_wishlist_owner_username(
         session=session, uuid=wishlist_uuid
     )
     if current_user.username != owner_username:
-        raise UserNotAuthorized(username=current_user.username)
+        logger.warning(
+            f"User '{current_user.username}' is not the owner of wishlist "
+            f"'{wishlist_uuid}'"
+        )
+        raise WishlistNotFound(wishlist_uuid)
     return current_user
 
 
