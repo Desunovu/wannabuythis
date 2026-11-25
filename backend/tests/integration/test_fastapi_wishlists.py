@@ -153,9 +153,8 @@ class TestFastAPIWishlistsCommandRoutes:
         assert response.json()["is_public"] is True
 
     def test_set_wishlist_visibility_not_owner(
-        self, client_with_user, second_user_client, populated_wishlist
+        self, client_with_populated_wishlist, second_user_client, populated_wishlist
     ):
-        add_wishlist_to_db(client_with_user, populated_wishlist)
         url = f"{SET_WISHLIST_VISIBILITY_URL}/{populated_wishlist.uuid}"
         response = second_user_client.post(url=url, json={"is_public": True})
         assert response.status_code == 404
@@ -303,17 +302,15 @@ class TestFastAPIWishlistsQueryRoutes:
         )
 
     def test_get_private_wishlist_hidden_from_authenticated_non_owner(
-        self, client_with_user, second_user_client, populated_wishlist
+        self, client_with_populated_wishlist, second_user_client, populated_wishlist
     ):
-        add_wishlist_to_db(client_with_user, populated_wishlist)
         url = f"{WISHLISTS_BASE_URL}/{populated_wishlist.uuid}"
         response = second_user_client.get(url)
         assert response.status_code == 404
 
     def test_get_public_wishlist_by_authenticated_non_owner(
-        self, client_with_user, second_user_client, public_wishlist
+        self, client_with_public_wishlist, second_user_client, public_wishlist
     ):
-        add_wishlist_to_db(client_with_user, public_wishlist)
         url = f"{WISHLISTS_BASE_URL}/{public_wishlist.uuid}"
         response = second_user_client.get(url)
         assert response.status_code == 200

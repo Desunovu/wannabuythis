@@ -2,17 +2,10 @@ import json
 import logging
 import uuid
 
-import pytest
-from fastapi.testclient import TestClient
 from sqlalchemy.exc import IntegrityError
 
 from src.infrastructure.entrypoints.fastapi.exception_handlers import (
     handle_sqlalchemy_integrity_error,
-)
-from tests.integration.helpers import (
-    add_authorization_header_to_client,
-    add_user_to_db,
-    add_wishlist_to_db,
 )
 
 CHANGE_WISHLIST_NAME_URL = "/wishlists/change-name/{wishlist_uuid}"
@@ -20,40 +13,33 @@ CURRENT_USER_WISHLISTS_URL = "/wishlists/"
 REGISTER_URL = "/auth/register"
 
 
-@pytest.fixture
-def error_client(fastapi_app_with_test_database) -> TestClient:
-    with TestClient(
-        fastapi_app_with_test_database, raise_server_exceptions=False
-    ) as test_client:
-        yield test_client
-
-
 class TestExceptionHandlerResponses:
-    def test_unknown_wishlist_returns_404(self, error_client):
-        response = error_client.get(f"/wishlists/{uuid.uuid4()}")
+    def test_unknown_wishlist_returns_404(self, client):
+        response = client.get(f"/wishlists/{uuid.uuid4()}")
 
         assert response.status_code == 404
         assert "detail" in response.json()
 
     def test_non_owner_modification_returns_404(
-        self, caplog, error_client, admin_user, user, wishlist
+        self,
+        caplog,
+        client_with_populated_wishlist,
+        second_user_client,
+        second_user,
+        populated_wishlist,
     ):
-        add_user_to_db(error_client, admin_user)
-        add_user_to_db(error_client, user)
-        add_wishlist_to_db(error_client, wishlist)
-        add_authorization_header_to_client(error_client, admin_user)
         caplog.set_level(logging.WARNING)
 
-        url = CHANGE_WISHLIST_NAME_URL.format(wishlist_uuid=wishlist.uuid)
-        response = error_client.post(url=url, json={"new_name": "hijacked"})
+        url = CHANGE_WISHLIST_NAME_URL.format(wishlist_uuid=populated_wishlist.uuid)
+        response = second_user_client.post(url=url, json={"new_name": "hijacked"})
 
         assert response.status_code == 404
-        assert wishlist.owner_username not in response.text
-        assert str(wishlist.uuid) in caplog.text
-        assert admin_user.username in caplog.text
+        assert populated_wishlist.owner_username not in response.text
+        assert str(populated_wishlist.uuid) in caplog.text
+        assert second_user.username in caplog.text
 
-    def test_invalid_token_returns_401(self, error_client):
-        response = error_client.get(
+    def test_invalid_token_returns_401(self, client):
+        response = client.get(
             CURRENT_USER_WISHLISTS_URL,
             headers={"Authorization": "Bearer not-a-valid-token"},
         )
@@ -61,25 +47,25 @@ class TestExceptionHandlerResponses:
         assert response.status_code == 401
         assert response.json()["detail"] == "Invalid token"
 
-    def test_duplicate_username_returns_409(self, error_client, valid_password):
+    def test_duplicate_username_returns_409(self, client, valid_password):
         form_data = {
             "username": "sameuser",
             "email": "sameduplicate@example.com",
             "password": valid_password,
         }
-        assert error_client.post(REGISTER_URL, data=form_data).status_code == 200
+        assert client.post(REGISTER_URL, data=form_data).status_code == 200
 
-        response = error_client.post(REGISTER_URL, data=form_data)
+        response = client.post(REGISTER_URL, data=form_data)
 
         assert response.status_code == 409
 
-    def test_invalid_username_returns_422(self, error_client, valid_password):
+    def test_invalid_username_returns_422(self, client, valid_password):
         form_data = {
             "username": "123",
             "email": "invalidusername@example.com",
             "password": valid_password,
         }
-        response = error_client.post(REGISTER_URL, data=form_data)
+        response = client.post(REGISTER_URL, data=form_data)
 
         assert response.status_code == 422
         assert "at least one letter" in response.json()["detail"]

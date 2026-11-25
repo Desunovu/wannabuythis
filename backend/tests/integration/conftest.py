@@ -150,7 +150,7 @@ def user_with_archived_wishlist_client(
 
 
 @pytest.fixture
-def admin_client_contains_deactivated_user(
+def admin_client_with_deactivated_user(
     admin_client: TestClient, deactivated_user
 ) -> TestClient:
     """Test client with a signed-in admin containing a deactivated user in the database."""
@@ -159,7 +159,7 @@ def admin_client_contains_deactivated_user(
 
 
 @pytest.fixture
-def admin_client_contains_activated_user(
+def admin_client_with_activated_user(
     admin_client: TestClient, activated_user
 ) -> TestClient:
     """Test client with a signed-in admin containing an activated user in the database."""

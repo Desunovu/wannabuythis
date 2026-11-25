@@ -38,33 +38,33 @@ def _email_change_code(client, username):
 
 class TestFastAPIUsersAdminRoutes:
     def test_activate_user(
-        self, admin_client_contains_deactivated_user, deactivated_user
+        self, admin_client_with_deactivated_user, deactivated_user
     ):
         url = f"{ADMIN_USERS_URL}/{deactivated_user.username}/activate"
-        response = admin_client_contains_deactivated_user.patch(url)
+        response = admin_client_with_deactivated_user.patch(url)
         assert response.status_code == 200
 
     def test_deactivate_user(
-        self, admin_client_contains_activated_user, activated_user
+        self, admin_client_with_activated_user, activated_user
     ):
         url = f"{ADMIN_USERS_URL}/{activated_user.username}/deactivate"
-        response = admin_client_contains_activated_user.patch(url=url)
+        response = admin_client_with_activated_user.patch(url=url)
         assert response.status_code == 200
 
     def test_change_password(
-        self, admin_client_contains_activated_user, activated_user, valid_new_password
+        self, admin_client_with_activated_user, activated_user, valid_new_password
     ):
         url = f"{ADMIN_USERS_URL}/{activated_user.username}/password"
         body = {"new_password": valid_new_password}
-        response = admin_client_contains_activated_user.patch(url=url, json=body)
+        response = admin_client_with_activated_user.patch(url=url, json=body)
         assert response.status_code == 200
 
     def test_change_email(
-        self, admin_client_contains_activated_user, activated_user, new_email
+        self, admin_client_with_activated_user, activated_user, new_email
     ):
         url = f"{ADMIN_USERS_URL}/{activated_user.username}/email"
         body = {"new_email": new_email}
-        response = admin_client_contains_activated_user.patch(url=url, json=body)
+        response = admin_client_with_activated_user.patch(url=url, json=body)
         assert response.status_code == 200
 
 
@@ -296,44 +296,44 @@ class TestFastAPIUsersSessionRevocation:
 
     def test_refresh_fails_after_admin_changes_password(
         self,
-        admin_client_contains_activated_user,
+        admin_client_with_activated_user,
         activated_user,
         valid_password,
         valid_new_password,
     ):
         token_pair = _login(
-            admin_client_contains_activated_user,
+            admin_client_with_activated_user,
             activated_user.username,
             valid_password,
         )
 
-        change_response = admin_client_contains_activated_user.patch(
+        change_response = admin_client_with_activated_user.patch(
             url=f"{ADMIN_USERS_URL}/{activated_user.username}/password",
             json={"new_password": valid_new_password},
         )
         assert change_response.status_code == 200
 
-        refresh_response = admin_client_contains_activated_user.post(
+        refresh_response = admin_client_with_activated_user.post(
             url=AUTH_REFRESH_URL,
             json={"refresh_token": token_pair["refresh_token"]},
         )
         assert refresh_response.status_code == 401
 
     def test_refresh_fails_after_deactivation(
-        self, admin_client_contains_activated_user, activated_user, valid_password
+        self, admin_client_with_activated_user, activated_user, valid_password
     ):
         token_pair = _login(
-            admin_client_contains_activated_user,
+            admin_client_with_activated_user,
             activated_user.username,
             valid_password,
         )
 
-        deactivate_response = admin_client_contains_activated_user.patch(
+        deactivate_response = admin_client_with_activated_user.patch(
             url=f"{ADMIN_USERS_URL}/{activated_user.username}/deactivate"
         )
         assert deactivate_response.status_code == 200
 
-        refresh_response = admin_client_contains_activated_user.post(
+        refresh_response = admin_client_with_activated_user.post(
             url=AUTH_REFRESH_URL,
             json={"refresh_token": token_pair["refresh_token"]},
         )
