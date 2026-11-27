@@ -60,6 +60,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       RATE_LIMIT_STORAGE_URI: "redis://redis:6379/1"
+      CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-}
       # Trust only the docker network so client IPs come from Traefik
       FORWARDED_ALLOW_IPS: "172.16.0.0/12"
       SMTP_HOST: ${SMTP_HOST:-localhost}

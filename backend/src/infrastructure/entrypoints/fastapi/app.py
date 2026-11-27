@@ -82,14 +82,11 @@ def use_route_names_as_operation_ids(app: FastAPI) -> None:
 def create_app(container: Container | None = None):
     app = FastAPI(lifespan=lifespan)
 
-    # Set up CORS
-    origins = [
-        "http://localhost",
-    ]
+    # Bearer auth only, so no credentials; methods and headers stay open
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=origins,
-        allow_credentials=True,
+        allow_origins=settings.cors_allow_origins,
+        allow_credentials=False,
         allow_methods=["*"],
         allow_headers=["*"],
     )

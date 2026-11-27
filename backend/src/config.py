@@ -1,10 +1,10 @@
 import datetime
 import secrets
 from functools import lru_cache
-from typing import Literal, Self
+from typing import Annotated, Literal, Self
 
 from pydantic import Field, field_validator, model_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -58,6 +58,12 @@ class Settings(BaseSettings):
     base_url: str = Field(
         default="http://localhost:8000",
         description="Base URL of the application",
+    )
+
+    # CORS
+    cors_allow_origins: Annotated[list[str], NoDecode] = Field(
+        default_factory=list,
+        description="Comma-separated browser origins; empty disables cross-origin",
     )
 
     # Token lifetimes
@@ -231,6 +237,14 @@ class Settings(BaseSettings):
     def validate_base_url(cls, v: str) -> str:
         """Ensure base URL doesn't end with a slash."""
         return v.rstrip("/")
+
+    @field_validator("cors_allow_origins", mode="before")
+    @classmethod
+    def split_cors_allow_origins(cls, v):
+        """Turn the comma-separated env value into a list of origins."""
+        if isinstance(v, str):
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        return v
 
 
 # Settings have two access paths: this module-level instance is read at import
