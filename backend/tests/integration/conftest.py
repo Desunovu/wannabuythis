@@ -1,40 +1,20 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import clear_mappers
+from sqlalchemy.orm import Session, clear_mappers
 
 from src.config import settings
 from src.infrastructure.database.sqlalchemy.orm import (
     start_sqlalchemy_mappers,
 )
 from src.infrastructure.entrypoints.fastapi.app import create_app
+from src.infrastructure.entrypoints.fastapi.limiter import limiter
 from src.shared.application.uow import UnitOfWork
-from src.shared.utils.auth.token_manager import TokenManager
 from tests.di.container import create_integration_test_container
-
-
-def add_authorization_header_to_client(client: TestClient, user) -> None:
-    container = client.app.state.dishka_container
-    token_manager = container.get(TokenManager)
-    token = token_manager.generate_token(username=user.username)
-    client.headers = {"Authorization": f"Bearer {token}"}
-
-
-def add_user_to_db(client: TestClient, user) -> None:
-    container = client.app.state.dishka_container
-    with container() as request_container:
-        uow = request_container.get(UnitOfWork)
-        with uow:
-            uow.user_repository.add(user)
-            uow.commit()
-
-
-def add_wishlist_to_db(client: TestClient, wishlist) -> None:
-    container = client.app.state.dishka_container
-    with container() as request_container:
-        uow = request_container.get(UnitOfWork)
-        with uow:
-            uow.wishlist_repository.add(wishlist)
-            uow.commit()
+from tests.integration.helpers import (
+    add_authorization_header_to_client,
+    add_user_to_db,
+    add_wishlist_to_db,
+)
 
 
 @pytest.fixture
@@ -53,10 +33,26 @@ def sqlalchemy_uow(integration_test_container) -> UnitOfWork:
 
 
 @pytest.fixture
+def db_session(integration_test_container) -> Session:
+    """Session bound to the same test database as sqlalchemy_uow."""
+    return integration_test_container.get(Session)
+
+
+@pytest.fixture
 def prepare_mappers():
     start_sqlalchemy_mappers()
     yield
     clear_mappers()
+
+
+@pytest.fixture(autouse=True)
+def reset_rate_limiter():
+    """Clear the limiter's counters, which live in a module-level singleton.
+
+    TestClient always reports the same remote address, so limits would
+    otherwise leak between tests.
+    """
+    limiter.reset()
 
 
 @pytest.fixture
@@ -94,6 +90,14 @@ def admin_client(client: TestClient, admin_user) -> TestClient:
 
 
 @pytest.fixture
+def second_user_client(client: TestClient, second_user) -> TestClient:
+    """Test client with a signed-in second user."""
+    add_user_to_db(client, second_user)
+    add_authorization_header_to_client(client, second_user)
+    return client
+
+
+@pytest.fixture
 def client_with_user(client: TestClient, user) -> TestClient:
     """Test client containing a user in the database."""
     add_user_to_db(client, user)
@@ -110,7 +114,25 @@ def client_with_populated_wishlist(
 
 
 @pytest.fixture
-def user_with_populated_wishlist_client(
+def client_with_public_wishlist(
+    client_with_user: TestClient, public_wishlist
+) -> TestClient:
+    """Test client containing a user and their public wishlist in the database."""
+    add_wishlist_to_db(client_with_user, public_wishlist)
+    return client_with_user
+
+
+@pytest.fixture
+def client_with_archived_wishlist(
+    client_with_user: TestClient, archived_wishlist
+) -> TestClient:
+    """Test client containing a user and their archived wishlist in the database."""
+    add_wishlist_to_db(client_with_user, archived_wishlist)
+    return client_with_user
+
+
+@pytest.fixture
+def user_client_with_populated_wishlist(
     user_client: TestClient, populated_wishlist
 ) -> TestClient:
     """Test client with a signed-in user containing their populated wishlist in the database."""
@@ -119,7 +141,7 @@ def user_with_populated_wishlist_client(
 
 
 @pytest.fixture
-def user_with_archived_wishlist_client(
+def user_client_with_archived_wishlist(
     user_client: TestClient, archived_wishlist
 ) -> TestClient:
     """Test client with a signed-in user containing their archived wishlist in the database."""
@@ -128,7 +150,7 @@ def user_with_archived_wishlist_client(
 
 
 @pytest.fixture
-def admin_client_contains_deactivated_user(
+def admin_client_with_deactivated_user(
     admin_client: TestClient, deactivated_user
 ) -> TestClient:
     """Test client with a signed-in admin containing a deactivated user in the database."""
@@ -137,7 +159,7 @@ def admin_client_contains_deactivated_user(
 
 
 @pytest.fixture
-def admin_client_contains_activated_user(
+def admin_client_with_activated_user(
     admin_client: TestClient, activated_user
 ) -> TestClient:
     """Test client with a signed-in admin containing an activated user in the database."""

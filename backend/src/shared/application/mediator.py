@@ -48,13 +48,17 @@ class Mediator:
             handler = self._command_handlers[type(command)]
             result = handler(command)
             queue.extend(self._collect_events())
-            logger.info(f"Command {command} handled by {handler.__name__}")
+            logger.info(
+                f"Command {type(command).__name__} handled by {handler.__name__}"
+            )
             return result
         except ApplicationException as e:
-            logger.error(f"Failed to handle command {command}: {e}")
+            logger.error(f"Failed to handle command {type(command).__name__}: {e}")
             raise
         except Exception as e:
-            logger.exception(f"Unexpected error handling command {command}: {e}")
+            logger.exception(
+                f"Unexpected error handling command {type(command).__name__}: {e}"
+            )
             raise
 
     def _handle_event(

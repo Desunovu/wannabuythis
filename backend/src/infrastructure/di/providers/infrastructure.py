@@ -6,13 +6,13 @@ from src.config import Settings
 from src.infrastructure.cache.redis.activation_code_storage import (
     RedisActivationCodeStorage,
 )
+from src.infrastructure.cache.redis.email_change_code_storage import (
+    RedisEmailChangeCodeStorage,
+)
 from src.infrastructure.database.sqlalchemy.unit_of_work import SQLAlchemyUnitOfWork
 from src.shared.application.uow import UnitOfWork
 from src.shared.ports.activation_code_storage import ActivationCodeStorage
-from src.shared.utils.activation_codes.activation_code_generator import (
-    ActivationCodeGenerator,
-    RandomActivationCodeGenerator,
-)
+from src.shared.ports.email_change_code_storage import EmailChangeCodeStorage
 from src.shared.utils.auth.password_manager import (
     Argon2PasswordManager,
     PasswordManager,
@@ -23,6 +23,10 @@ from src.shared.utils.generators.uuid_generator import (
     UUIDGenerator,
 )
 from src.shared.utils.notifications.notificator import EmailNotificator, Notificator
+from src.shared.utils.verification_codes.verification_code_generator import (
+    RandomVerificationCodeGenerator,
+    VerificationCodeGenerator,
+)
 
 
 class InfrastructureProvider(Provider):
@@ -43,8 +47,8 @@ class InfrastructureProvider(Provider):
         return DefaultUUIDGenerator()
 
     @provide(scope=Scope.APP)
-    def get_activation_code_generator(self) -> ActivationCodeGenerator:
-        return RandomActivationCodeGenerator()
+    def get_verification_code_generator(self) -> VerificationCodeGenerator:
+        return RandomVerificationCodeGenerator()
 
     @provide(scope=Scope.APP)
     def get_redis_client(self, settings: Settings) -> redis.Redis:
@@ -52,13 +56,26 @@ class InfrastructureProvider(Provider):
             host=settings.redis_host,
             port=settings.redis_port,
             db=settings.redis_activation_codes_db,
+            password=settings.redis_password,
         )
 
     @provide(scope=Scope.APP)
     def get_activation_code_storage(
-        self, redis_client: redis.Redis
+        self, redis_client: redis.Redis, settings: Settings
     ) -> ActivationCodeStorage:
-        return RedisActivationCodeStorage(redis_client=redis_client)
+        return RedisActivationCodeStorage(
+            redis_client=redis_client,
+            activation_code_lifetime=settings.activation_code_lifetime,
+        )
+
+    @provide(scope=Scope.APP)
+    def get_email_change_code_storage(
+        self, redis_client: redis.Redis, settings: Settings
+    ) -> EmailChangeCodeStorage:
+        return RedisEmailChangeCodeStorage(
+            redis_client=redis_client,
+            code_lifetime=settings.email_change_code_lifetime,
+        )
 
     @provide(scope=Scope.APP)
     def get_notificator(self, settings: Settings) -> Notificator:

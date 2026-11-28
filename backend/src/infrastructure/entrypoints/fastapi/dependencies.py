@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated
 from uuid import UUID
 
@@ -5,16 +6,32 @@ from dishka.integrations.fastapi import FromDishka, inject_sync
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from starlette.requests import Request
 from starlette.status import HTTP_403_FORBIDDEN
 
 from src.modules.users.domain.model import User
 from src.modules.users.queries import user_queries
 from src.modules.wishlists.queries import wishlist_queries
-from src.shared.application.exceptions import UserNotActive, UserNotAuthorized
+from src.shared.application.exceptions import (
+    TokenException,
+    UserNotActive,
+    UserNotFound,
+    WishlistNotFound,
+)
 from src.shared.utils.auth.token_manager import TokenManager
 
+logger = logging.getLogger(__name__)
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
+
+
+def _get_active_user(token: str, token_manager: TokenManager, session: Session) -> User:
+    """Resolve an active user from a token, raising on missing/inactive user."""
+    payload = token_manager.decode_token(token)
+    user = user_queries.get_user_by_username(session=session, username=payload.username)
+    if not user.is_active:
+        raise UserNotActive(username=payload.username)
+    return user
 
 
 @inject_sync
@@ -23,29 +40,48 @@ def get_current_user(
     token_manager: FromDishka[TokenManager],
     session: FromDishka[Session],
 ) -> "User":
-    username = token_manager.get_username_from_token(token)
-
-    user = user_queries.get_user_by_username(session=session, username=username)
-    if not user.is_active:
-        raise UserNotActive(username=username)
-    return user
+    return _get_active_user(token, token_manager, session)
 
 
 CurrentUserDependency = Annotated[User, Depends(get_current_user)]
 
 
 @inject_sync
+def get_optional_current_user(
+    token: Annotated[str | None, Depends(oauth2_scheme_optional)],
+    token_manager: FromDishka[TokenManager],
+    session: FromDishka[Session],
+) -> User | None:
+    if token is None:
+        return None
+    try:
+        return _get_active_user(token, token_manager, session)
+    except (TokenException, UserNotFound, UserNotActive):
+        return None
+
+
+OptionalCurrentUserDependency = Annotated[
+    User | None, Depends(get_optional_current_user)
+]
+
+
+@inject_sync
 def get_wishlist_owner(
+    wishlist_uuid: UUID,
     current_user: CurrentUserDependency,
     session: FromDishka[Session],
-    request: Request,
 ) -> User:
-    wishlist_uuid = UUID(request.path_params["wishlist_uuid"])
-    wishlist = wishlist_queries.get_wishlist_by_uuid(
+    """Ensure the current user owns the wishlist, hiding its existence otherwise."""
+
+    owner_username = wishlist_queries.get_wishlist_owner_username(
         session=session, uuid=wishlist_uuid
     )
-    if current_user.username != wishlist.owner_username:
-        raise UserNotAuthorized(username=current_user.username)
+    if current_user.username != owner_username:
+        logger.warning(
+            f"User '{current_user.username}' is not the owner of wishlist "
+            f"'{wishlist_uuid}'"
+        )
+        raise WishlistNotFound(wishlist_uuid)
     return current_user
 
 

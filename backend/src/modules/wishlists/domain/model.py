@@ -12,16 +12,19 @@ from src.modules.wishlists.domain.events import (
     WishlistItemRemoved,
     WishlistNameChanged,
     WishlistUnarchived,
+    WishlistVisibilityChanged,
 )
 from src.shared.application.exceptions import (
     WishlistAlreadyArchived,
     WishlistItemAlreadyPurchased,
     WishlistItemNotFound,
     WishlistItemNotPurchased,
+    WishlistItemQuantityInvalid,
     WishlistNotArchived,
 )
 from src.shared.domain.aggregates import AggregateRoot
 from src.shared.domain.entities import Entity
+from src.shared.domain.username import Username
 
 
 class MeasurementUnit(str, enum.Enum):
@@ -45,28 +48,42 @@ class WishlistItem(Entity):
     measurement_unit: MeasurementUnit
     priority: Priority
     is_purchased: bool = field(default=False)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+
+    def __post_init__(self):
+        if self.quantity <= 0:
+            raise WishlistItemQuantityInvalid("Wishlist item quantity must be positive")
 
 
 @dataclass(kw_only=True, unsafe_hash=True)
 class Wishlist(AggregateRoot):
     uuid: UUID
-    owner_username: str
+    owner_username: Username
     name: str
     items: list[WishlistItem] = field(default_factory=list, compare=False)
     is_archived: bool = field(default=False)
+    is_public: bool = field(default=False)
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def __post_init__(self):
+        self.owner_username = Username(self.owner_username)
         self._add_event(WishlistCreated(uuid=self.uuid, name=self.name))
 
     def change_name(self, name: str):
         self.name = name
         self._add_event(WishlistNameChanged(self.uuid, self.name))
 
+    def change_visibility(self, is_public: bool):
+        if self.is_archived:
+            raise WishlistAlreadyArchived(self.uuid)
+        self.is_public = is_public
+        self._add_event(WishlistVisibilityChanged(self.uuid, self.is_public))
+
     def archive(self):
         if self.is_archived:
             raise WishlistAlreadyArchived(self.uuid)
         self.is_archived = True
+        self.is_public = False
         self._add_event(WishlistArchived(self.uuid))
 
     def unarchive(self):

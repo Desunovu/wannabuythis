@@ -30,13 +30,6 @@ class TokenException(ApplicationException):
         super().__init__(message)
 
 
-class UserNotAuthorized(Forbidden):
-    def __init__(self, username: str):
-        super().__init__(
-            f"User '{username}' does not have permission to perform this action"
-        )
-
-
 class UserNotActive(Forbidden):
     def __init__(self, username: str):
         super().__init__(
@@ -59,6 +52,11 @@ class UserNotFound(NotFoundException):
 class UserExists(ConflictException):
     def __init__(self, username: str):
         super().__init__(f"User '{username}' exists")
+
+
+class UserEmailExists(ConflictException):
+    def __init__(self, email: str):
+        super().__init__(f"User with email '{email}' already exists")
 
 
 class UserAlreadyActive(ConflictException):
@@ -99,6 +97,18 @@ class WishlistNotFound(NotFoundException):
 class WishlistItemNotFound(NotFoundException):
     def __init__(self, uuid: UUID):
         super().__init__(f"Wishlist item '{uuid}' not found")
+
+
+class WishlistItemQuantityInvalid(ValidationException):
+    def __init__(self, error_message: str = "Wishlist item quantity is invalid"):
+        super().__init__(error_message)
+
+
+class WishlistItemsLimitExceeded(ConflictException):
+    def __init__(self, uuid: UUID, max_count: int):
+        super().__init__(
+            f"Wishlist '{uuid}' cannot contain more than {max_count} items"
+        )
 
 
 class WishlistAlreadyArchived(ConflictException):

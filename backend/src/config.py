@@ -1,9 +1,10 @@
 import datetime
+import secrets
 from functools import lru_cache
-from typing import Literal
+from typing import Annotated, Literal, Self
 
-from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field, field_validator, model_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -30,10 +31,13 @@ class Settings(BaseSettings):
     postgres_db: str = Field(default="postgres", description="PostgreSQL database name")
 
     # Security
-    secret_key: str = Field(
-        default="dev-secret-key",
-        min_length=14,
-        description="Secret key for JWT authentication",
+    secret_key: str | None = Field(
+        default=None,
+        min_length=32,
+        description=(
+            "Secret key for JWT authentication. Required in production; "
+            "generated randomly in development."
+        ),
     )
 
     # SMTP configuration
@@ -49,6 +53,12 @@ class Settings(BaseSettings):
         default=None, description="SMTP authentication password"
     )
     smtp_use_tls: bool = Field(default=False, description="Use TLS for SMTP")
+    smtp_timeout: int = Field(
+        default=10,
+        ge=1,
+        le=300,
+        description="SMTP connection timeout in seconds",
+    )
 
     # Application
     base_url: str = Field(
@@ -56,18 +66,36 @@ class Settings(BaseSettings):
         description="Base URL of the application",
     )
 
+    # CORS
+    cors_allow_origins: Annotated[list[str], NoDecode] = Field(
+        default_factory=list,
+        description="Comma-separated browser origins; empty disables cross-origin",
+    )
+
     # Token lifetimes
-    token_lifetime_in_hours: int = Field(
-        default=24,
+    access_token_lifetime_in_minutes: int = Field(
+        default=15,
         ge=1,
-        le=720,
-        description="Auth token lifetime in hours",
+        le=60,
+        description="Access token lifetime in minutes",
+    )
+    refresh_token_lifetime_in_days: int = Field(
+        default=30,
+        ge=1,
+        le=365,
+        description="Refresh token lifetime in days",
     )
     activation_token_lifetime_in_hours: int = Field(
         default=24,
         ge=1,
         le=168,
         description="Activation token lifetime in hours",
+    )
+    email_change_code_lifetime_in_minutes: int = Field(
+        default=60,
+        ge=1,
+        le=1440,
+        description="Email change code lifetime in minutes",
     )
 
     # Redis configuration
@@ -80,6 +108,11 @@ class Settings(BaseSettings):
         description="Redis activation codes database",
     )
     redis_password: str | None = Field(default=None, description="Redis password")
+
+    # Rate limiting
+    rate_limit_storage_uri: str | None = Field(
+        default=None, description="Rate limiter storage URI; null means in-memory"
+    )
 
     # User name validation
     users_name_min_length: int = Field(
@@ -104,6 +137,36 @@ class Settings(BaseSettings):
         description="Set of forbidden names",
     )
 
+    # Wishlist validation
+    wishlists_name_max_length: int = Field(
+        default=255, ge=1, description="Maximum length of wishlist name"
+    )
+    wishlists_item_name_max_length: int = Field(
+        default=255, ge=1, description="Maximum length of wishlist item name"
+    )
+    wishlists_item_quantity_max: int = Field(
+        default=1_000, ge=1, description="Maximum quantity per wishlist item"
+    )
+    wishlists_items_max_count: int = Field(
+        default=100,
+        ge=1,
+        le=10_000,
+        description="Maximum number of items in a wishlist",
+    )
+
+    # Pagination
+    wishlists_pagination_default_size: int = Field(
+        default=20,
+        ge=1,
+        description="Default page size of wishlist list endpoints",
+    )
+    wishlists_pagination_max_size: int = Field(
+        default=100,
+        ge=1,
+        le=1_000,
+        description="Maximum page size of wishlist list endpoints",
+    )
+
     # Computed properties
     @property
     def postgres_uri(self) -> str:
@@ -114,14 +177,24 @@ class Settings(BaseSettings):
         )
 
     @property
-    def auth_token_lifetime(self) -> datetime.timedelta:
-        """Get auth token lifetime as timedelta."""
-        return datetime.timedelta(hours=self.token_lifetime_in_hours)
+    def access_token_lifetime(self) -> datetime.timedelta:
+        """Get access token lifetime as timedelta."""
+        return datetime.timedelta(minutes=self.access_token_lifetime_in_minutes)
 
     @property
-    def activation_token_lifetime(self) -> datetime.timedelta:
-        """Get activation token lifetime as timedelta."""
+    def refresh_token_lifetime(self) -> datetime.timedelta:
+        """Get refresh token lifetime as timedelta."""
+        return datetime.timedelta(days=self.refresh_token_lifetime_in_days)
+
+    @property
+    def activation_code_lifetime(self) -> datetime.timedelta:
+        """Get activation code lifetime as timedelta."""
         return datetime.timedelta(hours=self.activation_token_lifetime_in_hours)
+
+    @property
+    def email_change_code_lifetime(self) -> datetime.timedelta:
+        """Get email change code lifetime as timedelta."""
+        return datetime.timedelta(minutes=self.email_change_code_lifetime_in_minutes)
 
     @property
     def is_production(self) -> bool:
@@ -138,15 +211,32 @@ class Settings(BaseSettings):
         """Check if running in testing environment."""
         return self.env == "testing"
 
-    @field_validator("secret_key")
-    @classmethod
-    def validate_secret_key(cls, v: str, info) -> str:
-        """Validate secret key in production."""
-        if info.data.get("env") == "production" and v == "dev-secret-key":
+    @property
+    def jwt_secret_key(self) -> str:
+        """Resolved JWT signing key, never None after validation."""
+        assert self.secret_key is not None
+        return self.secret_key
+
+    @model_validator(mode="after")
+    def ensure_secret_key(self) -> Self:
+        """Require an explicit key in production, generate a random one otherwise."""
+        if self.secret_key is None:
+            if self.env == "production":
+                raise ValueError(
+                    "SECRET_KEY must be set to a secure value in production environment"
+                )
+            self.secret_key = secrets.token_urlsafe(48)
+        return self
+
+    @model_validator(mode="after")
+    def ensure_pagination_limits(self) -> Self:
+        """Keep the default page size within the allowed maximum."""
+        if self.wishlists_pagination_default_size > self.wishlists_pagination_max_size:
             raise ValueError(
-                "SECRET_KEY must be set to a secure value in production environment"
+                "WISHLISTS_PAGINATION_DEFAULT_SIZE must not exceed "
+                + "WISHLISTS_PAGINATION_MAX_SIZE"
             )
-        return v
+        return self
 
     @field_validator("base_url")
     @classmethod
@@ -154,8 +244,20 @@ class Settings(BaseSettings):
         """Ensure base URL doesn't end with a slash."""
         return v.rstrip("/")
 
+    @field_validator("cors_allow_origins", mode="before")
+    @classmethod
+    def split_cors_allow_origins(cls, v):
+        """Turn the comma-separated env value into a list of origins."""
+        if isinstance(v, str):
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        return v
 
-# TODO: Remove
+
+# Settings have two access paths: this module-level instance is read at import
+# time for declarative constraints (Pydantic schemas, FastAPI Query/OpenAPI),
+# where values must be known before the DI container exists; SettingsProvider
+# serves the same instance to runtime code. Keep runtime code on injection and
+# import this global only for import-time declarations.
 @lru_cache
 def get_settings() -> Settings:
     """Get cached application settings"""

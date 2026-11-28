@@ -10,15 +10,19 @@ class SQLAlchemyUserRepository(UserRepository):
         super().__init__()
         self.session = session
 
-    def _get(self, username: str) -> User:
-        user = (
-            self.session.query(User)
-            .filter_by(username=username)
-            .with_for_update()
-            .first()
-        )
+    def _get_by_username(self, username: str, *, for_update: bool = True) -> User:
+        query = self.session.query(User).filter_by(username=username)
+        if for_update:
+            query = query.with_for_update()
+        user = query.first()
         if not user:
             raise UserNotFound(username=username)
+        return user
+
+    def _get_by_email(self, email: str) -> User:
+        user = self.session.query(User).filter_by(email=email).first()
+        if not user:
+            raise UserNotFound(username=email)
         return user
 
     def _add(self, user: User):

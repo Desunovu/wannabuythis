@@ -23,7 +23,7 @@ class WishlistRepository(BaseRepository[Wishlist]):
         return wishlists
 
     @abc.abstractmethod
-    def _get(self, uuid: UUID) -> Wishlist: ...
+    def _get(self, uuid: UUID, *, for_update: bool = True) -> Wishlist: ...
 
     @abc.abstractmethod
     def _add(self, wishlist: Wishlist): ...
@@ -36,7 +36,7 @@ class FakeWishlistRepository(WishlistRepository):
         super().__init__()
         self._wishlists = wishlists
 
-    def _get(self, uuid: UUID) -> Wishlist:
+    def _get(self, uuid: UUID, *, for_update: bool = True) -> Wishlist:
         try:
             wishlist = next(wl for wl in self._wishlists if wl.uuid == uuid)
         except StopIteration:
@@ -47,7 +47,7 @@ class FakeWishlistRepository(WishlistRepository):
         return list(self._wishlists)
 
     def _list_owned_by(self, username: str) -> list[Wishlist]:
-        return list(wl for wl in self._wishlists if wl.owner_username == username)
+        return [wl for wl in self._wishlists if wl.owner_username == username]
 
     def _add(self, wishlist: Wishlist):
         self._wishlists.add(wishlist)

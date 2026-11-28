@@ -2,6 +2,9 @@ import abc
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from src.modules.users.infrastructure.refresh_token_repository import (
+        RefreshTokenRepository,
+    )
     from src.modules.users.infrastructure.user_repository import UserRepository
     from src.modules.wishlists.infrastructure.wishlist_repository import (
         WishlistRepository,
@@ -10,6 +13,7 @@ if TYPE_CHECKING:
 
 class UnitOfWork(abc.ABC):
     user_repository: "UserRepository"
+    refresh_token_repository: "RefreshTokenRepository"
     wishlist_repository: "WishlistRepository"
 
     def __init__(self):
