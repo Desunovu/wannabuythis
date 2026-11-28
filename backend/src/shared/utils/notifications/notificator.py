@@ -1,5 +1,8 @@
 import abc
 import logging
+from email.message import EmailMessage
+from email.policy import SMTP as SMTP_POLICY
+from email.utils import formatdate, make_msgid
 from smtplib import SMTP
 
 from src.config import Settings
@@ -30,22 +33,29 @@ class EmailNotificator(Notificator):
     def __init__(self, settings: Settings):
         self._smtp_host = settings.smtp_host
         self._smtp_port = settings.smtp_port
+        self._smtp_timeout = settings.smtp_timeout
         self._smtp_sender = settings.smtp_sender
         self._smtp_username = settings.smtp_username
         self._smtp_password = settings.smtp_password
         self._smtp_use_tls = settings.smtp_use_tls
+        # 7bit payload, no 8BITMIME support needed.
+        self._policy = SMTP_POLICY.clone(cte_type="7bit")
 
-    def send_notification(self, email, subject, message):
-        with SMTP(self._smtp_host, self._smtp_port) as smtp:
+    def send_notification(self, email: str, subject: str, message: str) -> None:
+        msg = EmailMessage(policy=self._policy)
+        msg["Subject"] = subject
+        msg["From"] = self._smtp_sender
+        msg["To"] = email
+        msg["Date"] = formatdate(localtime=True)
+        msg["Message-ID"] = make_msgid()
+        msg.set_content(message, charset="utf-8")
+
+        with SMTP(self._smtp_host, self._smtp_port, timeout=self._smtp_timeout) as smtp:
             if self._smtp_use_tls:
                 smtp.starttls()
             if self._smtp_username:
                 smtp.login(self._smtp_username, self._smtp_password or "")
-            smtp.sendmail(
-                from_addr=self._smtp_sender,
-                to_addrs=[email],
-                msg=f"Subject: {subject}\n\n{message}".encode(),
-            )
+            smtp.send_message(msg)
 
 
 class FakeEmailNotificator(Notificator):

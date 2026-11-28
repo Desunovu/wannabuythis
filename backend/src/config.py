@@ -53,6 +53,12 @@ class Settings(BaseSettings):
         default=None, description="SMTP authentication password"
     )
     smtp_use_tls: bool = Field(default=False, description="Use TLS for SMTP")
+    smtp_timeout: int = Field(
+        default=10,
+        ge=1,
+        le=300,
+        description="SMTP connection timeout in seconds",
+    )
 
     # Application
     base_url: str = Field(
