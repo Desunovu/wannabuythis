@@ -220,7 +220,7 @@ def handle_request_email_change(
     email_change_code_storage: FromDishka[EmailChangeCodeStorage],
 ):
     with uow:
-        user = uow.user_repository.get(command.username)
+        user = uow.user_repository.get_readonly(command.username)
         new_email = normalize_email(command.new_email)
         if new_email == user.email:
             return

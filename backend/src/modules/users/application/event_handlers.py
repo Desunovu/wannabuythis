@@ -25,7 +25,7 @@ def handle_user_created(
     activation_code_storage: FromDishka[ActivationCodeStorage],
 ):
     with uow:
-        user = uow.user_repository.get(event.username)
+        user = uow.user_repository.get_readonly(event.username)
     send_new_activation_code(
         user=user,
         verification_code_generator=verification_code_generator,

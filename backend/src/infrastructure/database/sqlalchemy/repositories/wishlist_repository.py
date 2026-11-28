@@ -18,10 +18,11 @@ class SQLAlchemyWishlistRepository(WishlistRepository):
             selectinload(Wishlist.items)  # pyright: ignore[reportArgumentType]
         )
 
-    def _get(self, uuid: UUID) -> Wishlist:
-        wishlist = (
-            self._wishlists_query().filter_by(uuid=uuid).with_for_update().first()
-        )
+    def _get(self, uuid: UUID, *, for_update: bool = True) -> Wishlist:
+        query = self._wishlists_query().filter_by(uuid=uuid)
+        if for_update:
+            query = query.with_for_update()
+        wishlist = query.first()
         if not wishlist:
             raise WishlistNotFound(uuid)
         return wishlist

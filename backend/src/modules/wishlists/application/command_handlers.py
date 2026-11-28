@@ -33,7 +33,7 @@ def handle_create_wishlist(
     uuid_generator: FromDishka[UUIDGenerator],
 ):
     with uow:
-        owner = uow.user_repository.get(command.owner_username)
+        owner = uow.user_repository.get_readonly(command.owner_username)
         wishlist = Wishlist(
             uuid=uuid_generator.generate(),
             owner_username=owner.username,
